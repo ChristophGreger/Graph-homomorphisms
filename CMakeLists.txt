@@ -4,11 +4,13 @@ project(Graph_homomorphisms)
 set(CMAKE_CXX_STANDARD 14)
 
 add_library(bib STATIC
-        src/main/Standard_Graph.cpp
-        src/main/Coloured_Graph.cpp
-        include/Coloured_Graph.h
-        include/Standard_Graph.h
         include/Graph.h
+        src/main/Graph.cpp
+        src/main/Node.cpp
+        include/Node.h
+        src/main/Colored_Node.cpp
+        include/Colored_Node.h
+        include/utilities.h
 )
 
 target_include_directories(bib
@@ -54,4 +56,4 @@ endfunction()
 enable_testing()
 
 #Add tests
-add_gtest(Graph_Standard_tests tests/Graph_Standard_tests.cpp)
+add_gtest(Graph_tests tests/Graph_tests.cpp)
