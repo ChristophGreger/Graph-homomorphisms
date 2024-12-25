@@ -20,16 +20,38 @@ add_executable(Graph_homomorphisms
         src/Main.cpp
 )
 
-add_executable(tests
-        tests/tests.cpp
-)
-
 target_link_libraries(Graph_homomorphisms
         PRIVATE
         bib
 )
 
-target_link_libraries(tests
-        PRIVATE
-        bib
+#Tests
+
+# FetchContent-Modul laden
+include(FetchContent)
+
+# Google Test herunterladen und konfigurieren
+FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG        release-1.12.1  # oder eine neuere Version
 )
+
+FetchContent_MakeAvailable(googletest)
+
+#Function to add a gtest
+function(add_gtest test_name)
+    add_executable(${test_name} ${ARGN})
+    target_link_libraries(${test_name}
+            GTest::gtest
+            GTest::gtest_main
+            bib
+    )
+    add_test(NAME ${test_name} COMMAND ${test_name})
+endfunction()
+
+# Tests registrieren (damit ctest sie findet)
+enable_testing()
+
+#Add tests
+add_gtest(Graph_Standard_tests tests/Graph_Standard_tests.cpp)
