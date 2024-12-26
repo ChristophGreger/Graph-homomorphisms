@@ -40,6 +40,8 @@ CFIGraph::CFIGraph(Graph &G) : numofVertices(0), numofEdges(0) {
             }
         }
     }
+    numofEdges = static_cast<int>(edges.size());
+    numofVertices = static_cast<int>(nodes.size());
 
 }
 
