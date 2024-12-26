@@ -14,4 +14,12 @@ struct PairHash {
     }
 };
 
+#include <vector>
+#include <algorithm>
+
+template <typename T>
+bool contains(const std::vector<T>& vec, const T& value) {
+    return std::find(vec.begin(), vec.end(), value) != vec.end();
+}
+
 #endif //GRAPH_HOMOMORPHISMS_UTILITIES_H

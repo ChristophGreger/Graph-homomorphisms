@@ -3,19 +3,27 @@
 //
 
 #include "Graph.h"
+#include "HomomorphismRange.h"
 
 #include <iostream>
 
 
 
-Graph::Graph() {
+Graph::Graph(bool colored) {
     numVertices = 0;
     adjMatrix = nullptr;
     nodes = vector<Node>();
     edges = unordered_set<pair<int, int>, PairHash>();
+    colored = colored;
+    edgeArray = nullptr;
 }
 
-void Graph::addNode(Node node) {
+void Graph::addNode(const Node& node) {
+    if (colored) {
+        if (!node.colored) {
+            throw invalid_argument("Graph is colored but node is not");
+        }
+    }
     nodes.push_back(node);
     numVertices++;
 }
@@ -56,6 +64,62 @@ void Graph::calculateAdjMatrix() {
         adjMatrix[edge.second * numVertices + edge.first] = 1;
     }
 }
+
+void Graph::calculateEdgeArray() {
+    edgeArray = new pair<int, int>[edges.size()];
+    int i = 0;
+    for (auto edge : edges) {
+        edgeArray[i] = edge;
+        i++;
+    }
+}
+
+Graph::~Graph() {
+    delete[] adjMatrix;
+    delete[] edgeArray;
+}
+
+bool Graph::isEdge(int node1, int node2) {
+    return adjMatrix[node1 * numVertices + node2] == 1;
+}
+
+int Graph::calculateNumberofHomomorphismsTo(Graph &H) {
+    H.calculateAdjMatrix();
+    calculateEdgeArray();
+
+    int numHomomorphisms = 0;
+    for (const vector<int>& hom : HomomorphismRange(numVertices, H.numVertices)) {
+        bool isHomomorphism = true;
+
+        for (int i = 0; i < numVertices; i++) {
+            if (!H.nodes[hom[i]].equals(nodes[i])) {
+                isHomomorphism = false;
+                break;
+            }
+        }
+
+        if (!isHomomorphism) {
+            continue;
+        }
+
+        for (int i = 0; i < edges.size(); i++) {
+            if (!H.isEdge(hom[edgeArray[i].first], hom[edgeArray[i].second])) {
+                isHomomorphism = false;
+                break;
+            }
+        }
+
+        if (isHomomorphism) {
+            numHomomorphisms++;
+        }
+    }
+    return numHomomorphisms;
+}
+
+
+
+
+
 
 
 

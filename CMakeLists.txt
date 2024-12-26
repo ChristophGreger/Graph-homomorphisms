@@ -8,9 +8,15 @@ add_library(bib STATIC
         src/main/Graph.cpp
         src/main/Node.cpp
         include/Node.h
-        src/main/Colored_Node.cpp
-        include/Colored_Node.h
         include/utilities.h
+        src/main/HomomorphismRange.cpp
+        include/HomomorphismRange.h
+        src/main/CFIGraph.cpp
+        include/CFIGraph.h
+        src/main/CFINode.cpp
+        include/CFINode.h
+        src/main/EvenSubsetIterator.cpp
+        include/EvenSubsetIterator.h
 )
 
 target_include_directories(bib
@@ -57,3 +63,5 @@ enable_testing()
 
 #Add tests
 add_gtest(Graph_tests tests/Graph_tests.cpp)
+add_gtest(HomomorphismRange_tests tests/HomomorphismRange_tests.cpp)
+add_gtest(EvenSubsetIterator_tests tests/EvenSubsetIterator_tests.cpp)

@@ -13,17 +13,33 @@
 using namespace std;
 
 class Graph {
-private:
-    int * adjMatrix;
-    int numVertices;
-    unordered_set<pair<int, int>, PairHash> edges;
 public:
+    int * adjMatrix;
+    unordered_set<pair<int, int>, PairHash> edges;
+    pair<int, int> * edgeArray;
+
+    bool colored{};
     vector<Node> nodes;
-    Graph();
-    void addNode(Node node);
+    explicit Graph(bool colored = false);
+    ~Graph();
+    void addNode(const Node& node);
     void addEdge(int node1, int node2);
     void printGraph();
+
+    // Calculate the adjacency matrix of the graph, has to be called before using the adjacency matrix
     void calculateAdjMatrix();
+
+    // Calculate the edge array of the graph, has to be called before using the edge array
+    void calculateEdgeArray();
+
+    bool isEdge(int node1, int node2); // adjacency matrix has to be calculated before using this function
+
+    int calculateNumberofHomomorphismsTo(Graph &H);
+
+    int numVertices;
+
+
+
 };
 
 

@@ -9,6 +9,9 @@
 class Node {
 public:
     bool equals(Node& node) const;
+    int color;
+    bool colored;
+    explicit Node(bool colored = false, int color = 0);
 };
 
 
