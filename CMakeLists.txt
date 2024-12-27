@@ -9,6 +9,7 @@ add_library(bib STATIC
         src/main/Node.cpp
         include/Node.h
         include/utilities.h
+        src/main/utilities.cpp
         src/main/HomomorphismRange.cpp
         include/HomomorphismRange.h
         src/main/CFIGraph.cpp
@@ -19,7 +20,6 @@ add_library(bib STATIC
         include/EvenSubsetIterator.h
         src/main/RandomGraphGenerator.cpp
         include/RandomGraphGenerator.h
-        src/main/utilities.cpp
 )
 
 target_include_directories(bib
@@ -61,7 +61,7 @@ function(add_gtest test_name)
     add_test(NAME ${test_name} COMMAND ${test_name})
 endfunction()
 
-# Tests registrieren (damit ctest sie findet)
+# register tests
 enable_testing()
 
 #Add tests
