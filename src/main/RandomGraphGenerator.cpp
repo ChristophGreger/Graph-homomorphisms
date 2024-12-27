@@ -45,7 +45,6 @@ Graph RandomGraphGenerator::generateRandomConnectedGraph() const {
         }
     }
 
-    //TODO: Adding the edges
     //For the algorithm have a look here: https://doi.org/10.1145/237814.237880 and here: https://stackoverflow.com/questions/2041517/random-simple-connected-graph-generation-with-given-sparseness
 
     //Create a random spanning tree

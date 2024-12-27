@@ -56,4 +56,3 @@ Graph CFIGraph::toGraph() {
     return G;
 }
 
-//TODO: Test this class and write a test for it
