@@ -24,7 +24,7 @@ TEST(GraphTest, PrintGraph) {
 
     std::cout.rdbuf(oldCoutBuffer);
 
-    std::string expectedOutput = "Graph with 3 vertices and 2 edges\n0 -> 1\n1 -> 2\n";
+    std::string expectedOutput = "Graph with 3 vertices and 2 edges\nEdges:\n0 -> 1\n1 -> 2\n";
     EXPECT_EQ(output.str(), expectedOutput);
 }
 

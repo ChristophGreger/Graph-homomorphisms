@@ -6,6 +6,9 @@
 #include "EvenSubsetIterator.h"
 #include "utilities.h"
 
+#include <iostream>
+using namespace std;
+
 
 //The Graph has to be surjectively colored
 CFIGraph::CFIGraph(Graph &G, bool inverted) : numofVertices(0), numofEdges(0), inverted(inverted) {
@@ -34,6 +37,9 @@ CFIGraph::CFIGraph(Graph &G, bool inverted) : numofVertices(0), numofEdges(0), i
         }
     }
 
+    int forinverting1 = 0;
+    int forinverting2 = nodeEdges[0][0];
+
     //Create the edges
     for (int i = 0; i < nodes.size(); i++) {
         int currnumber = nodes[i].number;
@@ -43,7 +49,7 @@ CFIGraph::CFIGraph(Graph &G, bool inverted) : numofVertices(0), numofEdges(0), i
                 || contains(nodes[i].notownedEdges, nodes[j].number) && contains(nodes[j].notownedEdges, currnumber)) {
 
                 //Check for the inverted case (we switch the edges between the 0 and 1 nodes
-                if (inverted && nodes[i].number == 0 && nodes[j].number == 1) {
+                if (inverted && nodes[i].number == forinverting1 && nodes[j].number == forinverting2) {
                     continue;
                 }
 
@@ -52,7 +58,7 @@ CFIGraph::CFIGraph(Graph &G, bool inverted) : numofVertices(0), numofEdges(0), i
             } else {
 
                 //Check for the inverted case (we switch the edges between the 0 and 1 nodes
-                if (inverted && nodes[i].number == 0 && nodes[j].number == 1) {
+                if (inverted && nodes[i].number == forinverting1 && nodes[j].number == forinverting2) {
                     edges.insert({i, j});
                 }
             }

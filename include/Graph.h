@@ -24,7 +24,7 @@ public:
     ~Graph();
     void addNode(const Node& node);
     void addEdge(int node1, int node2);
-    void printGraph();
+    void printGraph(bool printcolors = false);
 
     // Calculate the adjacency matrix of the graph, has to be called before using the adjacency matrix
     void calculateAdjMatrix();

@@ -33,8 +33,18 @@ void Graph::addEdge(int node1, int node2) {
     }
 }
 
-void Graph::printGraph() {
+void Graph::printGraph(bool printcolors) {
     cout << "Graph with " << numVertices << " vertices and " << edges.size() << " edges" << endl;
+
+    if (printcolors) {
+        cout << "Colors:" << endl;
+        for (int i = 0; i < numVertices; i++) {
+            cout << i << " -> " << nodes[i].color << endl;
+        }
+        cout << "End colors" << endl;
+    }
+
+    cout << "Edges:" << endl;
 
     // Copy edges to a vector
     vector<pair<int, int>> sortedEdges(edges.begin(), edges.end());
