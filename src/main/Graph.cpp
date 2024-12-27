@@ -150,6 +150,26 @@ bool Graph::isConnected() const {
     return visited.size() == numVertices;
 }
 
+int Graph::calculateNumberofInjectiveHomomorphismsTo(Graph &H) {
+    //TODO: Implement this function
+    return 0;
+}
+
+int Graph::calculateNumberofAutomorphismsWithoutColoring() {
+    //TODO: Implement this function
+    return 0;
+}
+
+int Graph::calculateNumberofAutomorphismsWithColoring() {
+    //TODO: Implement this function
+    return 0;
+}
+
+int Graph::calculateNumberofSubGraphsTo(Graph &H) {
+    //TODO: Implement this function
+    return 0;
+}
+
 
 
 
