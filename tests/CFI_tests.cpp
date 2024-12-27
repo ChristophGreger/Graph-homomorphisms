@@ -4,6 +4,8 @@
 
 #include <gtest/gtest.h>
 #include "CFIGraph.h"
+#include "RandomGraphGenerator.h"
+#include "utilities.h"
 
 TEST(CFIGraphTest, Constructor) {
     Graph G = Graph(true);
@@ -27,7 +29,19 @@ TEST(CFIGraphTest, Constructor) {
     EXPECT_EQ(CFI.numofEdges, 24);
 }
 
-//TODO: Test by counting homomorphisms from Graph to its CFIGraph. For this purpose, generate random Graphs with Erdös Renyi model.
+//Takes a long time to run, but seems to work
+TEST(CFIGraphTest, ByHomomorphisms) {
+    int vertices = 7;
+    int edges = 11;
+    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, edges, true, true);
+    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
+    CFIGraph CFI = CFIGraph(G);
+    Graph H = CFI.toGraph();
+    cout << "G: " << G.numVertices << " " << G.edges.size() << endl;
+    cout << "H: " << H.numVertices << " " << H.edges.size() << endl;
+    EXPECT_EQ(G.calculateNumberofHomomorphismsTo(H), intPow(2, (edges-vertices+1)));
+
+}
 
 
 

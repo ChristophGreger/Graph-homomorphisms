@@ -18,3 +18,12 @@ int getRandomNumberBetween(int first, int second) { //Inclusive both values
     return distrib(gen);
 }
 
+
+int intPow(int base, int exponent) {
+    int result = 1;
+    for (int i = 0; i < exponent; ++i) {
+        result *= base;
+    }
+    return result;
+}
+

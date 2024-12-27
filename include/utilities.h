@@ -24,4 +24,7 @@ bool contains(const std::vector<T>& vec, const T& value) {
 
 int getRandomNumberBetween(int first, int second); //Inclusive both values
 
+
+int intPow(int base, int exponent);
+
 #endif //GRAPH_HOMOMORPHISMS_UTILITIES_H
