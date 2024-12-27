@@ -17,10 +17,11 @@ using namespace std;
 class CFIGraph {
 public:
     unordered_set<pair<int, int>, PairHash> edges;
-    explicit CFIGraph(Graph &G);
+    explicit CFIGraph(Graph &G, bool inverted = false); //Inverted invertes the edges between two groups of nodes after the construction. No need for specifying the two groups, because of the isomorphisms between them
     vector<CFINode> nodes;
     int numofVertices;
     int numofEdges;
+    bool inverted;
     Graph toGraph();
 };
 

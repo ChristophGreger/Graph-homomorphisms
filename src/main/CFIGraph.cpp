@@ -8,7 +8,11 @@
 
 
 //The Graph has to be surjectively colored
-CFIGraph::CFIGraph(Graph &G) : numofVertices(0), numofEdges(0) {
+CFIGraph::CFIGraph(Graph &G, bool inverted) : numofVertices(0), numofEdges(0), inverted(inverted) {
+
+    if (inverted && G.numVertices < 2) {
+        throw invalid_argument("Graph has to have at least 2 vertices to be inverted");
+    }
 
     //Store the nodes of G with its edges
     unordered_map<int, vector<int>> nodeEdges;
@@ -34,9 +38,23 @@ CFIGraph::CFIGraph(Graph &G) : numofVertices(0), numofEdges(0) {
     for (int i = 0; i < nodes.size(); i++) {
         int currnumber = nodes[i].number;
         for(int j = i; j < nodes.size(); j++) {
+
             if (contains(nodes[i].ownedEdges, nodes[j].number) && contains(nodes[j].ownedEdges, currnumber)
                 || contains(nodes[i].notownedEdges, nodes[j].number) && contains(nodes[j].notownedEdges, currnumber)) {
+
+                //Check for the inverted case (we switch the edges between the 0 and 1 nodes
+                if (inverted && nodes[i].number == 0 && nodes[j].number == 1) {
+                    continue;
+                }
+
+                //Normal case
                 edges.insert({i, j});
+            } else {
+
+                //Check for the inverted case (we switch the edges between the 0 and 1 nodes
+                if (inverted && nodes[i].number == 0 && nodes[j].number == 1) {
+                    edges.insert({i, j});
+                }
             }
         }
     }
@@ -45,6 +63,8 @@ CFIGraph::CFIGraph(Graph &G) : numofVertices(0), numofEdges(0) {
 
 }
 
+
+//Not really efficient, but that doesn't matter as counting the homomorphisms takes much longer
 Graph CFIGraph::toGraph() {
     Graph G = Graph(true);
     for (int i = 0; i < numofVertices; i++) {
