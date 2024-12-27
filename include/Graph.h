@@ -38,7 +38,6 @@ public:
 
     int calculateNumberofHomomorphismsTo(Graph &H);
 
-    //TODO: Refactoring von Node. Node sollte immer colored sein, aber der Graph entscheidet über das equals. Das ist besser
     int calculateNumberofInjectiveHomomorphismsTo(Graph &H);
 
     int calculateNumberofAutomorphismsWithoutColoring();
