@@ -32,11 +32,15 @@ public:
     // Calculate the edge array of the graph, has to be called before using the edge array
     void calculateEdgeArray();
 
-    bool isEdge(int node1, int node2); // adjacency matrix has to be calculated before using this function
+    bool isEdge(int node1, int node2) const; // adjacency matrix has to be calculated before using this function
+
+    bool isEdgebySet(int node1, int node2) const; // adjacency matrix has NOT to be calculated before using this function
 
     int calculateNumberofHomomorphismsTo(Graph &H);
 
     int numVertices;
+
+    bool isConnected() const;
 
 
 

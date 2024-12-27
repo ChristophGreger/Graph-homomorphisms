@@ -6,6 +6,7 @@
 #include "HomomorphismRange.h"
 
 #include <iostream>
+#include <stack>
 
 
 
@@ -79,8 +80,15 @@ Graph::~Graph() {
     delete[] edgeArray;
 }
 
-bool Graph::isEdge(int node1, int node2) {
+bool Graph::isEdge(int node1, int node2) const {
     return adjMatrix[node1 * numVertices + node2] == 1;
+}
+
+bool Graph::isEdgebySet(int node1, int node2) const {
+    if (node2 < node1) {
+        swap(node1, node2);
+    }
+    return edges.find(make_pair(node1, node2)) != edges.end();
 }
 
 int Graph::calculateNumberofHomomorphismsTo(Graph &H) {
@@ -116,6 +124,31 @@ int Graph::calculateNumberofHomomorphismsTo(Graph &H) {
     return numHomomorphisms;
 }
 
+bool Graph::isConnected() const {
+    if (numVertices == 0) return true;
+
+    std::unordered_set<int> visited;
+    std::stack<int> stack;
+    stack.push(0); // Start DFS from the first node
+
+    while (!stack.empty()) {
+        int node = stack.top();
+        stack.pop();
+
+        if (visited.find(node) == visited.end()) {
+            visited.insert(node);
+
+            // Add all adjacent nodes to the stack
+            for (int i = 0; i < numVertices; ++i) {
+                if (isEdgebySet(node, i) && visited.find(i) == visited.end()) {
+                    stack.push(i);
+                }
+            }
+        }
+    }
+
+    return visited.size() == numVertices;
+}
 
 
 

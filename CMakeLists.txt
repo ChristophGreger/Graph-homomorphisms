@@ -17,6 +17,9 @@ add_library(bib STATIC
         include/CFINode.h
         src/main/EvenSubsetIterator.cpp
         include/EvenSubsetIterator.h
+        src/main/RandomGraphGenerator.cpp
+        include/RandomGraphGenerator.h
+        src/main/utilities.cpp
 )
 
 target_include_directories(bib
@@ -66,3 +69,4 @@ add_gtest(Graph_tests tests/Graph_tests.cpp)
 add_gtest(HomomorphismRange_tests tests/HomomorphismRange_tests.cpp)
 add_gtest(EvenSubsetIterator_tests tests/EvenSubsetIterator_tests.cpp)
 add_gtest(CFI_tests tests/CFI_tests.cpp)
+add_gtest(RandomGraphGenerator_tests tests/RandomGraphGenerator_tests.cpp)
