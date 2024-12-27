@@ -4,6 +4,7 @@
 
 #include "Graph.h"
 #include "HomomorphismRange.h"
+#include "InjectiveHomomorphismRange.h"
 
 #include <iostream>
 #include <stack>
@@ -146,24 +147,63 @@ bool Graph::isConnected() const {
     return visited.size() == numVertices;
 }
 
+//Just a copy of the calculateNumberofHomomorphismsTo function, but with the InjectiveHomomorphismRange
 int Graph::calculateNumberofInjectiveHomomorphismsTo(Graph &H) {
-    //TODO: Implement this function
-    return 0;
+    H.calculateAdjMatrix();
+    calculateEdgeArray();
+
+    int numHomomorphisms = 0;
+    for (const vector<int>& hom : InjectiveHomomorphismRange(numVertices, H.numVertices)) {
+        bool isHomomorphism = true;
+
+        if (colored && H.colored) {
+            for (int i = 0; i < numVertices; i++) {
+                if (!H.nodes[hom[i]].equals(nodes[i])) {
+                    isHomomorphism = false;
+                    break;
+                }
+            }
+        }
+
+        if (!isHomomorphism) {
+            continue;
+        }
+
+        for (int i = 0; i < edges.size(); i++) {
+            if (!H.isEdge(hom[edgeArray[i].first], hom[edgeArray[i].second])) {
+                isHomomorphism = false;
+                break;
+            }
+        }
+
+        if (isHomomorphism) {
+            numHomomorphisms++;
+        }
+    }
+    return numHomomorphisms;
 }
 
 int Graph::calculateNumberofAutomorphismsWithoutColoring() {
-    //TODO: Implement this function
-    return 0;
+    bool oldcolored = colored;
+    colored = false;
+    int numAutomorphisms = calculateNumberofHomomorphismsTo(*this);
+    colored = oldcolored;
+    return numAutomorphisms;
 }
 
 int Graph::calculateNumberofAutomorphismsWithColoring() {
-    //TODO: Implement this function
-    return 0;
+    bool oldcolored = colored;
+    colored = true;
+    int numAutomorphisms = calculateNumberofHomomorphismsTo(*this);
+    colored = oldcolored;
+    return numAutomorphisms;
 }
 
 int Graph::calculateNumberofSubGraphsTo(Graph &H) {
-    //TODO: Implement this function
-    return 0;
+    if (colored && H.colored) {
+        return calculateNumberofInjectiveHomomorphismsTo(H) / calculateNumberofAutomorphismsWithColoring();
+    }
+    return calculateNumberofInjectiveHomomorphismsTo(H) / calculateNumberofAutomorphismsWithoutColoring();
 }
 
 
