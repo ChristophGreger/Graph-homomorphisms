@@ -147,6 +147,9 @@ bool Graph::isConnected() const {
     return visited.size() == numVertices;
 }
 
+
+//TODO: Write tests for the following 4 functions. They are not tested yet.
+
 //Just a copy of the calculateNumberofHomomorphismsTo function, but with the InjectiveHomomorphismRange
 int Graph::calculateNumberofInjectiveHomomorphismsTo(Graph &H) {
     H.calculateAdjMatrix();
