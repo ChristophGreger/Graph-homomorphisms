@@ -29,10 +29,10 @@ TEST(CFIGraphTest, Constructor) {
     EXPECT_EQ(CFI.numofEdges, 24);
 }
 
-//Takes a long time to run, but seems to work
+//Takes 8 (!!!???) seconds to run, but seems to work
 TEST(CFIGraphTest, ByHomomorphisms) {
-    int vertices = 7;
-    int edges = 11;
+    int vertices = 5;
+    int edges = 9;
     RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, edges, true, true);
     Graph G = randomGraphGenerator.generateRandomConnectedGraph();
     CFIGraph CFI = CFIGraph(G);
