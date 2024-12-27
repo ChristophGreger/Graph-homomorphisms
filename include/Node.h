@@ -10,8 +10,7 @@ class Node {
 public:
     bool equals(Node& node) const;
     int color;
-    bool colored;
-    explicit Node(bool colored = false, int color = 0);
+    explicit Node(int color = 0);
 };
 
 

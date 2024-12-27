@@ -10,21 +10,15 @@
 
 
 
-Graph::Graph(bool colored) {
+Graph::Graph(bool colored) : colored(colored) {
     numVertices = 0;
     adjMatrix = nullptr;
     nodes = vector<Node>();
     edges = unordered_set<pair<int, int>, PairHash>();
-    colored = colored;
     edgeArray = nullptr;
 }
 
 void Graph::addNode(const Node& node) {
-    if (colored) {
-        if (!node.colored) {
-            throw invalid_argument("Graph is colored but node is not");
-        }
-    }
     nodes.push_back(node);
     numVertices++;
 }
@@ -99,10 +93,12 @@ int Graph::calculateNumberofHomomorphismsTo(Graph &H) {
     for (const vector<int>& hom : HomomorphismRange(numVertices, H.numVertices)) {
         bool isHomomorphism = true;
 
-        for (int i = 0; i < numVertices; i++) {
-            if (!H.nodes[hom[i]].equals(nodes[i])) {
-                isHomomorphism = false;
-                break;
+        if (colored && H.colored) {
+            for (int i = 0; i < numVertices; i++) {
+                if (!H.nodes[hom[i]].equals(nodes[i])) {
+                    isHomomorphism = false;
+                    break;
+                }
             }
         }
 

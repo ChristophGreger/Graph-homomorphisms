@@ -9,10 +9,10 @@
 
 TEST(CFIGraphTest, Constructor) {
     Graph G = Graph(true);
-    Node node0 = Node(true, 0);
-    Node node1 = Node(true, 1);
-    Node node2 = Node(true, 2);
-    Node node3 = Node(true, 3);
+    Node node0 = Node(0);
+    Node node1 = Node(1);
+    Node node2 = Node(2);
+    Node node3 = Node(3);
     G.addNode(node0);
     G.addNode(node1);
     G.addNode(node2);

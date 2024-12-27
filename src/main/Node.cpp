@@ -4,11 +4,8 @@
 
 #include "Node.h"
 
-Node::Node(bool colored, int color) : colored(colored), color(color) {}
+Node::Node(int color) : color(color) {}
 
 bool Node::equals(Node &node) const {
-    if (colored && node.colored) {
-        return color == node.color;
-    }
-    return true;
+    return color == node.color;
 }

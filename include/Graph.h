@@ -18,7 +18,7 @@ public:
     unordered_set<pair<int, int>, PairHash> edges;
     pair<int, int> * edgeArray;
 
-    bool colored{};
+    bool colored;
     vector<Node> nodes;
     explicit Graph(bool colored = false);
     ~Graph();

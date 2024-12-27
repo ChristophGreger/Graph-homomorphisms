@@ -36,16 +36,16 @@ TEST(NodeTest, Equals) {
 }
 
 TEST(ColoredNodeTest, Equals) {
-    Node cnode1 = Node(true, 1);
-    Node cnode2 = Node(true, 1);
-    Node cnode3 = Node(true, 2);
+    Node cnode1 = Node(1);
+    Node cnode2 = Node(1);
+    Node cnode3 = Node(2);
     EXPECT_TRUE(cnode1.equals(cnode2));
     EXPECT_FALSE(cnode1.equals(cnode3));
 }
 
 TEST(NodesMixed, Equals) {
-    Node cnode1 = Node(true, 1);
-    Node node = Node();
+    Node cnode1 = Node(1);
+    Node node = Node(1);
     EXPECT_TRUE(cnode1.equals(node));
     EXPECT_TRUE(node.equals(cnode1));
 }
@@ -111,9 +111,9 @@ TEST(GraphTest, UncoloredGraphHomomorphisms) {
 
 TEST(GraphTest, ColoredGraphHomomorphisms1) {
     Graph G(true);
-    Node cnode1 = Node(true, 1);
-    Node cnode2 = Node(true, 2);
-    Node cnode3 = Node(true, 3);
+    Node cnode1 = Node(1);
+    Node cnode2 = Node(2);
+    Node cnode3 = Node(3);
     G.addNode(cnode1);
     G.addNode(cnode2);
     G.addNode(cnode3);
@@ -121,9 +121,9 @@ TEST(GraphTest, ColoredGraphHomomorphisms1) {
     G.addEdge(1, 2);
 
     Graph H(true);
-    Node cnode4 = Node(true, 4);
-    Node cnode5 = Node(true, 5);
-    Node cnode6 = Node(true, 6);
+    Node cnode4 = Node(4);
+    Node cnode5 = Node(5);
+    Node cnode6 = Node(6);
     H.addNode(cnode4);
     H.addNode(cnode5);
     H.addNode(cnode6);
@@ -140,9 +140,9 @@ TEST(GraphTest, ColoredGraphHomomorphisms1) {
 
 TEST(GraphTest, SurjectiveHomomorphisms) {
     Graph G(true);
-    Node cnode1 = Node(true, 1);
-    Node cnode2 = Node(true, 2);
-    Node cnode3 = Node(true, 3);
+    Node cnode1 = Node(1);
+    Node cnode2 = Node(2);
+    Node cnode3 = Node(3);
     G.addNode(cnode1);
     G.addNode(cnode2);
     G.addNode(cnode3);
@@ -154,9 +154,9 @@ TEST(GraphTest, SurjectiveHomomorphisms) {
 
 TEST(GraphTest, ColoredHomomorphisms2) {
     Graph G(true);
-    Node cnode1 = Node(true, 1);
-    Node cnode2 = Node(true, 2);
-    Node cnode3 = Node(true, 3);
+    Node cnode1 = Node(1);
+    Node cnode2 = Node(2);
+    Node cnode3 = Node(3);
     G.addNode(cnode1);
     G.addNode(cnode2);
     G.addNode(cnode3);
@@ -165,11 +165,11 @@ TEST(GraphTest, ColoredHomomorphisms2) {
     G.addEdge(0, 2);
 
     Graph H(true);
-    Node cnode4 = Node(true, 1);
-    Node cnode5 = Node(true, 2);
-    Node cnode6 = Node(true, 3);
-    Node cnode7 = Node(true, 1);
-    Node cnode8 = Node(true, 4);
+    Node cnode4 = Node(1);
+    Node cnode5 = Node(2);
+    Node cnode6 = Node(3);
+    Node cnode7 = Node(1);
+    Node cnode8 = Node(4);
     H.addNode(cnode4);
     H.addNode(cnode5);
     H.addNode(cnode6);
@@ -188,9 +188,9 @@ TEST(GraphTest, ColoredHomomorphisms2) {
 
 TEST(GraphTest, UncoloredtoColoredHomomorphisms) {
     Graph G(true);
-    Node cnode1 = Node(true, 1);
-    Node cnode2 = Node(true, 2);
-    Node cnode3 = Node(true, 3);
+    Node cnode1 = Node(1);
+    Node cnode2 = Node(2);
+    Node cnode3 = Node(3);
     G.addNode(cnode1);
     G.addNode(cnode2);
     G.addNode(cnode3);

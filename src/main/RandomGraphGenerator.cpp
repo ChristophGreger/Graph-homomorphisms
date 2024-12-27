@@ -28,14 +28,14 @@ Graph RandomGraphGenerator::generateRandomConnectedGraph() const {
     if (colored) {
         if (surjectivecoloring) { //colors is ignored in this case
             for (int i = 0; i < vertices; i++) {
-                G.addNode(Node(colored, i));
+                G.addNode(Node(i));
             }
         } else {
             for (int i = 0; i < vertices; i++) {
                 if (i < colors) {
-                    G.addNode(Node(colored, i));
+                    G.addNode(Node(i));
                 } else {
-                    G.addNode(Node(colored, getRandomNumberBetween(0, colors-1)));
+                    G.addNode(Node(getRandomNumberBetween(0, colors-1)));
                 }
             }
         }
