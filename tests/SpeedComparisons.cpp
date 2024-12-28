@@ -58,6 +58,19 @@ TEST(SpeedTest, InjectiveHomomorphismIterator) {
     cout << count << endl;
 }
 
+//takes about 37 ms
+TEST(SpeedTest, CounterTimeTest) {
+    int count = 0;
+    int max = 70 * 69 * 68 * 67;
+    for (int i = 0; i < max; i++) {
+        ++count;
+        if (count % 1000000 == 0) {
+            cout << count << endl;
+        }
+    }
+    cout << count << endl;
+}
+
 //At the moment 32 seconds --> Generation of possible Homomorphisms is really slow, checking if valid is really fast.
 TEST(SpeedTest, InjectiveHomomorphismIteratorHomomorphismcountcomparison) {
     RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(70, 200, false);
