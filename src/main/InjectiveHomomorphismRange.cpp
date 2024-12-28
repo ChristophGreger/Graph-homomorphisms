@@ -5,6 +5,8 @@
 #include "InjectiveHomomorphismRange.h"
 #include <algorithm>
 
+//This whole thing is ai generated and really slow
+
 // ================== InjectiveHomomorphismIterator ==================
 
 InjectiveHomomorphismIterator::InjectiveHomomorphismIterator(int n, int m, long long index)

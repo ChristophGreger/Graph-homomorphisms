@@ -166,6 +166,9 @@ int Graph::calculateNumberofInjectiveHomomorphismsTo(Graph &H) {
     calculateEdgeArray();
 
     int numHomomorphisms = 0;
+
+    cout << "Starting iterating over injective homomorphisms" << endl;
+
     for (const vector<int>& hom : InjectiveHomomorphismRange(numVertices, H.numVertices)) {
         bool isHomomorphism = true;
 
@@ -190,7 +193,7 @@ int Graph::calculateNumberofInjectiveHomomorphismsTo(Graph &H) {
         }
 
         if (isHomomorphism) {
-            numHomomorphisms++;
+            ++numHomomorphisms;
         }
     }
     return numHomomorphisms;

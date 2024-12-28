@@ -4,7 +4,7 @@
 
 #include "HomomorphismRange.h"
 
-//This whole thing is ai generated
+//This whole thing is ai generated, and needs a lot of improvement, as its really slow
 
 // ================== HomomorphismIterator ==================
 
