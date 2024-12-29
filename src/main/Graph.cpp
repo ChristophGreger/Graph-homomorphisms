@@ -195,6 +195,8 @@ bool Graph::isConnected() const {
 
 //TODO: Write tests for the following 4 functions. They are not tested yet.
 
+
+//TODO: Improve the same way as the calculateNumberofHomomorphismsTo function
 //Just a copy of the calculateNumberofHomomorphismsTo function, but with the InjectiveHomomorphismRange
 int Graph::calculateNumberofInjectiveHomomorphismsTo(Graph &H) {
     H.calculateAdjMatrix();
