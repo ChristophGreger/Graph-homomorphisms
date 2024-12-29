@@ -8,10 +8,8 @@
 #include "Graph.h"
 #include "CFIGraph.h"
 
-
-//Edited for faster stuff
 TEST(SpeedTest, Nodes256) {
-    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(40, 100, false);
+    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(256, 6343, false);
     Graph G = randomGraphGenerator.generateRandomConnectedGraph();
     Graph square = Graph();
     for (int i = 0; i < 4; i++) {
@@ -24,7 +22,7 @@ TEST(SpeedTest, Nodes256) {
 
     cout << "Graphs generated" << endl;
 
-    cout << square.calculateNumberofInjectiveHomomorphismsTo(G) << endl;
+    cout << square.calculateNumberofHomomorphismsTo(G) << endl;
 }
 
 //Takes 1.7 Seconds, and produces about 2464 vertices and 700160 edges. So quite fast
@@ -87,4 +85,22 @@ TEST(SpeedTest, InjectiveHomomorphismIteratorHomomorphismcountcomparison) {
     cout << "Graphs generated" << endl;
 
     cout << square.calculateNumberofInjectiveHomomorphismsTo(G) << endl;
+}
+
+//At the moment 32 seconds --> Generation of possible Homomorphisms is really slow, checking if valid is really fast.
+TEST(SpeedTest, HomomorphismIteratorHomomorphismcountcomparison) {
+    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(70, 200, false);
+    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
+    Graph square = Graph();
+    for (int i = 0; i < 4; i++) {
+        square.addNode(Node());
+    }
+    square.addEdge(0, 1);
+    square.addEdge(1, 2);
+    square.addEdge(2, 3);
+    square.addEdge(3, 0);
+
+    cout << "Graphs generated" << endl;
+
+    cout << square.calculateNumberofHomomorphismsTo(G) << endl;
 }

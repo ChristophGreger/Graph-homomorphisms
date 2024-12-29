@@ -5,6 +5,7 @@
 #include "utilities.h"
 
 #include <random>
+#include <iostream>
 
 int getRandomNumberBetween(int first, int second) { //Inclusive both values
     // Create a random number generator
@@ -27,3 +28,9 @@ int intPow(int base, int exponent) {
     return result;
 }
 
+void printVector(const std::vector<int>& vec) {
+    for (int i : vec) {
+        std::cout << i << " ";
+    }
+    std::cout << std::endl;
+}

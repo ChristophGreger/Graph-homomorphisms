@@ -106,6 +106,8 @@ TEST(GraphTest, UncoloredGraphHomomorphisms) {
     H.addNode(node3);
     H.addEdge(1, 2);
 
+    cout << "Next test" << endl;
+
     EXPECT_EQ(G.calculateNumberofHomomorphismsTo(H), 6);
 }
 

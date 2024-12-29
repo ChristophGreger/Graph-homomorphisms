@@ -3,12 +3,11 @@
 //
 
 #include "Graph.h"
-#include "HomomorphismRange.h"
 #include "InjectiveHomomorphismRange.h"
 
 #include <iostream>
 #include <stack>
-
+#include "utilities.h"
 
 
 Graph::Graph(bool colored) : colored(colored) {
@@ -96,37 +95,73 @@ bool Graph::isEdgebySet(int node1, int node2) const {
     return edges.find(make_pair(node1, node2)) != edges.end();
 }
 
+
+//TODO: Do not check Homomorphisms that can't be valid, For this sort the edges and check them before "advancing" to the next homomorphism
+//TODO: Improve the performance for colored by only checking the homomorphisms that are valid for the right colors.
 int Graph::calculateNumberofHomomorphismsTo(Graph &H) {
     H.calculateAdjMatrix();
     calculateEdgeArray();
 
     int numHomomorphisms = 0;
-    for (const vector<int>& hom : HomomorphismRange(numVertices, H.numVertices)) {
-        bool isHomomorphism = true;
 
-        if (colored && H.colored) {
-            for (int i = 0; i < numVertices; i++) {
-                if (!H.nodes[hom[i]].equals(nodes[i])) {
-                    isHomomorphism = false;
+    vector<int> hom(numVertices, 0);
+
+    int currtochange = 0;
+
+    bool flag = false;
+
+    bool flag2 = true;
+
+    bool flag3 = false;
+
+    while (true) {
+
+        flag3 = false;
+
+        if (!flag2) {
+            for (currtochange = 0; currtochange < numVertices; currtochange++) {
+                if (hom[currtochange] == H.numVertices - 1) {
+                    if (currtochange == numVertices - 1) {
+                        flag = true;
+                        break;
+                    }
+                    hom[currtochange] = 0;
+                } else {
+                    hom[currtochange]++;
                     break;
                 }
             }
-        }
-
-        if (!isHomomorphism) {
-            continue;
-        }
-
-        for (int i = 0; i < edges.size(); i++) {
-            if (!H.isEdge(hom[edgeArray[i].first], hom[edgeArray[i].second])) {
-                isHomomorphism = false;
+            if (flag) {
                 break;
             }
         }
 
-        if (isHomomorphism) {
-            numHomomorphisms++;
+        flag2 = false;
+
+        if (colored && H.colored) {
+            for (int i = 0; i < numVertices; i++) {
+                if (!H.nodes[hom[i]].equals(nodes[i])) {
+                    flag3 = true;
+                    break;
+                }
+            }
+            if (flag3) {
+                continue;
+            }
         }
+
+        for (int i = 0; i < edges.size(); i++) {
+            if (!H.isEdge(hom[edgeArray[i].first], hom[edgeArray[i].second])) {
+                flag3 = true;
+                break;
+            }
+        }
+
+        if (flag3) {
+            continue;
+        }
+
+        numHomomorphisms++;
     }
     return numHomomorphisms;
 }
