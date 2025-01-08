@@ -103,15 +103,11 @@ int Graph::calculateNumberofHomomorphismsTo(Graph &H) {
     calculateEdgeArray();
 
     int numHomomorphisms = 0;
-
     vector<int> hom(numVertices, 0);
-
     int currtochange = 0;
 
     bool flag = false;
-
     bool flag2 = true;
-
     bool flag3 = false;
 
     while (true) {
