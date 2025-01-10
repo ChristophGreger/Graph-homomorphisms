@@ -6,11 +6,8 @@
 #include "EvenSubsetIterator.h"
 #include "utilities.h"
 
-#include <iostream>
 using namespace std;
 
-
-//The Graph has to be surjectively colored
 CFIGraph::CFIGraph(Graph &G, bool inverted) : numofVertices(0), numofEdges(0), inverted(inverted) {
 
     if (inverted && G.numVertices < 2) {
@@ -48,7 +45,7 @@ CFIGraph::CFIGraph(Graph &G, bool inverted) : numofVertices(0), numofEdges(0), i
             if (contains(nodes[i].ownedEdges, nodes[j].number) && contains(nodes[j].ownedEdges, currnumber)
                 || contains(nodes[i].notownedEdges, nodes[j].number) && contains(nodes[j].notownedEdges, currnumber)) {
 
-                //Check for the inverted case (we switch the edges between the 0 and 1 nodes
+                //Check for the inverted case (we switch the edges between the 0 and 1 nodes)
                 if (inverted && nodes[i].number == forinverting1 && nodes[j].number == forinverting2) {
                     continue;
                 }
@@ -57,7 +54,7 @@ CFIGraph::CFIGraph(Graph &G, bool inverted) : numofVertices(0), numofEdges(0), i
                 edges.insert({i, j});
             } else {
 
-                //Check for the inverted case (we switch the edges between the 0 and 1 nodes
+                //Check for the inverted case (we switch the edges between the 0 and 1 nodes)
                 if (inverted && nodes[i].number == forinverting1 && nodes[j].number == forinverting2) {
                     edges.insert({i, j});
                 }
@@ -70,7 +67,6 @@ CFIGraph::CFIGraph(Graph &G, bool inverted) : numofVertices(0), numofEdges(0), i
 }
 
 
-//Not really efficient, but that doesn't matter as counting the homomorphisms takes much longer
 Graph CFIGraph::toGraph() {
     Graph G = Graph(true);
     for (int i = 0; i < numofVertices; i++) {

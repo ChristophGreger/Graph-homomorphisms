@@ -106,6 +106,8 @@ TEST(GraphTest, UncoloredGraphHomomorphisms) {
     H.addNode(node3);
     H.addEdge(1, 2);
 
+    cout << "Next test" << endl;
+
     EXPECT_EQ(G.calculateNumberofHomomorphismsTo(H), 6);
 }
 
@@ -218,4 +220,28 @@ TEST(GraphTest, UncoloredtoColoredHomomorphisms) {
     H.addEdge(2, 4);
 
     EXPECT_EQ(G.calculateNumberofHomomorphismsTo(H), 18);
+}
+
+TEST(GraphTest, calculateNumberofInjectiveHomomorphismsTo) {
+    Graph G(true);
+    Node cnode1 = Node(1);
+    Node cnode2 = Node(2);
+    Node cnode3 = Node(3);
+    Node cnode4 = Node(4);
+    G.addNode(cnode1);
+    G.addNode(cnode2);
+    G.addNode(cnode3);
+    G.addNode(cnode4);
+    G.addEdge(0, 1);
+    G.addEdge(1, 2);
+    G.addEdge(2, 3);
+    G.addEdge(3, 0);
+
+    ASSERT_EQ(G.calculateNumberofInjectiveHomomorphismsTo(G), 1);
+
+    G.colored = false;
+
+    ASSERT_EQ(G.calculateNumberofInjectiveHomomorphismsTo(G), 8); //TODO: CHECK IF THIS IS CORRECT
+
+
 }

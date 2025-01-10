@@ -27,4 +27,6 @@ int getRandomNumberBetween(int first, int second); //Inclusive both values
 
 int intPow(int base, int exponent);
 
+void printVector(const std::vector<int>& vec);
+
 #endif //GRAPH_HOMOMORPHISMS_UTILITIES_H
