@@ -1,0 +1,28 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "configure cmake",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-G",
+                "Ninja", 
+                "-B",
+                "${workspaceFolder}/build",
+                "-DCMAKE_CXX_COMPILER=clang++-16"
+            ],            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "build",
+            "dependsOn": ["configure cmake"],
+            "type": "shell",
+            "command": "ninja",
+            "args": ["-C", "build"],
+            "problemMatcher": [],
+            "group": "build"
+        },
+    ],
+}
+
