@@ -22,6 +22,8 @@ add_library(bib STATIC
         include/InjectiveHomomorphismRange.h
 )
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+
 target_include_directories(bib
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
