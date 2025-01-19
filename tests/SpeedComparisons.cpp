@@ -7,6 +7,7 @@
 #include "Graph.h"
 #include "CFIGraph.h"
 
+//Takes 1min 5 secs at the moment
 TEST(SpeedTest, Nodes256) {
     RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(256, 6343, false);
     Graph G = randomGraphGenerator.generateRandomConnectedGraph();
