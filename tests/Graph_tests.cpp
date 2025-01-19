@@ -241,7 +241,7 @@ TEST(GraphTest, calculateNumberofInjectiveHomomorphismsTo) {
 
     G.colored = false;
 
-    ASSERT_EQ(G.calculateNumberofInjectiveHomomorphismsTo(G), 8); //TODO: CHECK IF THIS IS CORRECT
+    ASSERT_EQ(G.calculateNumberofInjectiveHomomorphismsTo(G), 8);
 
 
 }
