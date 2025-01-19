@@ -36,21 +36,11 @@ void printVector(const std::vector<int>& vec) {
     std::cout << std::endl;
 }
 
-// Function definition for sorting a vector of pairs by the second element
 template<typename T1, typename T2>
-std::vector<std::pair<T1, T2>> sortBySecond(const std::vector<std::pair<T1, T2>>& vec) {
-    // Create a copy of the input vector
-    std::vector<std::pair<T1, T2>> sortedVec = vec;
-
-    // Sort the copied vector by the second element
-    std::sort(sortedVec.begin(), sortedVec.end(), [](const std::pair<T1, T2>& a, const std::pair<T1, T2>& b) {
+void sortBySecond(std::pair<T1, T2>* arr, std::size_t size)
+{
+    // Sort the array in place by the second element
+    std::sort(arr, arr + size, [](const std::pair<T1, T2>& a, const std::pair<T1, T2>& b) {
         return a.second < b.second;
     });
-
-    return sortedVec; // Return the sorted vector
 }
-
-// Explicit template instantiation (needed for non-inline templates)
-template std::vector<std::pair<int, int>> sortBySecond(const std::vector<std::pair<int, int>>& vec);
-template std::vector<std::pair<double, double>> sortBySecond(const std::vector<std::pair<double, double>>& vec);
-// Add more instantiations as needed

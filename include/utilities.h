@@ -31,7 +31,7 @@ void printVector(const std::vector<int>& vec);
 
 // Function declaration for sorting a vector of pairs by the second element
 template<typename T1, typename T2>
-std::vector<std::pair<T1, T2>> sortBySecond(const std::vector<std::pair<T1, T2>>& vec);
+void sortBySecond(std::pair<T1, T2>* arr, std::size_t size);
 
 
 #endif //GRAPH_HOMOMORPHISMS_UTILITIES_H
