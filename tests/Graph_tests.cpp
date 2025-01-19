@@ -243,5 +243,6 @@ TEST(GraphTest, calculateNumberofInjectiveHomomorphismsTo) {
 
     ASSERT_EQ(G.calculateNumberofInjectiveHomomorphismsTo(G), 8);
 
-
 }
+
+

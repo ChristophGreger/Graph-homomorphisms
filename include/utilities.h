@@ -15,7 +15,6 @@ struct PairHash {
 };
 
 #include <vector>
-#include <algorithm>
 
 template <typename T>
 bool contains(const std::vector<T>& vec, const T& value) {

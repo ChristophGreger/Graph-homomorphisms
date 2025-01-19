@@ -187,7 +187,8 @@ bool Graph::isConnected() const {
 }
 
 void Graph::sortEdges() {
-    //TODO: Implement this function
+    calculateEdgeArray();
+    sortBySecond(edgeArray, edges.size());
 }
 
 

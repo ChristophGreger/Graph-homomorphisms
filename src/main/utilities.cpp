@@ -44,3 +44,7 @@ void sortBySecond(std::pair<T1, T2>* arr, std::size_t size)
         return a.second < b.second;
     });
 }
+
+template void sortBySecond<int, int>(std::pair<int, int>* arr, std::size_t size);
+template void sortBySecond<double, double>(std::pair<double, double>* arr, std::size_t size);
+// Add more instantiations as needed
