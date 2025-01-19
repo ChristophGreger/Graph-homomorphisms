@@ -18,6 +18,8 @@ add_library(bib STATIC
         include/EvenSubsetIterator.h
         src/main/RandomGraphGenerator.cpp
         include/RandomGraphGenerator.h
+        src/main/NextInjection.cpp
+        include/NextInjection.h
 )
 
 target_include_directories(bib
@@ -67,4 +69,5 @@ add_gtest(Graph_tests tests/Graph_tests.cpp)
 add_gtest(EvenSubsetIterator_tests tests/EvenSubsetIterator_tests.cpp)
 add_gtest(CFI_tests tests/CFI_tests.cpp)
 add_gtest(RandomGraphGenerator_tests tests/RandomGraphGenerator_tests.cpp)
-add_gtest(SpeedComparisons tests/SpeedComparisons.cpp)
+add_gtest(SpeedComparisons_tests tests/SpeedComparisons.cpp)
+add_gtest(NextInjection_tests tests/NextInjection_tests.cpp)

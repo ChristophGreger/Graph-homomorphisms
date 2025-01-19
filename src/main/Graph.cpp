@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stack>
 #include "utilities.h"
+#include "NextInjection.h"
 
 
 Graph::Graph(bool colored) : colored(colored) {
@@ -187,43 +188,59 @@ bool Graph::isConnected() const {
 
 
 //TODO: Write tests for the following 4 functions. They are not tested yet.
-
-
-//TODO: Improve the same way as the calculateNumberofHomomorphismsTo function
 int Graph::calculateNumberofInjectiveHomomorphismsTo(Graph &H) {
     H.calculateAdjMatrix();
     calculateEdgeArray();
 
+    if (H.numVertices < numVertices) {
+        return 0;
+    }
+
     int numHomomorphisms = 0;
+    auto nextInjection = NextInjection(numVertices, H.numVertices);
+    const vector<int>& hom = nextInjection.current();
 
-    cout << "Starting iterating over injective homomorphisms" << endl;
 
-    for (const vector<int>& hom : InjectiveHomomorphismRange(numVertices, H.numVertices)) {
-        bool isHomomorphism = true;
 
-        if (colored && H.colored) {
-            for (int i = 0; i < numVertices; i++) {
-                if (!H.nodes[hom[i]].equals(nodes[i])) {
-                    isHomomorphism = false;
-                    break;
-                }
-            }
-        }
+    bool alreadynexthom = true;
+    bool isnohom = false;
 
-        if (!isHomomorphism) {
-            continue;
-        }
+    while (true) {
 
-        for (int i = 0; i < edges.size(); i++) {
-            if (!H.isEdge(hom[edgeArray[i].first], hom[edgeArray[i].second])) {
-                isHomomorphism = false;
+        isnohom = false;
+
+        if (!alreadynexthom) {
+            if (!nextInjection.next()) {
                 break;
             }
         }
 
-        if (isHomomorphism) {
-            ++numHomomorphisms;
+        alreadynexthom = false;
+
+        if (colored && H.colored) {
+            for (int i = 0; i < numVertices; i++) {
+                if (!H.nodes[hom[i]].equals(nodes[i])) {
+                    isnohom = true;
+                    break;
+                }
+            }
+            if (isnohom) {
+                continue;
+            }
         }
+
+        for (int i = 0; i < edges.size(); i++) {
+            if (!H.isEdge(hom[edgeArray[i].first], hom[edgeArray[i].second])) {
+                isnohom = true;
+                break;
+            }
+        }
+
+        if (isnohom) {
+            continue;
+        }
+
+        numHomomorphisms++;
     }
     return numHomomorphisms;
 }
