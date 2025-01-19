@@ -3,8 +3,6 @@
 //
 
 #include "Graph.h"
-#include "InjectiveHomomorphismRange.h"
-
 #include <iostream>
 #include <stack>
 #include "utilities.h"
@@ -104,21 +102,20 @@ int Graph::calculateNumberofHomomorphismsTo(Graph &H) {
 
     int numHomomorphisms = 0;
     vector<int> hom(numVertices, 0);
-    int currtochange = 0;
 
-    bool flag = false;
-    bool flag2 = true;
-    bool flag3 = false;
+    bool totalbreakup = false;
+    bool alreadynexthom = true;
+    bool isnohom = false;
 
     while (true) {
 
-        flag3 = false;
+        isnohom = false;
 
-        if (!flag2) {
-            for (currtochange = 0; currtochange < numVertices; currtochange++) {
+        if (!alreadynexthom) {
+            for (int currtochange = 0; currtochange < numVertices; currtochange++) {
                 if (hom[currtochange] == H.numVertices - 1) {
                     if (currtochange == numVertices - 1) {
-                        flag = true;
+                        totalbreakup = true;
                         break;
                     }
                     hom[currtochange] = 0;
@@ -127,33 +124,33 @@ int Graph::calculateNumberofHomomorphismsTo(Graph &H) {
                     break;
                 }
             }
-            if (flag) {
+            if (totalbreakup) {
                 break;
             }
         }
 
-        flag2 = false;
+        alreadynexthom = false;
 
         if (colored && H.colored) {
             for (int i = 0; i < numVertices; i++) {
                 if (!H.nodes[hom[i]].equals(nodes[i])) {
-                    flag3 = true;
+                    isnohom = true;
                     break;
                 }
             }
-            if (flag3) {
+            if (isnohom) {
                 continue;
             }
         }
 
         for (int i = 0; i < edges.size(); i++) {
             if (!H.isEdge(hom[edgeArray[i].first], hom[edgeArray[i].second])) {
-                flag3 = true;
+                isnohom = true;
                 break;
             }
         }
 
-        if (flag3) {
+        if (isnohom) {
             continue;
         }
 
@@ -193,7 +190,6 @@ bool Graph::isConnected() const {
 
 
 //TODO: Improve the same way as the calculateNumberofHomomorphismsTo function
-//Just a copy of the calculateNumberofHomomorphismsTo function, but with the InjectiveHomomorphismRange
 int Graph::calculateNumberofInjectiveHomomorphismsTo(Graph &H) {
     H.calculateAdjMatrix();
     calculateEdgeArray();

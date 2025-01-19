@@ -4,7 +4,6 @@
 
 #include <gtest/gtest.h>
 #include "RandomGraphGenerator.h"
-#include "InjectiveHomomorphismRange.h"
 #include "Graph.h"
 #include "CFIGraph.h"
 
@@ -41,19 +40,6 @@ TEST(SpeedTest, CFIGraphGeneration2) {
     CFIGraph CFI = CFIGraph(G);
     Graph H = CFI.toGraph();
     cout << "H: " << H.numVertices << " " << H.edges.size() << endl;
-}
-
-
-//At the moment: 31 secs
-TEST(SpeedTest, InjectiveHomomorphismIterator) {
-    int count = 0;
-    for (auto x : InjectiveHomomorphismRange(4, 70)) {
-        ++count;
-        if (count % 1000000 == 0) {
-            cout << count << endl;
-        }
-    }
-    cout << count << endl;
 }
 
 //takes about 37 ms

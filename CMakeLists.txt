@@ -18,8 +18,6 @@ add_library(bib STATIC
         include/EvenSubsetIterator.h
         src/main/RandomGraphGenerator.cpp
         include/RandomGraphGenerator.h
-        src/main/InjectiveHomomorphismRange.cpp
-        include/InjectiveHomomorphismRange.h
 )
 
 target_include_directories(bib
@@ -69,5 +67,4 @@ add_gtest(Graph_tests tests/Graph_tests.cpp)
 add_gtest(EvenSubsetIterator_tests tests/EvenSubsetIterator_tests.cpp)
 add_gtest(CFI_tests tests/CFI_tests.cpp)
 add_gtest(RandomGraphGenerator_tests tests/RandomGraphGenerator_tests.cpp)
-add_gtest(InjectiveHomomorphismRange_tests tests/InjectiveHomomorphismRange_tests.cpp)
 add_gtest(SpeedComparisons tests/SpeedComparisons.cpp)
