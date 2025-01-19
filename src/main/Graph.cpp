@@ -14,6 +14,8 @@ Graph::Graph(bool colored) : colored(colored) {
     adjMatrix = nullptr;
     nodes = vector<Node>();
     edges = unordered_set<pair<int, int>, PairHash>();
+
+    //TODO make the edgeArray an vector
     edgeArray = nullptr;
 }
 
@@ -184,6 +186,10 @@ bool Graph::isConnected() const {
     }
 
     return visited.size() == numVertices;
+}
+
+void Graph::sortEdges() {
+    //TODO: Implement this function
 }
 
 

@@ -50,6 +50,8 @@ public:
 
     bool isConnected() const;
 
+    void sortEdges();
+
 
 
 

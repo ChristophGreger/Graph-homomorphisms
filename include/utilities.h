@@ -29,4 +29,9 @@ int intPow(int base, int exponent);
 
 void printVector(const std::vector<int>& vec);
 
+// Function declaration for sorting a vector of pairs by the second element
+template<typename T1, typename T2>
+std::vector<std::pair<T1, T2>> sortBySecond(const std::vector<std::pair<T1, T2>>& vec);
+
+
 #endif //GRAPH_HOMOMORPHISMS_UTILITIES_H
