@@ -25,6 +25,12 @@ TEST(SpeedTest, Nodes256) {
     cout << square.calculateNumberofHomomorphismsTo(G) << endl;
 }
 
+TEST(SpeedTest, SortingEdges1024) {
+    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(1024, 104755, false);
+    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
+    G.sortEdges();
+}
+
 //Takes 1.7 Seconds, and produces about 2464 vertices and 700160 edges. So quite fast
 TEST(SpeedTest, CFIGraphGeneration) {
     RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(20, 60, true, true);

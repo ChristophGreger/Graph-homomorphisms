@@ -97,67 +97,123 @@ bool Graph::isEdgebySet(int node1, int node2) const {
 
 //TODO: Do not check Homomorphisms that can't be valid, For this sort the edges and check them before "advancing" to the next homomorphism
 //TODO: Improve the performance for colored by only checking the homomorphisms that are valid for the right colors.
+//At the moment only for uncolored
 int Graph::calculateNumberofHomomorphismsTo(Graph &H) {
     H.calculateAdjMatrix();
     calculateEdgeArray();
+    sortEdges();
+
+    //Now we calculate an array that does the following: at index i it stores the index until which (exklusively) the nodes in the edge are less than i + 1
+    //Probably this should be taken out to be a function later
+    //Graph has to be connected for this to work !!!!!!!!! else: just crap coming out of this
+    int *nodeIndex = new int[numVertices];
+
+    int currnode = 0;
+    int currnumber = 0;
+    for (int edgeindex = 0; edgeindex < edges.size(); edgeindex++) {
+        if (edgeArray[edgeindex].second == currnode) {
+            ++currnumber;
+        } else {
+            nodeIndex[currnode] = currnumber;
+            ++currnode;
+        }
+    }
+    //end of calculation of nodeIndex
+
+
+    bool coloredhoms = colored && H.colored;
 
     int numHomomorphisms = 0;
-    vector<int> hom(numVertices, 0);
+    int* hom = new int[numVertices];
+    for (int i = 0; i < numVertices; i++) {
+        hom[i] = 0;
+    }
 
-    bool totalbreakup = false;
-    bool alreadynexthom = true;
-    bool isnohom = false;
+
+    int currtochange = 1;
+    bool increment = false; //If the current node has to be incremented, only false at the first iteration; increment = false means going right in the hom array
+
 
     while (true) {
 
-        isnohom = false;
-
-        if (!alreadynexthom) {
-            for (int currtochange = 0; currtochange < numVertices; currtochange++) {
-                if (hom[currtochange] == H.numVertices - 1) {
-                    if (currtochange == numVertices - 1) {
-                        totalbreakup = true;
-                        break;
-                    }
-                    hom[currtochange] = 0;
-                } else {
-                    hom[currtochange]++;
-                    break;
-                }
-            }
-            if (totalbreakup) {
-                break;
-            }
+        if (currtochange == -1) {
+            break; //All homomorphisms have been checked
         }
 
-        alreadynexthom = false;
-
-        if (colored && H.colored) {
-            for (int i = 0; i < numVertices; i++) {
-                if (!H.nodes[hom[i]].equals(nodes[i])) {
-                    isnohom = true;
+        if (increment) {
+            if (hom[currtochange] == H.numVertices - 1) {
+                increment = true;
+                --currtochange;
+                continue;
+            }
+            if (currtochange == 0) {
+                ++hom[currtochange];
+                increment = false;
+                continue;
+            }
+            bool foundani = false;
+            for (int i = hom[currtochange] + 1; i < H.numVertices; i++) {
+                bool iworks = true;
+                for (int edgeindex = nodeIndex[currtochange-1]; edgeindex < nodeIndex[currtochange]; edgeindex++) {
+                    if (!H.isEdge(hom[edgeArray[edgeindex].first], i)) {
+                        iworks = false;
+                        break;
+                    }
+                }
+                if (iworks) {
+                    foundani = true;
+                    hom[currtochange] = i;
+                    increment = false;
+                    ++currtochange;
                     break;
                 }
             }
-            if (isnohom) {
+            if (!foundani) {
+                increment = true;
+                --currtochange;
+            } else {
                 continue;
             }
         }
 
-        for (int i = 0; i < edges.size(); i++) {
-            if (!H.isEdge(hom[edgeArray[i].first], hom[edgeArray[i].second])) {
-                isnohom = true;
-                break;
-            }
-        }
 
-        if (isnohom) {
+        //If going right in the hom array
+        if (!increment) {
+            bool foundani = false;
+            for (int i = 0; i < H.numVertices; i++) {
+                bool iworks = true;
+                for (int edgeindex = nodeIndex[currtochange-1]; edgeindex < nodeIndex[currtochange]; edgeindex++) {
+                    if (!H.isEdge(hom[edgeArray[edgeindex].first], i)) {
+                        iworks = false;
+                        break;
+                    }
+                }
+                if (iworks) {
+                    foundani = true;
+                    hom[currtochange] = i;
+                    if (currtochange == numVertices - 1) {
+                        ++numHomomorphisms;
+                    } else {
+                        ++currtochange;
+                        break;
+                    }
+                }
+            }
+            if (!foundani) {
+                increment = true;
+                --currtochange;
+            }
+            if (currtochange == numVertices - 1) {
+                increment = true;
+                --currtochange;
+            }
             continue;
         }
 
-        numHomomorphisms++;
     }
+
     return numHomomorphisms;
+
 }
 
 bool Graph::isConnected() const {
