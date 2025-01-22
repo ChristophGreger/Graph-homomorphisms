@@ -118,8 +118,11 @@ int * Graph::calculateNodeIndex() {
 }
 
 
-//TODO: Do not check Homomorphisms that can't be valid, For this sort the edges and check them before "advancing" to the next homomorphism
 //TODO: Improve the performance for colored by only checking the homomorphisms that are valid for the right colors.
+//For this: For each vertex in the pattern graph make a list of nodes in the input graph that this node could be mapped to, according to the colors.
+//Then only check the homomorphisms that are valid for the colors. Store the index it is at the moment in an extra array
+//TODO: Idea: make the same with the degree of a node. (Degree must be the same or more in the input graph). Can be checked after being mapped or we could make a list to do so. Compare for faster results.
+//Or is the degree always the same for the same color ??????? It seems so !!!!!!!!!!!
 //At the moment only for uncolored
 long long Graph::calculateNumberofHomomorphismsTo(Graph &H) {
     H.calculateAdjMatrix();
