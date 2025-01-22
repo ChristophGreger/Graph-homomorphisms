@@ -3,6 +3,8 @@ project(Graph_homomorphisms)
 
 set(CMAKE_CXX_STANDARD 14)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+
 add_library(bib STATIC
         include/Graph.h
         src/main/Graph.cpp

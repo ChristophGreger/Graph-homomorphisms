@@ -7,7 +7,7 @@
 #include "Graph.h"
 #include "CFIGraph.h"
 
-//Takes 1min 5 secs at the moment
+//Takes 1 sec 296ms at the moment
 TEST(SpeedTest, Nodes256) {
     RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(256, 6343, false);
     Graph G = randomGraphGenerator.generateRandomConnectedGraph();
@@ -22,7 +22,35 @@ TEST(SpeedTest, Nodes256) {
 
     cout << "Graphs generated" << endl;
 
+    unsigned long time = clock();
+
     cout << square.calculateNumberofHomomorphismsTo(G) << endl;
+
+    cout << "Time in ms: " << (clock() - time)/1000 << endl;
+}
+
+
+//TODO: INTEGER OVERFLOW!!!!!!!! USE LONG LONG !
+//1 min last time executed with edge density = 0.2. With density 0.1 it takes 6 seconds
+TEST(SpeedTest, Nodes1024) {
+    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(1024, 104755, false);
+    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
+    Graph square = Graph();
+    for (int i = 0; i < 4; i++) {
+        square.addNode(Node());
+    }
+    square.addEdge(0, 1);
+    square.addEdge(1, 2);
+    square.addEdge(2, 3);
+    square.addEdge(3, 0);
+
+    cout << "Graphs generated" << endl;
+
+    unsigned long time = clock();
+
+    cout << square.calculateNumberofHomomorphismsTo(G) << endl;
+
+    cout << "Time in ms: " << (clock() - time)/1000 << endl;
 }
 
 TEST(SpeedTest, SortingEdges1024) {
@@ -96,4 +124,47 @@ TEST(SpeedTest, HomomorphismIteratorHomomorphismcountcomparison) {
     cout << "Graphs generated" << endl;
 
     cout << square.calculateNumberofHomomorphismsTo(G) << endl;
+}
+
+
+//Takes 368 ms at the moment after generating the graph
+//Thats a lot faster than the master work implementation ??????????????????????
+//And than the glasgow subgraph solver etc ?????????????????
+TEST(SpeedTest, clique3nequals1000) {
+    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(1000, 99900, false);
+    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
+    Graph clique3 = Graph();
+    for (int i = 0; i < 3; i++) {
+        clique3.addNode(Node());
+    }
+    clique3.addEdge(0, 1);
+    clique3.addEdge(1, 2);
+    clique3.addEdge(2, 0);
+
+    cout << "Graphs generated" << endl;
+
+    auto time = clock();
+
+    cout << clique3.calculateNumberofHomomorphismsTo(G) << endl;
+
+    cout << "Time in ms: " << (clock() - time)/1000 << endl;
+}
+
+
+//To slow, will never finish
+TEST(SpeedTest, biggraphasH) {
+    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(1000, 99900, false); //edge density 0.2
+    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
+
+    RandomGraphGenerator randomGraphGenerator2 = RandomGraphGenerator(200, 2000, false);
+
+    Graph H = randomGraphGenerator2.generateRandomConnectedGraph();
+
+    cout << "Graphs generated" << endl;
+
+    auto time = clock();
+
+    cout << H.calculateNumberofHomomorphismsTo(G) << endl;
+
+    cout << "Time in ms: " << (clock() - time)/1000 << endl;
 }

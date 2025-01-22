@@ -57,7 +57,7 @@ void Graph::printGraph(bool printcolors) {
 }
 
 void Graph::calculateAdjMatrix() {
-    adjMatrix = new int[numVertices * numVertices];
+    adjMatrix = new char[numVertices * numVertices];
     for (int i = 0; i < numVertices; i++) {
         for (int j = 0; j < numVertices; j++) {
             adjMatrix[i * numVertices + j] = 0;
@@ -95,35 +95,44 @@ bool Graph::isEdgebySet(int node1, int node2) const {
 }
 
 
-//TODO: Do not check Homomorphisms that can't be valid, For this sort the edges and check them before "advancing" to the next homomorphism
-//TODO: Improve the performance for colored by only checking the homomorphisms that are valid for the right colors.
-//At the moment only for uncolored
-int Graph::calculateNumberofHomomorphismsTo(Graph &H) {
-    H.calculateAdjMatrix();
-    calculateEdgeArray();
-    sortEdges();
-
-    //Now we calculate an array that does the following: at index i it stores the index until which (exklusively) the nodes in the edge are less than i + 1
-    //Probably this should be taken out to be a function later
-    //Graph has to be connected for this to work !!!!!!!!! else: just crap coming out of this
+//stores at the index i the index to which exklusively all the edges in the sorted edgearray do not contain a node bigger than i
+int * Graph::calculateNodeIndex() {
     int *nodeIndex = new int[numVertices];
-
+    sortEdges();
     int currnode = 0;
     int currnumber = 0;
     for (int edgeindex = 0; edgeindex < edges.size(); edgeindex++) {
         if (edgeArray[edgeindex].second == currnode) {
             ++currnumber;
         } else {
-            nodeIndex[currnode] = currnumber;
-            ++currnode;
+            int second = edgeArray[edgeindex].second;
+            for (int i = currnode; i < second; i++) {
+                nodeIndex[i] = currnumber;
+            }
+            currnode = second;
+            ++currnumber;
         }
     }
-    //end of calculation of nodeIndex
+    nodeIndex[currnode] = currnumber;
+    return nodeIndex;
+}
 
 
-    bool coloredhoms = colored && H.colored;
+//TODO: Do not check Homomorphisms that can't be valid, For this sort the edges and check them before "advancing" to the next homomorphism
+//TODO: Improve the performance for colored by only checking the homomorphisms that are valid for the right colors.
+//At the moment only for uncolored
+int Graph::calculateNumberofHomomorphismsTo(Graph &H) {
+    H.calculateAdjMatrix();
+    calculateEdgeArray();
+
+    int *nodeIndex = calculateNodeIndex();
+
+
+    bool coloredhoms = colored && H.colored; //not implemented yet
 
     int numHomomorphisms = 0;
+
+    //Initialize the homomorphism array with only 0s
     int* hom = new int[numVertices];
     for (int i = 0; i < numVertices; i++) {
         hom[i] = 0;
@@ -149,6 +158,7 @@ int Graph::calculateNumberofHomomorphismsTo(Graph &H) {
             if (currtochange == 0) {
                 ++hom[currtochange];
                 increment = false;
+                ++currtochange;
                 continue;
             }
             bool foundani = false;
@@ -194,19 +204,16 @@ int Graph::calculateNumberofHomomorphismsTo(Graph &H) {
                     if (currtochange == numVertices - 1) {
                         ++numHomomorphisms;
                     } else {
-                        ++currtochange;
                         break;
                     }
                 }
             }
-            if (!foundani) {
+            if (!foundani || currtochange == numVertices - 1) {
                 increment = true;
                 --currtochange;
+                continue;
             }
-            if (currtochange == numVertices - 1) {
-                increment = true;
-                --currtochange;
-            }
+            ++currtochange;
             continue;
         }
 

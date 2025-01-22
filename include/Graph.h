@@ -14,7 +14,7 @@ using namespace std;
 
 class Graph {
 public:
-    int * adjMatrix;
+    char * adjMatrix;
     unordered_set<pair<int, int>, PairHash> edges;
     pair<int, int> * edgeArray;
 
@@ -51,6 +51,8 @@ public:
     bool isConnected() const;
 
     void sortEdges();
+
+    int * calculateNodeIndex();
 
 
 
