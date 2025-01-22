@@ -30,7 +30,6 @@ TEST(SpeedTest, Nodes256) {
 }
 
 
-//TODO: INTEGER OVERFLOW!!!!!!!! USE LONG LONG !
 //1 min last time executed with edge density = 0.2. With density 0.1 it takes 6 seconds
 TEST(SpeedTest, Nodes1024) {
     RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(1024, 104755, false);
@@ -146,6 +145,60 @@ TEST(SpeedTest, clique3nequals1000) {
     auto time = clock();
 
     cout << clique3.calculateNumberofHomomorphismsTo(G) << endl;
+
+    cout << "Time in ms: " << (clock() - time)/1000 << endl;
+}
+
+
+//Takes 731ms, thats much faster than the master work implementation and glasgow subgraph solver
+TEST(SpeedTest, clique4nequals150) {
+    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(150, 6705, false);
+    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
+    Graph clique4 = Graph();
+    for (int i = 0; i < 4; i++) {
+        clique4.addNode(Node());
+    }
+    clique4.addEdge(0, 1);
+    clique4.addEdge(1, 2);
+    clique4.addEdge(2, 0);
+    clique4.addEdge(3, 0);
+    clique4.addEdge(3, 1);
+    clique4.addEdge(3, 2);
+
+
+    cout << "Graphs generated" << endl;
+
+    auto time = clock();
+
+    cout << clique4.calculateNumberofHomomorphismsTo(G) << endl;
+
+    cout << "Time in ms: " << (clock() - time)/1000 << endl;
+}
+
+//1.2 seconds, also faster than the master work implementation and glasgow subgraph solver
+TEST(SpeedTest, clique5nequals60) {
+    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(60, 1416, false);
+    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
+    Graph clique5 = Graph();
+    for (int i = 0; i < 5; i++) {
+        clique5.addNode(Node());
+    }
+    clique5.addEdge(0, 1);
+    clique5.addEdge(1, 2);
+    clique5.addEdge(2, 0);
+    clique5.addEdge(3, 0);
+    clique5.addEdge(3, 1);
+    clique5.addEdge(3, 2);
+    clique5.addEdge(4, 0);
+    clique5.addEdge(4, 1);
+    clique5.addEdge(4, 2);
+    clique5.addEdge(4, 3);
+
+    cout << "Graphs generated" << endl;
+
+    auto time = clock();
+
+    cout << clique5.calculateNumberofHomomorphismsTo(G) << endl;
 
     cout << "Time in ms: " << (clock() - time)/1000 << endl;
 }

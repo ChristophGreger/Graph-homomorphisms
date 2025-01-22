@@ -121,7 +121,7 @@ int * Graph::calculateNodeIndex() {
 //TODO: Do not check Homomorphisms that can't be valid, For this sort the edges and check them before "advancing" to the next homomorphism
 //TODO: Improve the performance for colored by only checking the homomorphisms that are valid for the right colors.
 //At the moment only for uncolored
-int Graph::calculateNumberofHomomorphismsTo(Graph &H) {
+long long Graph::calculateNumberofHomomorphismsTo(Graph &H) {
     H.calculateAdjMatrix();
     calculateEdgeArray();
 
@@ -130,7 +130,7 @@ int Graph::calculateNumberofHomomorphismsTo(Graph &H) {
 
     bool coloredhoms = colored && H.colored; //not implemented yet
 
-    int numHomomorphisms = 0;
+    long long numHomomorphisms = 0;
 
     //Initialize the homomorphism array with only 0s
     int* hom = new int[numVertices];
@@ -256,7 +256,7 @@ void Graph::sortEdges() {
 
 
 //TODO: Write tests for the following 4 functions. They are not tested yet.
-int Graph::calculateNumberofInjectiveHomomorphismsTo(Graph &H) {
+long long Graph::calculateNumberofInjectiveHomomorphismsTo(Graph &H) {
     H.calculateAdjMatrix();
     calculateEdgeArray();
 
@@ -264,7 +264,7 @@ int Graph::calculateNumberofInjectiveHomomorphismsTo(Graph &H) {
         return 0;
     }
 
-    int numHomomorphisms = 0;
+    long long numHomomorphisms = 0;
     auto nextInjection = NextInjection(numVertices, H.numVertices);
     const vector<int>& hom = nextInjection.current();
 
@@ -313,23 +313,23 @@ int Graph::calculateNumberofInjectiveHomomorphismsTo(Graph &H) {
     return numHomomorphisms;
 }
 
-int Graph::calculateNumberofAutomorphismsWithoutColoring() {
+long long Graph::calculateNumberofAutomorphismsWithoutColoring() {
     bool oldcolored = colored;
     colored = false;
-    int numAutomorphisms = calculateNumberofHomomorphismsTo(*this);
+    long long numAutomorphisms = calculateNumberofHomomorphismsTo(*this);
     colored = oldcolored;
     return numAutomorphisms;
 }
 
-int Graph::calculateNumberofAutomorphismsWithColoring() {
+long long Graph::calculateNumberofAutomorphismsWithColoring() {
     bool oldcolored = colored;
     colored = true;
-    int numAutomorphisms = calculateNumberofHomomorphismsTo(*this);
+    long long numAutomorphisms = calculateNumberofHomomorphismsTo(*this);
     colored = oldcolored;
     return numAutomorphisms;
 }
 
-int Graph::calculateNumberofSubGraphsTo(Graph &H) {
+long long Graph::calculateNumberofSubGraphsTo(Graph &H) {
     if (colored && H.colored) {
         return calculateNumberofInjectiveHomomorphismsTo(H) / calculateNumberofAutomorphismsWithColoring();
     }

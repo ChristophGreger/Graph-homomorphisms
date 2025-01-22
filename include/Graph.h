@@ -36,15 +36,15 @@ public:
 
     bool isEdgebySet(int node1, int node2) const; // adjacency matrix has NOT to be calculated before using this function
 
-    int calculateNumberofHomomorphismsTo(Graph &H);
+    long long calculateNumberofHomomorphismsTo(Graph &H);
 
-    int calculateNumberofInjectiveHomomorphismsTo(Graph &H);
+    long long calculateNumberofInjectiveHomomorphismsTo(Graph &H);
 
-    int calculateNumberofAutomorphismsWithoutColoring();
+    long long calculateNumberofAutomorphismsWithoutColoring();
 
-    int calculateNumberofAutomorphismsWithColoring();
+    long long calculateNumberofAutomorphismsWithColoring();
 
-    int calculateNumberofSubGraphsTo(Graph &H);
+    long long calculateNumberofSubGraphsTo(Graph &H);
 
     int numVertices;
 
