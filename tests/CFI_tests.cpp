@@ -31,7 +31,7 @@ TEST(CFIGraphTest, Constructor) {
 
 
 TEST(CFIGraphTest, ByHomomorphisms) {
-    for (int vertices = 2; vertices < 6; vertices++) {
+    for (int vertices = 2; vertices < 9; vertices++) {
         for (int edges = vertices-1; edges <= (vertices * (vertices - 1)) / 2; edges++) {
             for (int i = 0; i < 3; i++) {
                 RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, edges, true, true);
@@ -45,6 +45,20 @@ TEST(CFIGraphTest, ByHomomorphisms) {
             }
         }
     }
+}
+
+TEST(CFIGraphTest, ByHomomorphisms2) {
+    int vertices = 10;
+    int edges = 30;
+    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, edges, true, true);
+    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
+    CFIGraph CFI = CFIGraph(G);
+    Graph H = CFI.toGraph();
+    cout << "G: " << G.numVertices << " " << G.edges.size() << endl;
+    cout << "H: " << H.numVertices << " " << H.edges.size() << endl;
+    ASSERT_EQ(G.calculateNumberofHomomorphismsTo(H), intPow(2, (edges - vertices + 1)));
+    cout << "Calculated successfully" << endl;
+
 }
 
 TEST(CFIGraphTest, ByHomomorphismsInverted) {

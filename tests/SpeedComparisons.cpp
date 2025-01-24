@@ -202,22 +202,3 @@ TEST(SpeedTest, clique5nequals60) {
 
     cout << "Time in ms: " << (clock() - time)/1000 << endl;
 }
-
-
-//To slow, will never finish
-TEST(SpeedTest, biggraphasH) {
-    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(1000, 99900, false); //edge density 0.2
-    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
-
-    RandomGraphGenerator randomGraphGenerator2 = RandomGraphGenerator(200, 2000, false);
-
-    Graph H = randomGraphGenerator2.generateRandomConnectedGraph();
-
-    cout << "Graphs generated" << endl;
-
-    auto time = clock();
-
-    cout << H.calculateNumberofHomomorphismsTo(G) << endl;
-
-    cout << "Time in ms: " << (clock() - time)/1000 << endl;
-}
