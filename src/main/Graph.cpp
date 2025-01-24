@@ -57,7 +57,7 @@ void Graph::printGraph(bool printcolors) {
 }
 
 void Graph::calculateAdjMatrix() {
-    adjMatrix = new int[numVertices * numVertices];
+    adjMatrix = new char[numVertices * numVertices];
     for (int i = 0; i < numVertices; i++) {
         for (int j = 0; j < numVertices; j++) {
             adjMatrix[i * numVertices + j] = 0;
@@ -95,69 +95,256 @@ bool Graph::isEdgebySet(int node1, int node2) const {
 }
 
 
-//TODO: Do not check Homomorphisms that can't be valid, For this sort the edges and check them before "advancing" to the next homomorphism
+//stores at the index i the index to which exklusively all the edges in the sorted edgearray do not contain a node bigger than i
+int * Graph::calculateNodeIndex() {
+    int *nodeIndex = new int[numVertices];
+    sortEdges();
+    int currnode = 0;
+    int currnumber = 0;
+    for (int edgeindex = 0; edgeindex < edges.size(); edgeindex++) {
+        if (edgeArray[edgeindex].second == currnode) {
+            ++currnumber;
+        } else {
+            int second = edgeArray[edgeindex].second;
+            for (int i = currnode; i < second; i++) {
+                nodeIndex[i] = currnumber;
+            }
+            currnode = second;
+            ++currnumber;
+        }
+    }
+    nodeIndex[currnode] = currnumber;
+    return nodeIndex;
+}
+
+
 //TODO: Improve the performance for colored by only checking the homomorphisms that are valid for the right colors.
-int Graph::calculateNumberofHomomorphismsTo(Graph &H) {
+//For this: For each vertex in the pattern graph make a list of nodes in the input graph that this node could be mapped to, according to the colors.
+//Then only check the homomorphisms that are valid for the colors. Store the index it is at the moment in an extra array
+//At the moment only for uncolored
+long long Graph::calculateNumberofHomomorphismsTo(Graph &H) {
     H.calculateAdjMatrix();
     calculateEdgeArray();
 
-    int numHomomorphisms = 0;
-    vector<int> hom(numVertices, 0);
+    int *nodeIndex = calculateNodeIndex();
 
-    bool totalbreakup = false;
-    bool alreadynexthom = true;
-    bool isnohom = false;
 
-    while (true) {
+    bool coloredhoms = colored && H.colored;
 
-        isnohom = false;
 
-        if (!alreadynexthom) {
-            for (int currtochange = 0; currtochange < numVertices; currtochange++) {
+    long long numHomomorphisms = 0;
+
+    //Initialize the homomorphism array with only 0s
+    int* hom = new int[numVertices];
+    for (int i = 0; i < numVertices; i++) {
+        hom[i] = 0;
+    }
+
+
+    int currtochange = 1;
+    bool increment = false; //If the current node has to be incremented, only false at the first iteration; increment = false means going right in the hom array
+
+    if (!coloredhoms) {
+        while (true) {
+
+            if (currtochange == -1) {
+                break; //All homomorphisms have been checked
+            }
+
+            if (increment) {
                 if (hom[currtochange] == H.numVertices - 1) {
-                    if (currtochange == numVertices - 1) {
-                        totalbreakup = true;
+                    increment = true;
+                    --currtochange;
+                    continue;
+                }
+                if (currtochange == 0) {
+                    ++hom[currtochange];
+                    increment = false;
+                    ++currtochange;
+                    continue;
+                }
+                bool foundani = false;
+                for (int i = hom[currtochange] + 1; i < H.numVertices; i++) {
+                    bool iworks = true;
+                    for (int edgeindex = nodeIndex[currtochange-1]; edgeindex < nodeIndex[currtochange]; edgeindex++) {
+                        if (!H.isEdge(hom[edgeArray[edgeindex].first], i)) {
+                            iworks = false;
+                            break;
+                        }
+                    }
+                    if (iworks) {
+                        foundani = true;
+                        hom[currtochange] = i;
+                        increment = false;
+                        ++currtochange;
                         break;
                     }
-                    hom[currtochange] = 0;
+                }
+                if (!foundani) {
+                    increment = true;
+                    --currtochange;
                 } else {
-                    hom[currtochange]++;
-                    break;
+                    continue;
                 }
             }
-            if (totalbreakup) {
-                break;
-            }
-        }
 
-        alreadynexthom = false;
 
-        if (colored && H.colored) {
-            for (int i = 0; i < numVertices; i++) {
-                if (!H.nodes[hom[i]].equals(nodes[i])) {
-                    isnohom = true;
-                    break;
+            //If going right in the hom array
+            if (!increment) {
+                bool foundani = false;
+                for (int i = 0; i < H.numVertices; i++) {
+                    bool iworks = true;
+                    for (int edgeindex = nodeIndex[currtochange-1]; edgeindex < nodeIndex[currtochange]; edgeindex++) {
+                        if (!H.isEdge(hom[edgeArray[edgeindex].first], i)) {
+                            iworks = false;
+                            break;
+                        }
+                    }
+                    if (iworks) {
+                        foundani = true;
+                        hom[currtochange] = i;
+                        if (currtochange == numVertices - 1) {
+                            ++numHomomorphisms;
+                        } else {
+                            break;
+                        }
+                    }
                 }
-            }
-            if (isnohom) {
+                if (!foundani || currtochange == numVertices - 1) {
+                    increment = true;
+                    --currtochange;
+                    continue;
+                }
+                ++currtochange;
                 continue;
             }
-        }
 
-        for (int i = 0; i < edges.size(); i++) {
-            if (!H.isEdge(hom[edgeArray[i].first], hom[edgeArray[i].second])) {
-                isnohom = true;
-                break;
+        }
+        delete[] hom;
+        delete[] nodeIndex;
+        return numHomomorphisms;
+    } // ---------- COLORED BRANCH (MODIFIED) ---------- AI GENERATED
+    else {
+        // Precompute valid mappings based on color
+        // possibleMappings[v].first is an array of valid node-IDs in H
+        // possibleMappings[v].second is how many valid node-IDs in that array
+        pair<int*, int> * possibleMappings = nullptr;
+
+
+        possibleMappings = new pair<int*, int>[numVertices];
+        for (int v = 0; v < numVertices; v++) {
+            vector<int> valid;
+            for (int w = 0; w < H.numVertices; w++) {
+                // If color matches, node w in H is a valid image of v
+                if (H.nodes[w].equals(nodes[v])) {
+                    valid.push_back(w);
+                }
             }
+            // Store them in the pair
+            int *arr = new int[valid.size()];
+            for (int i = 0; i < (int)valid.size(); i++) {
+                arr[i] = valid[i];
+            }
+            possibleMappings[v] = make_pair(arr, (int)valid.size());
         }
 
-        if (isnohom) {
-            continue;
-        }
 
-        numHomomorphisms++;
+
+        // Start the backtracking:
+        while (true) {
+
+            if (currtochange == -1) {
+                break; // done
+            }
+
+            if (increment) {
+                // We have to move to the next candidate for hom[currtochange]
+                // We'll skip over all candidates <= the old hom[currtochange]
+                int oldVal = hom[currtochange];
+                bool foundNext = false;
+
+                // Iterate over valid color-candidates
+                auto &pm = possibleMappings[currtochange];
+                for (int idx = 0; idx < pm.second; idx++) {
+                    int candidate = pm.first[idx];
+                    if (candidate <= oldVal) {
+                        continue; // must pick something bigger than oldVal
+                    }
+                    // Check adjacency constraints
+                    bool works = true;
+                    for (int edgeindex = nodeIndex[currtochange - 1];
+                         edgeindex < nodeIndex[currtochange];
+                         edgeindex++)
+                    {
+                        if (!H.isEdge(hom[edgeArray[edgeindex].first], candidate)) {
+                            works = false;
+                            break;
+                        }
+                    }
+                    if (works) {
+                        hom[currtochange] = candidate;
+                        foundNext = true;
+                        increment = false;
+                        ++currtochange;
+                        break;
+                    }
+                }
+
+                if (!foundNext) {
+                    // Need to backtrack further
+                    increment = true;
+                    --currtochange;
+                }
+            }
+            else {
+                // "Go right" fill from scratch
+                bool foundFirst = false;
+                auto &pm = possibleMappings[currtochange];
+                for (int idx = 0; idx < pm.second; idx++) {
+                    int candidate = pm.first[idx];
+                    bool works = true;
+                    // We only need to check edges whose 'second' is currtochange
+                    for (int edgeindex = nodeIndex[currtochange - 1];
+                         edgeindex < nodeIndex[currtochange];
+                         edgeindex++)
+                    {
+                        if (!H.isEdge(hom[edgeArray[edgeindex].first], candidate)) {
+                            works = false;
+                            break;
+                        }
+                    }
+                    if (works) {
+                        hom[currtochange] = candidate;
+                        if (currtochange == numVertices - 1) {
+                            // We assigned the last vertex => valid homomorphism found
+                            ++numHomomorphisms;
+                        } else {
+                            foundFirst = true;
+                            break;
+                        }
+                    }
+                }
+                if (!foundFirst || currtochange == numVertices - 1) {
+                    increment = true;
+                    --currtochange;
+                } else {
+                    ++currtochange;
+                }
+            }
+        } // end while
+
+        // Clean up
+        if (possibleMappings) {
+            for (int v = 0; v < numVertices; v++) {
+                delete[] possibleMappings[v].first;
+            }
+            delete[] possibleMappings;
+        }
+        delete[] hom;
+        delete[] nodeIndex;
+        return numHomomorphisms;
     }
-    return numHomomorphisms;
+
 }
 
 bool Graph::isConnected() const {
@@ -186,9 +373,14 @@ bool Graph::isConnected() const {
     return visited.size() == numVertices;
 }
 
+void Graph::sortEdges() {
+    calculateEdgeArray();
+    sortBySecond(edgeArray, edges.size());
+}
+
 
 //TODO: Write tests for the following 4 functions. They are not tested yet.
-int Graph::calculateNumberofInjectiveHomomorphismsTo(Graph &H) {
+long long Graph::calculateNumberofInjectiveHomomorphismsTo(Graph &H) {
     H.calculateAdjMatrix();
     calculateEdgeArray();
 
@@ -196,7 +388,7 @@ int Graph::calculateNumberofInjectiveHomomorphismsTo(Graph &H) {
         return 0;
     }
 
-    int numHomomorphisms = 0;
+    long long numHomomorphisms = 0;
     auto nextInjection = NextInjection(numVertices, H.numVertices);
     const vector<int>& hom = nextInjection.current();
 
@@ -245,23 +437,23 @@ int Graph::calculateNumberofInjectiveHomomorphismsTo(Graph &H) {
     return numHomomorphisms;
 }
 
-int Graph::calculateNumberofAutomorphismsWithoutColoring() {
+long long Graph::calculateNumberofAutomorphismsWithoutColoring() {
     bool oldcolored = colored;
     colored = false;
-    int numAutomorphisms = calculateNumberofHomomorphismsTo(*this);
+    long long numAutomorphisms = calculateNumberofHomomorphismsTo(*this);
     colored = oldcolored;
     return numAutomorphisms;
 }
 
-int Graph::calculateNumberofAutomorphismsWithColoring() {
+long long Graph::calculateNumberofAutomorphismsWithColoring() {
     bool oldcolored = colored;
     colored = true;
-    int numAutomorphisms = calculateNumberofHomomorphismsTo(*this);
+    long long numAutomorphisms = calculateNumberofHomomorphismsTo(*this);
     colored = oldcolored;
     return numAutomorphisms;
 }
 
-int Graph::calculateNumberofSubGraphsTo(Graph &H) {
+long long Graph::calculateNumberofSubGraphsTo(Graph &H) {
     if (colored && H.colored) {
         return calculateNumberofInjectiveHomomorphismsTo(H) / calculateNumberofAutomorphismsWithColoring();
     }

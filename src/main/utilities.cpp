@@ -6,6 +6,7 @@
 
 #include <random>
 #include <iostream>
+#include <algorithm>
 
 int getRandomNumberBetween(int first, int second) { //Inclusive both values
     // Create a random number generator
@@ -34,3 +35,16 @@ void printVector(const std::vector<int>& vec) {
     }
     std::cout << std::endl;
 }
+
+template<typename T1, typename T2>
+void sortBySecond(std::pair<T1, T2>* arr, std::size_t size)
+{
+    // Sort the array in place by the second element
+    std::sort(arr, arr + size, [](const std::pair<T1, T2>& a, const std::pair<T1, T2>& b) {
+        return a.second < b.second;
+    });
+}
+
+template void sortBySecond<int, int>(std::pair<int, int>* arr, std::size_t size);
+template void sortBySecond<double, double>(std::pair<double, double>* arr, std::size_t size);
+// Add more instantiations as needed

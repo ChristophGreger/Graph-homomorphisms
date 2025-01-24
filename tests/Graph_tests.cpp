@@ -6,6 +6,7 @@
 #include <sstream>
 #include "Graph.h"
 #include "Node.h"
+#include "RandomGraphGenerator.h"
 
 TEST(GraphTest, PrintGraph) {
     Graph graph;
@@ -243,5 +244,55 @@ TEST(GraphTest, calculateNumberofInjectiveHomomorphismsTo) {
 
     ASSERT_EQ(G.calculateNumberofInjectiveHomomorphismsTo(G), 8);
 
-
 }
+
+TEST(GraphTest, calculateNodeIndex) {
+    Graph G(false);
+    Node cnode1 = Node(1);
+    Node cnode2 = Node(2);
+    Node cnode3 = Node(3);
+    Node cnode4 = Node(4);
+    G.addNode(cnode1);
+    G.addNode(cnode2);
+    G.addNode(cnode3);
+    G.addNode(cnode4);
+    G.addEdge(0, 1);
+    G.addEdge(1, 2);
+    G.addEdge(2, 3);
+    G.addEdge(3, 0);
+
+    int* nodeIndex = G.calculateNodeIndex();
+
+
+    //print the edges
+    cout << "Edges: \n";
+    for (int i = 0; i < G.edges.size(); i++) {
+        cout << G.edgeArray[i].first << " -> " << G.edgeArray[i].second << "\n";
+    }
+
+    cout << "NodeIndex: ";
+    for (int i = 0; i < 4; i++) {
+        cout << nodeIndex[i] << " "; //Shold be: 0 1 2 4
+    }
+
+
+    int shouldbe[] = {0, 1, 2, 4};
+    for (int i = 0; i < 4; i++) {
+        ASSERT_EQ(nodeIndex[i], shouldbe[i]);
+    }
+}
+
+TEST(GraphTest, calculateNodeIndexAutomatic) {
+    RandomGraphGenerator generator = RandomGraphGenerator(100, 300, false);
+    Graph G = generator.generateRandomConnectedGraph();
+    int* nodeIndex = G.calculateNodeIndex();
+    ASSERT_EQ(nodeIndex[0], 0);
+    for (int i = 1; i < G.numVertices; i++) {
+        for (int j = nodeIndex[i-1]; j < nodeIndex[i]; j++) {
+            ASSERT_EQ(G.edgeArray[j].second, i);
+        }
+    }
+    ASSERT_EQ(nodeIndex[G.numVertices - 1], G.edges.size());
+}
+
+

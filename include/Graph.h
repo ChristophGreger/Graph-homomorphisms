@@ -14,7 +14,7 @@ using namespace std;
 
 class Graph {
 public:
-    int * adjMatrix;
+    char * adjMatrix;
     unordered_set<pair<int, int>, PairHash> edges;
     pair<int, int> * edgeArray;
 
@@ -36,19 +36,23 @@ public:
 
     bool isEdgebySet(int node1, int node2) const; // adjacency matrix has NOT to be calculated before using this function
 
-    int calculateNumberofHomomorphismsTo(Graph &H);
+    long long calculateNumberofHomomorphismsTo(Graph &H);
 
-    int calculateNumberofInjectiveHomomorphismsTo(Graph &H);
+    long long calculateNumberofInjectiveHomomorphismsTo(Graph &H);
 
-    int calculateNumberofAutomorphismsWithoutColoring();
+    long long calculateNumberofAutomorphismsWithoutColoring();
 
-    int calculateNumberofAutomorphismsWithColoring();
+    long long calculateNumberofAutomorphismsWithColoring();
 
-    int calculateNumberofSubGraphsTo(Graph &H);
+    long long calculateNumberofSubGraphsTo(Graph &H);
 
     int numVertices;
 
     bool isConnected() const;
+
+    void sortEdges();
+
+    int * calculateNodeIndex();
 
 
 

@@ -3,6 +3,8 @@ project(Graph_homomorphisms)
 
 set(CMAKE_CXX_STANDARD 14)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+
 add_library(bib STATIC
         include/Graph.h
         src/main/Graph.cpp
@@ -71,3 +73,4 @@ add_gtest(CFI_tests tests/CFI_tests.cpp)
 add_gtest(RandomGraphGenerator_tests tests/RandomGraphGenerator_tests.cpp)
 add_gtest(SpeedComparisons_tests tests/SpeedComparisons.cpp)
 add_gtest(NextInjection_tests tests/NextInjection_tests.cpp)
+add_gtest(Utitlities_tests tests/Utilities_tests.cpp)

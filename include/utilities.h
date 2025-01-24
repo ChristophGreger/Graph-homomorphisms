@@ -15,7 +15,6 @@ struct PairHash {
 };
 
 #include <vector>
-#include <algorithm>
 
 template <typename T>
 bool contains(const std::vector<T>& vec, const T& value) {
@@ -28,5 +27,10 @@ int getRandomNumberBetween(int first, int second); //Inclusive both values
 int intPow(int base, int exponent);
 
 void printVector(const std::vector<int>& vec);
+
+// Function declaration for sorting a vector of pairs by the second element
+template<typename T1, typename T2>
+void sortBySecond(std::pair<T1, T2>* arr, std::size_t size);
+
 
 #endif //GRAPH_HOMOMORPHISMS_UTILITIES_H
