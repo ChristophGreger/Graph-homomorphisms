@@ -31,17 +31,27 @@ TEST(CFIGraphTest, Constructor) {
 
 
 TEST(CFIGraphTest, ByHomomorphisms) {
-    for (int vertices = 2; vertices < 9; vertices++) {
-        for (int edges = vertices-1; edges <= (vertices * (vertices - 1)) / 2; edges++) {
-            for (int i = 0; i < 3; i++) {
-                RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, edges, true, true);
-                Graph G = randomGraphGenerator.generateRandomConnectedGraph();
-                CFIGraph CFI = CFIGraph(G);
-                Graph H = CFI.toGraph();
-                cout << "G: " << G.numVertices << " " << G.edges.size() << endl;
-                cout << "H: " << H.numVertices << " " << H.edges.size() << endl;
-                ASSERT_EQ(G.calculateNumberofHomomorphismsTo(H), intPow(2, (edges - vertices + 1)));
-                cout << "Calculated successfully" << endl;
+    for (int times = 0; times < 10; times++) {
+        for (int vertices = 2; vertices < 9; vertices++) {
+            for (int edges = vertices-1; edges <= (vertices * (vertices - 1)) / 2; edges++) {
+                for (int i = 0; i < 3; i++) {
+                    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, edges, true, true);
+                    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
+                    CFIGraph CFI = CFIGraph(G);
+                    Graph H = CFI.toGraph();
+                    cout << "G: " << G.numVertices << " " << G.edges.size() << endl;
+                    cout << "H: " << H.numVertices << " " << H.edges.size() << endl;
+                    long long homs = G.calculateNumberofHomomorphismsTo(H);
+                    long long expected = intPow(2, (edges - vertices + 1));
+                    if (homs != expected) {
+                        cout << "G: " << G.numVertices << " " << G.edges.size() << endl;
+                        G.printGraph(true);
+                        cout << "H: " << H.numVertices << " " << H.edges.size() << endl;
+                        H.printGraph(true);
+                    }
+                    ASSERT_EQ(homs, expected);
+                    cout << "Calculated successfully" << endl;
+                }
             }
         }
     }

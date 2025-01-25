@@ -124,7 +124,7 @@ int * Graph::calculateNodeIndex() {
 //At the moment only for uncolored
 long long Graph::calculateNumberofHomomorphismsTo(Graph &H) {
     H.calculateAdjMatrix();
-    calculateEdgeArray();
+    //calculateEdgeArray(); //Is being called in calculateNodeIndex()
 
     int *nodeIndex = calculateNodeIndex();
 
@@ -223,15 +223,13 @@ long long Graph::calculateNumberofHomomorphismsTo(Graph &H) {
         delete[] hom;
         delete[] nodeIndex;
         return numHomomorphisms;
-    } // ---------- COLORED BRANCH (MODIFIED) ---------- AI GENERATED
+    } // ---------- COLORED BRANCH (MODIFIED) ---------- AI GENERATED (some parts)
     else {
         // Precompute valid mappings based on color
         // possibleMappings[v].first is an array of valid node-IDs in H
         // possibleMappings[v].second is how many valid node-IDs in that array
-        pair<int*, int> * possibleMappings = nullptr;
 
-
-        possibleMappings = new pair<int*, int>[numVertices];
+        pair<int*, int> * possibleMappings = new pair<int*, int>[numVertices];
         for (int v = 0; v < numVertices; v++) {
             vector<int> valid;
             for (int w = 0; w < H.numVertices; w++) {
@@ -248,7 +246,16 @@ long long Graph::calculateNumberofHomomorphismsTo(Graph &H) {
             possibleMappings[v] = make_pair(arr, (int)valid.size());
         }
 
+        // candidateIndex[v] is the index in the array possibleMappings[v].first
+        int* candidateIndex = new int[numVertices];
 
+        // Initialize
+        for (int v = 0; v < numVertices; v++) {
+            hom[v] = -1;            // no candidate chosen
+            candidateIndex[v] = 0;  // start with 0
+        }
+
+        currtochange = 0;
 
         // Start the backtracking:
         while (true) {
@@ -259,19 +266,24 @@ long long Graph::calculateNumberofHomomorphismsTo(Graph &H) {
 
             if (increment) {
                 // We have to move to the next candidate for hom[currtochange]
-                // We'll skip over all candidates <= the old hom[currtochange]
-                int oldVal = hom[currtochange];
                 bool foundNext = false;
 
                 // Iterate over valid color-candidates
                 auto &pm = possibleMappings[currtochange];
-                for (int idx = 0; idx < pm.second; idx++) {
+                for (int idx = candidateIndex[currtochange] + 1; idx < pm.second; idx++) {
                     int candidate = pm.first[idx];
-                    if (candidate <= oldVal) {
-                        continue; // must pick something bigger than oldVal
-                    }
                     // Check adjacency constraints
                     bool works = true;
+
+                    if (currtochange == 0) {
+                        hom[currtochange] = candidate;
+                        candidateIndex[currtochange] = idx;
+                        foundNext = true;
+                        increment = false;
+                        ++currtochange;
+                        break;
+                    }
+
                     for (int edgeindex = nodeIndex[currtochange - 1];
                          edgeindex < nodeIndex[currtochange];
                          edgeindex++)
@@ -283,6 +295,7 @@ long long Graph::calculateNumberofHomomorphismsTo(Graph &H) {
                     }
                     if (works) {
                         hom[currtochange] = candidate;
+                        candidateIndex[currtochange] = idx;
                         foundNext = true;
                         increment = false;
                         ++currtochange;
@@ -304,20 +317,24 @@ long long Graph::calculateNumberofHomomorphismsTo(Graph &H) {
                     int candidate = pm.first[idx];
                     bool works = true;
                     // We only need to check edges whose 'second' is currtochange
-                    for (int edgeindex = nodeIndex[currtochange - 1];
-                         edgeindex < nodeIndex[currtochange];
-                         edgeindex++)
-                    {
-                        if (!H.isEdge(hom[edgeArray[edgeindex].first], candidate)) {
-                            works = false;
-                            break;
+                    if (currtochange != 0) {
+                        for (int edgeindex = nodeIndex[currtochange - 1];
+                             edgeindex < nodeIndex[currtochange];
+                             edgeindex++)
+                        {
+                            if (!H.isEdge(hom[edgeArray[edgeindex].first], candidate)) {
+                                works = false;
+                                break;
+                            }
                         }
                     }
                     if (works) {
                         hom[currtochange] = candidate;
+                        candidateIndex[currtochange] = idx;
                         if (currtochange == numVertices - 1) {
                             // We assigned the last vertex => valid homomorphism found
                             ++numHomomorphisms;
+                            continue;
                         } else {
                             foundFirst = true;
                             break;
@@ -342,6 +359,7 @@ long long Graph::calculateNumberofHomomorphismsTo(Graph &H) {
         }
         delete[] hom;
         delete[] nodeIndex;
+        delete[] candidateIndex;
         return numHomomorphisms;
     }
 
