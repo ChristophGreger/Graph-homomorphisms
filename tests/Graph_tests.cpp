@@ -4,6 +4,8 @@
 
 #include <gtest/gtest.h>
 #include <sstream>
+
+#include "CFIGraph.h"
 #include "Graph.h"
 #include "Node.h"
 #include "RandomGraphGenerator.h"
@@ -294,5 +296,70 @@ TEST(GraphTest, calculateNodeIndexAutomatic) {
     }
     ASSERT_EQ(nodeIndex[G.numVertices - 1], G.edges.size());
 }
+
+
+TEST(GraphTest, coloredHoms) {
+    for (int times = 0; times < 1000; times++) {
+        cout << times << endl;
+        Graph pattern = Graph(true);
+        for (int i = 0; i < 4; i++) {
+            Node node = Node(i);
+            pattern.addNode(node);
+        }
+        pattern.addEdge(0, 1);
+        pattern.addEdge(0, 3);
+        pattern.addEdge(1, 2);
+
+        CFIGraph CFI = CFIGraph(pattern);
+        Graph input = CFI.toGraph();
+
+        ASSERT_EQ(pattern.calculateNumberofHomomorphismsTo(input), 1);
+    }
+}
+
+
+TEST(GraphTest, coloredHoms2) {
+    for (int times = 0; times < 1000; times++) {
+        Graph pattern = Graph(true);
+        for (int i = 0; i < 4; i++) {
+            Node node = Node(i);
+            pattern.addNode(node);
+        }
+        pattern.addEdge(0, 3);
+        pattern.addEdge(1, 3);
+        pattern.addEdge(2, 3);
+
+        Graph input = Graph(true);
+        for (int i = 0; i < 4; i++) {
+            int color = 0;
+            switch (i) {
+                case 0:
+                    color = 0;
+                    break;
+                case 1:
+                    color = 1;
+                    break;
+                case 2:
+                    color = 2;
+                    break;
+                default:
+                    color = 3;
+                    break;
+            }
+            Node node = Node(color);
+            input.addNode(node);
+        }
+        input.addEdge(0, 3);
+        input.addEdge(0, 6);
+        input.addEdge(1, 3);
+        input.addEdge(1, 4);
+        input.addEdge(2, 3);
+        input.addEdge(2, 5);
+
+        ASSERT_EQ(pattern.calculateNumberofHomomorphismsTo(input), 1);
+    }
+}
+
+
 
 

@@ -5,6 +5,14 @@ set(CMAKE_CXX_STANDARD 14)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+        set(ASAN_FLAGS "-fsanitize=address -fno-omit-frame-pointer")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ASAN_FLAGS}")
+        set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} ${ASAN_FLAGS}")
+    endif()
+endif()
+
 add_library(bib STATIC
         include/Graph.h
         src/main/Graph.cpp
@@ -60,6 +68,11 @@ function(add_gtest test_name)
             GTest::gtest_main
             bib
     )
+    # Add ASan flags to the test target
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+        target_compile_options(${test_name} PRIVATE "-fsanitize=address" "-fno-omit-frame-pointer")
+        target_link_options(${test_name} PRIVATE "-fsanitize=address")
+    endif()
     add_test(NAME ${test_name} COMMAND ${test_name})
 endfunction()
 
