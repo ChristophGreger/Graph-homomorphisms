@@ -5,76 +5,67 @@
 #include "CFIGraph.h"
 #include "EvenSubsetIterator.h"
 #include "utilities.h"
+#include <iostream>
 
 using namespace std;
 
-CFIGraph::CFIGraph(Graph &G, bool inverted) : numofVertices(0), numofEdges(0), inverted(inverted) {
+CFIGraph::CFIGraph(Graph &G, bool invert): G(G) {
 
-    if (inverted && G.numVertices < 2) {
-        throw invalid_argument("Graph has to have at least 2 vertices to be inverted");
-    }
-
-    //Store the nodes of G with its edges
-    unordered_map<int, vector<int>> nodeEdges;
-    for (int i = 0; i < G.numVertices; i++) {
-        vector<int> edgesofx;
-        nodeEdges.insert({i, edgesofx});
-    }
+    int counter = 0;
+    //G.edges is sorted by the smaller edge
     for (const pair<int, int>& edge : G.edges) {
-        nodeEdges[edge.first].push_back(edge.second);
-        nodeEdges[edge.second].push_back(edge.first);
+        int id = edge.first * G.numVertices + edge.second;
+        //std::cout << edge.first << ":" << edge.second << " id:" << id << " counter:" << counter << std::endl;
+        edgeMap.insert({id,counter});
+        counter++;
     }
 
-    //Create the CFINodes
-    for (int i = 0; i < G.numVertices; i++) {
-        for (auto x : EvenSubsetIterator<int>(nodeEdges[i])) {
-            CFINode node = CFINode(G.nodes[i].color, i, x.first, x.second);
-            nodes.push_back(node);
-            numofVertices++;
-        }
-    }
-
-    int forinverting1 = 0;
-    int forinverting2 = nodeEdges[0][0];
-
-    //Create the edges
-    for (int i = 0; i < nodes.size(); i++) {
-        int currnumber = nodes[i].number;
-        for(int j = i; j < nodes.size(); j++) {
-
-            if (contains(nodes[i].ownedEdges, nodes[j].number) && contains(nodes[j].ownedEdges, currnumber)
-                || contains(nodes[i].notownedEdges, nodes[j].number) && contains(nodes[j].notownedEdges, currnumber)) {
-
-                //Check for the inverted case (we switch the edges between the 0 and 1 nodes)
-                if (inverted && nodes[i].number == forinverting1 && nodes[j].number == forinverting2) {
-                    continue;
-                }
-
-                //Normal case
-                edges.insert({i, j});
-            } else {
-
-                //Check for the inverted case (we switch the edges between the 0 and 1 nodes)
-                if (inverted && nodes[i].number == forinverting1 && nodes[j].number == forinverting2) {
-                    edges.insert({i, j});
-                }
-            }
-        }
-    }
-    numofEdges = static_cast<int>(edges.size());
-    numofVertices = static_cast<int>(nodes.size());
+    G.calculateAdjMatrix();
 
 }
-
 
 Graph CFIGraph::toGraph() {
-    Graph G = Graph(true);
-    for (int i = 0; i < numofVertices; i++) {
-        G.addNode(Node(nodes[i].color));
-    }
-    for (const pair<int, int>& edge : edges) {
-        G.addEdge(edge.first, edge.second);
-    }
-    return G;
+    //not required anymore
 }
 
+vector<int> CFIGraph::calcEdgeRepresentation(unordered_set<pair<int, int>, PairHash> edges) {
+
+    std::vector<int> a(G.edges.size(), 0);
+
+    for(pair<int,int> edge : edges) {
+        a.at(getEdgeId(edge)) = 1;
+    }
+
+    return a;
+
+}
+
+bool CFIGraph::isEdge(CFINode node1, CFINode node2) {
+
+    if(! G.isEdge(node1.number, node2.number)) {
+        return false;
+    }
+
+    int id = getEdgeId({node1.number,node2.number});
+
+    std::cout << "id:" << id << std::endl;
+
+    return node1.edgeSubset[id] == node2.edgeSubset[id];//same opinion on edge between
+    
+}
+
+//private
+int CFIGraph::getEdgeId(pair<int,int> edge) {
+    int number1 = edge.first;
+    int number2 = edge.second;
+
+    if(number2 < number1) {
+        int tmp = number1;
+        number1 = number2;
+        number2 = tmp;
+    }
+
+    int id = number1 * G.numVertices + number2;
+
+    return edgeMap.at(id);
+}

@@ -3,12 +3,6 @@
 //
 
 #include "CFINode.h"
-
 #include <utility>
 
-
-CFINode::CFINode(int color, int number, vector<int> ownedEdges, vector<int> notownedEdges) : number(number), color(color), ownedEdges(std::move(ownedEdges)), notownedEdges(std::move(notownedEdges)) {}
-
-
-
-
+CFINode::CFINode(int number, vector<int> edgeSubset) : number(number), edgeSubset(std::move(edgeSubset)) {}

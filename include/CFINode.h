@@ -13,11 +13,9 @@ using namespace std;
 
 class CFINode {
 public:
-    CFINode(int color, int number, vector<int> ownedEdges, vector<int> notownedEdges);
-    int color;
+    CFINode(int number, vector<int> edgeSubset);
     int number;
-    vector<int> ownedEdges; //there are the owned and not-owned Edges in an CFI Graph
-    vector<int> notownedEdges;
+    vector<int> edgeSubset;
 };
 
 

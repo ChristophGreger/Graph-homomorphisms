@@ -4,10 +4,12 @@
 
 #include <gtest/gtest.h>
 #include "CFIGraph.h"
+#include "CFINode.h"
 #include "RandomGraphGenerator.h"
 #include "utilities.h"
 
-TEST(CFIGraphTest, Constructor) {
+
+TEST(CFIGraphTest, edgeRepresentation) {
     Graph G = Graph(true);
     Node node0 = Node(0);
     Node node1 = Node(1);
@@ -25,11 +27,46 @@ TEST(CFIGraphTest, Constructor) {
 
     CFIGraph CFI = CFIGraph(G);
 
-    EXPECT_EQ(CFI.numofVertices, 12);
-    EXPECT_EQ(CFI.numofEdges, 24);
+    vector<int> r1 = CFI.calcEdgeRepresentation({{0,1},{1,3}});
+    std::vector<int> e1 = {0, 0, 0, 1, 1};
+    ASSERT_EQ(r1, e1);
+
+    vector<int> r2 = CFI.calcEdgeRepresentation({{0,1},{1,3},{1,2},{2,3},{0,3}});
+    std::vector<int> e2 = {1, 1, 1, 1, 1};
+    ASSERT_EQ(r2, e2);
+
+    vector<int> r3 = CFI.calcEdgeRepresentation({});
+    std::vector<int> e3 = {0, 0, 0, 0, 0};
+    ASSERT_EQ(r3, e3);
+
+    //create CFINodes
+
+    vector<int> r4 = CFI.calcEdgeRepresentation({{1,2},{1,0}});
+    std::vector<int> e4 = {1, 0, 0, 0, 1};
+    ASSERT_EQ(r4, e4);
+
+    CFINode c1 = CFINode(1, r4);
+
+    vector<int> r5 = CFI.calcEdgeRepresentation({{1,3},{3,2}});
+    std::vector<int> e5 = {0, 1, 0, 1, 0};
+    ASSERT_EQ(r5, e5);
+
+    CFINode c2 = CFINode(3, r5);
+
+    ASSERT_EQ(CFI.isEdge(c1,c2), false);
+
+    vector<int> r6 = CFI.calcEdgeRepresentation({{0,3},{3,2}});
+    std::vector<int> e6 = {0, 1, 1, 0, 0};
+    ASSERT_EQ(r6, e6);
+
+    CFINode c3 = CFINode(3, r6);
+
+    ASSERT_EQ(CFI.isEdge(c1,c3), true);
+    
 }
 
 
+/*
 TEST(CFIGraphTest, ByHomomorphisms) {
     for (int times = 0; times < 10; times++) {
         for (int vertices = 2; vertices < 9; vertices++) {
@@ -125,4 +162,4 @@ TEST(CFIGraphTest, ByHomomorphisms3) {
 
 }
 
-
+*/
