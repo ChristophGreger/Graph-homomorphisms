@@ -523,7 +523,7 @@ long long Graph::calculateNumberofHomomorphismsTo_CFI_from(Graph &S) {
         }
     }
 
-    unsigned int exponent = 0;
+    int exponent = 0;
 
     //Now calculate the exponent to base 2 that counts the number of homs
 
@@ -540,9 +540,16 @@ long long Graph::calculateNumberofHomomorphismsTo_CFI_from(Graph &S) {
 
     exponent -= numVertices;
 
-    exponent -= edges.size();
+    exponent -= static_cast<int>(edges.size());
 
-    exponent += S.calculateNumberofHomomorphismsTo(*this);
+    exponent += static_cast<int>(S.calculateNumberofHomomorphismsTo(*this));
+
+
+    //I have no idea why this is needed, but it is
+    //NO this is not correct and the result of a incorrect calculation of a. a is not the number of homs, but smth different
+    if (exponent < 0) {
+        return 0;
+    }
 
     return Pow_base2(exponent);
 }

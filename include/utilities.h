@@ -26,7 +26,7 @@ int getRandomNumberBetween(int first, int second); //Inclusive both values
 
 int intPow(int base, int exponent);
 
-long long Pow_base2(unsigned int exponent);
+long long Pow_base2(int exponent);
 
 void printVector(const std::vector<int>& vec);
 

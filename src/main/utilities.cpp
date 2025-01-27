@@ -29,7 +29,7 @@ int intPow(int base, int exponent) {
     return result;
 }
 
-long long Pow_base2(unsigned int exponent) {
+long long Pow_base2(int exponent) {
     return 1LL << exponent;
 }
 
