@@ -7,6 +7,7 @@
 #include <Graph.h>
 #include <CFIGraph.h>
 #include <utilities.h>
+#include <RandomGraphGenerator.h>
 
 TEST(Closed_Formula_Trying, SurjectivelyColored_CLOSEDFORMULA) {
     //See the CFI graph from the paper
@@ -323,4 +324,35 @@ TEST(Closed_Formula_Trying, TryingThesis_isomorphisms_count_for_a_CLOSEDFORMULA)
 
     ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), H.calculateNumberofHomomorphismsTo_CFI_from(S));
 
+}
+
+
+TEST(Closed_Formula_Trying, TryingOut_Automated_CLOSEDFORMULA) {
+
+    for (int snodes = 3; snodes < 12; ++snodes) {
+        for (int sedges = snodes - 1; sedges <= snodes * (snodes - 1) / 2; ++sedges) {
+            for (int times = 0; times < 100; ++times) {
+                RandomGraphGenerator sgen = RandomGraphGenerator(snodes, sedges, true, true);
+                Graph S = sgen.generateRandomConnectedGraph();
+                CFIGraph X_of_S = CFIGraph(S);
+                Graph input = X_of_S.toGraph();
+
+                int hnodes = getRandomNumberBetween(2, 6);
+                int hedges = getRandomNumberBetween(hnodes - 1, hnodes * (hnodes - 1) / 2);
+                RandomGraphGenerator hgen = RandomGraphGenerator(hnodes, hedges, true, false, snodes, false);
+                Graph H = hgen.generateRandomConnectedGraph();
+                long long number = H.calculateNumberofHomomorphismsTo_CFI_from(S);
+                cout << "Trying for Nodes:" << snodes << ", Edges: " << sedges << " of S and Nodes: " << hnodes << ", Edges: " << hedges << " of H"<< endl;
+                cout << number << endl;
+                long long countedhoms = H.calculateNumberofHomomorphismsTo(input);
+                if (number != countedhoms) {
+                    cout << "S: " <<endl;
+                    S.printGraph(true);
+                    cout << "H: " <<endl;
+                    H.printGraph(true);
+                }
+                ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), number);
+            }
+        }
+    }
 }
