@@ -31,6 +31,8 @@ void Graph::addEdge(int node1, int node2) {
     }
 }
 
+
+
 void Graph::printGraph(bool printcolors) {
     cout << "Graph with " << numVertices << " vertices and " << edges.size() << " edges" << endl;
 
@@ -476,6 +478,73 @@ long long Graph::calculateNumberofSubGraphsTo(Graph &H) {
         return calculateNumberofInjectiveHomomorphismsTo(H) / calculateNumberofAutomorphismsWithColoring();
     }
     return calculateNumberofInjectiveHomomorphismsTo(H) / calculateNumberofAutomorphismsWithoutColoring();
+}
+
+
+//Caller must delete the array !
+int *Graph::calculateDegreeArray() {
+    int *degreeArray = new int[numVertices];
+    for (int i = 0; i < numVertices; i++) {
+        degreeArray[i] = 0;
+    }
+    for (auto edge : edges) {
+        degreeArray[edge.first]++;
+        degreeArray[edge.second]++;
+    }
+    return degreeArray;
+}
+
+
+
+long long Graph::calculateNumberofHomomorphismsTo_CFI_from(Graph &S) {
+
+    //Make sure both are colored
+    if (!colored || !S.colored) {
+        throw invalid_argument("Both graphs have to be colored for this function.");
+    }
+
+    //Make sure there is no color in this that is not in H
+    //The colors in H are from 0 to H.numVertices - 1
+    for (int i = 0; i < numVertices; i++) {
+        if (nodes[i].color >= S.numVertices) {
+            return 0;
+        }
+    }
+
+    //TODO: Implement copy function of the graph with deepcopy of the arrays and prevent calculating arrays multiple times with producing garbage
+    S.calculateAdjMatrix();
+
+    //Make sure there is no edge between colors in this where there is no edge between this to colors in H
+    for (auto edge : edges) {
+        auto edgecolor1 = nodes[edge.first].color;
+        auto edgecolor2 = nodes[edge.second].color;
+        if (!S.isEdge(edgecolor1, edgecolor2)) {
+            return 0;
+        }
+    }
+
+    unsigned int exponent = 0;
+
+    //Now calculate the exponent to base 2 that counts the number of homs
+
+    int * degreeArray = S.calculateDegreeArray();
+
+    //Calculate the degree sum of the f(v) in S
+    for (int i = 0; i < numVertices; i++) {
+        auto node = nodes[i];
+        auto color = node.color;
+        exponent += degreeArray[color];
+    }
+
+    delete [] degreeArray;
+
+    exponent -= numVertices;
+
+    exponent -= edges.size();
+
+    exponent += S.calculateNumberofHomomorphismsTo(*this);
+
+    return Pow_base2(exponent);
 }
 
 

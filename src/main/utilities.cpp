@@ -29,6 +29,10 @@ int intPow(int base, int exponent) {
     return result;
 }
 
+long long Pow_base2(unsigned int exponent) {
+    return 1LL << exponent;
+}
+
 void printVector(const std::vector<int>& vec) {
     for (int i : vec) {
         std::cout << i << " ";

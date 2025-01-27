@@ -46,6 +46,8 @@ public:
 
     long long calculateNumberofSubGraphsTo(Graph &H);
 
+    long long calculateNumberofHomomorphismsTo_CFI_from(Graph &H);
+
     int numVertices;
 
     bool isConnected() const;
@@ -53,6 +55,10 @@ public:
     void sortEdges();
 
     int * calculateNodeIndex();
+
+
+    //TODO: Maybe make this nicer later
+    int * calculateDegreeArray(); //Only call if the Graph is surjectively colored and the colors are from 0 to numVertices - 1
 
 
 

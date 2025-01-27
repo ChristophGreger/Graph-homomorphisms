@@ -8,7 +8,7 @@
 #include <CFIGraph.h>
 #include <utilities.h>
 
-TEST(Closed_Formula_Trying, SurjectivelyColored) {
+TEST(Closed_Formula_Trying, SurjectivelyColored_CLOSEDFORMULA) {
     //See the CFI graph from the paper
 
     Graph S = Graph(true);
@@ -38,12 +38,11 @@ TEST(Closed_Formula_Trying, SurjectivelyColored) {
     //H.addEdge(1 , 3);
     H.addEdge(2 , 3);
 
-    ASSERT_EQ(S.calculateNumberofHomomorphismsTo(input), H.calculateNumberofHomomorphismsTo(input)/2);
+    ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), H.calculateNumberofHomomorphismsTo_CFI_from(S));
 
 }
 
-
-TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple) {
+TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple_CLOSEDFORMULA) {
     //See the CFI graph from the paper
 
     Graph S = Graph(true);
@@ -74,11 +73,10 @@ TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple) {
     H.addEdge(1 , 2);
     H.addEdge(0, 3);
 
-    int expected = intPow(2, 11-8);
-    ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), expected);
+    ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), H.calculateNumberofHomomorphismsTo_CFI_from(S));
 }
 
-TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple2) {
+TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple2_CLOSEDFORMULA) {
     //See the CFI graph from the paper
 
     Graph S = Graph(true);
@@ -110,12 +108,11 @@ TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple2) {
     H.addEdge(0, 3);
     H.addEdge(1, 3);
 
-    int expected = intPow(2, 11-8);
-    ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), expected/2);
+    ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), H.calculateNumberofHomomorphismsTo_CFI_from(S));
 }
 
 
-TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple3) {
+TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple3_CLOSEDFORMULA) {
     //See the CFI graph from the paper
 
     Graph S = Graph(true);
@@ -150,12 +147,12 @@ TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple3) {
     H.addEdge(4 , 1);
     H.addEdge(4 , 3);
 
-    ASSERT_EQ(S.calculateNumberofHomomorphismsTo(input), H.calculateNumberofHomomorphismsTo(input) * intPow(2, 3-3));
+    ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), H.calculateNumberofHomomorphismsTo_CFI_from(S));
 }
 
 
 
-TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple4) {
+TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple4_CLOSEDFORMULA) {
     //See the CFI graph from the paper
 
     Graph S = Graph(true);
@@ -198,10 +195,10 @@ TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple4) {
     H.addEdge(6 , 7);
 
 
-    ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), S.calculateNumberofHomomorphismsTo(input) * intPow(2, 10-2-2-2-2-1));
+    ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), H.calculateNumberofHomomorphismsTo_CFI_from(S));
 }
 
-TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple5) {
+TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple5_CLOSEDFORMULA) {
     //See the CFI graph from the paper
 
     Graph S = Graph(true);
@@ -244,11 +241,11 @@ TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple5) {
     //H.addEdge(6 , 7); THE SAME WITH ONE EDGE LESS !!!!!!!!
 
 
-    ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), S.calculateNumberofHomomorphismsTo(input) * intPow(2, 10-2-2-2-2-1)); //SAME RESULT !!!!!
+    ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), H.calculateNumberofHomomorphismsTo_CFI_from(S)); //SAME RESULT !!!!!
 }
 
 
-TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple6) {
+TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple6_CLOSEDFORMULA) {
     //See the CFI graph from the paper
 
     Graph S = Graph(true);
@@ -282,5 +279,48 @@ TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple6) {
     H.addEdge(2 , 4);
 
 
-    ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), intPow(2, 2));
+    ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), H.calculateNumberofHomomorphismsTo_CFI_from(S));
+}
+
+
+TEST(Closed_Formula_Trying, TryingThesis_isomorphisms_count_for_a_CLOSEDFORMULA) {
+    //See the CFI graph from the paper
+
+    Graph S = Graph(true);
+
+    for (int i = 0; i < 4; i++) {
+        S.addNode(Node(i));
+    }
+
+    S.addEdge(0 , 1);
+    S.addEdge(0 , 2);
+    S.addEdge(1 , 2);
+    S.addEdge(1 , 3);
+    S.addEdge(2 , 3);
+
+    CFIGraph X_of_S = CFIGraph(S);
+    Graph input = X_of_S.toGraph();
+
+    Graph H = Graph(true);
+
+    for (int i = 0; i < 4; i++) {
+        H.addNode(Node(i));
+    }
+
+    H.addNode(Node(0));
+
+    H.addEdge(0 , 1);
+    H.addEdge(0 , 2);
+    H.addEdge(1 , 2);
+    H.addEdge(1 , 3);
+    H.addEdge(2 , 3);
+
+    H.addEdge(4 , 1);
+    H.addEdge(4 , 2);
+
+
+    cout << intPow(2, 12-5-7+2) << endl;
+
+    ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), H.calculateNumberofHomomorphismsTo_CFI_from(S));
+
 }
