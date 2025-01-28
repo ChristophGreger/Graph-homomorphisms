@@ -7,6 +7,7 @@
 #include <stack>
 #include "utilities.h"
 #include "NextInjection.h"
+#include <queue>
 
 
 Graph::Graph(bool colored) : colored(colored) {
@@ -525,32 +526,104 @@ long long Graph::calculateNumberofHomomorphismsTo_CFI_from(Graph &S) {
 
     int exponent = 0;
 
-    //Now calculate the exponent to base 2 that counts the number of homs
 
     int * degreeArray = S.calculateDegreeArray();
 
-    //Calculate the degree sum of the f(v) in S
+    //Now the GreedyAlgorithm
+
+    //Calculate an Outgoing array for each node in this (undirected graph)
+    vector<vector<int>> outgoing;
+    outgoing.reserve(numVertices);
     for (int i = 0; i < numVertices; i++) {
-        auto node = nodes[i];
-        auto color = node.color;
-        exponent += degreeArray[color];
+        vector<int> out;
+        outgoing.push_back(out);
+    }
+    for (auto edge : edges) {
+        outgoing[edge.first].push_back(edge.second);
+        outgoing[edge.second].push_back(edge.first);
+    }
+    //DONE
+
+    unordered_set<int> includedVertices;
+
+
+    int current = 0;
+    exponent += degreeArray[nodes[current].color] - 1;
+
+    includedVertices.insert(current);
+
+    queue<int> q;
+
+    for (auto i : outgoing[current]) {
+        q.push(i);
+    }
+
+
+    //cout << "Works until here" << endl;
+
+
+    //Defintion of the already defined colors that a node has edges to in S
+    vector<vector<int>> alreadydefinedcolors;
+    alreadydefinedcolors.reserve(numVertices);
+
+
+
+    //BFS
+    while (!q.empty()) {
+        current = q.front();
+        q.pop();
+
+        // Wenn der Knoten schon besucht wurde, überspringen
+        if (includedVertices.find(current) != includedVertices.end()) {
+            continue;
+        }
+
+        // Markiere den aktuellen Knoten als besucht
+        includedVertices.insert(current);
+
+        // Verarbeite Nachbarn
+        int numofincludedneighbours = 0;
+
+        int numberofneighbours_with_at_least_one_less_already_defined_colors = 0;
+
+        for (auto i : outgoing[current]) {
+            if (includedVertices.find(i) != includedVertices.end()) {
+                if (alreadydefinedcolors[i].size() >= degreeArray[nodes[i].color] - 1) {
+                    numberofneighbours_with_at_least_one_less_already_defined_colors++;
+                }
+                auto it = find(alreadydefinedcolors[i].begin(), alreadydefinedcolors[i].end(), nodes[current].color);
+                if (it == alreadydefinedcolors[i].end()) {
+                    alreadydefinedcolors[i].push_back(nodes[current].color);
+                }
+                ++numofincludedneighbours;
+            }
+            alreadydefinedcolors[current].push_back(nodes[i].color);
+        }
+
+        bool addoneifnegative = false;
+        if (numberofneighbours_with_at_least_one_less_already_defined_colors >= degreeArray[nodes[current].color] && alreadydefinedcolors[current].size() >= degreeArray[nodes[current].color]) {
+            addoneifnegative = true;
+        }
+
+
+
+        int degreeinS = degreeArray[nodes[current].color];
+        int currexp = degreeinS - numofincludedneighbours - 1;
+
+        if (currexp < 0 && addoneifnegative) {
+            ++currexp;
+        }
+        exponent += currexp;
+
+        // Füge alle Nachbarn hinzu, die noch nicht besucht wurden
+        for (auto i : outgoing[current]) {
+            if (includedVertices.find(i) == includedVertices.end()) {
+                q.push(i);
+            }
+        }
     }
 
     delete [] degreeArray;
-
-    exponent -= numVertices;
-
-    exponent -= static_cast<int>(edges.size());
-
-    exponent += static_cast<int>(S.calculateNumberofHomomorphismsTo(*this));
-
-
-    //I have no idea why this is needed, but it is
-    //NO this is not correct and the result of a incorrect calculation of a. a is not the number of homs, but smth different
-    if (exponent < 0) {
-        return 0;
-    }
-
     return Pow_base2(exponent);
 }
 

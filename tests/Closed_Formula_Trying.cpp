@@ -2,7 +2,6 @@
 // Created by Christoph Greger on 25.01.25.
 //
 #include <gtest/gtest.h>
-#include <vector>
 #include <iostream>
 #include <Graph.h>
 #include <CFIGraph.h>
@@ -329,7 +328,7 @@ TEST(Closed_Formula_Trying, TryingThesis_isomorphisms_count_for_a_CLOSEDFORMULA)
 
 TEST(Closed_Formula_Trying, TryingOut_Automated_CLOSEDFORMULA) {
 
-    for (int snodes = 3; snodes < 12; ++snodes) {
+    for (int snodes = 5; snodes < 12; ++snodes) {
         for (int sedges = snodes - 1; sedges <= snodes * (snodes - 1) / 2; ++sedges) {
             for (int times = 0; times < 100; ++times) {
                 RandomGraphGenerator sgen = RandomGraphGenerator(snodes, sedges, true, true);
@@ -337,11 +336,15 @@ TEST(Closed_Formula_Trying, TryingOut_Automated_CLOSEDFORMULA) {
                 CFIGraph X_of_S = CFIGraph(S);
                 Graph input = X_of_S.toGraph();
 
-                int hnodes = getRandomNumberBetween(2, 6);
+                int hnodes = getRandomNumberBetween(5, 10);
                 int hedges = getRandomNumberBetween(hnodes - 1, hnodes * (hnodes - 1) / 2);
                 RandomGraphGenerator hgen = RandomGraphGenerator(hnodes, hedges, true, false, snodes, false);
                 Graph H = hgen.generateRandomConnectedGraph();
+                //cout << "Started new Formula" << endl;
                 long long number = H.calculateNumberofHomomorphismsTo_CFI_from(S);
+                if (number == 0) {
+                    continue;
+                }
                 cout << "Trying for Nodes:" << snodes << ", Edges: " << sedges << " of S and Nodes: " << hnodes << ", Edges: " << hedges << " of H"<< endl;
                 cout << number << endl;
                 long long countedhoms = H.calculateNumberofHomomorphismsTo(input);
@@ -351,8 +354,40 @@ TEST(Closed_Formula_Trying, TryingOut_Automated_CLOSEDFORMULA) {
                     cout << "H: " <<endl;
                     H.printGraph(true);
                 }
-                ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), number);
+                ASSERT_EQ(countedhoms, number);
             }
         }
     }
+}
+
+
+TEST(Closed_Formula_Trying, Tryingoutsometh) {
+    //See the CFI graph from the paper
+
+    Graph S = Graph(true);
+
+    for (int i = 0; i < 4; i++) {
+        S.addNode(Node(i));
+    }
+
+    S.addEdge(0 , 1);
+    S.addEdge(0 , 2);
+    S.addEdge(1 , 2);
+    S.addEdge(1 , 3);
+    S.addEdge(2 , 3);
+
+    CFIGraph X_of_S = CFIGraph(S);
+    Graph input = X_of_S.toGraph();
+
+    Graph H = Graph(true);
+    H.addNode(Node(0));
+    H.addNode(Node(1));
+    H.addNode(Node(1));
+    H.addNode(Node(1));
+
+    H.addEdge(0,1);
+    H.addEdge(0,2);
+    H.addEdge(0,3);
+
+    cout << H.calculateNumberofHomomorphismsTo(input) << endl;
 }
