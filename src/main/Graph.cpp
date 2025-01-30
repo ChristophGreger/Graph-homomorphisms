@@ -536,7 +536,7 @@ long long Graph::calculateNumberofHomomorphismsTo_CFI_from(Graph &S) {
         exponent += degreeArray[color];
     }
 
-    delete [] degreeArray;
+
 
     exponent -= numVertices;
 
@@ -545,12 +545,100 @@ long long Graph::calculateNumberofHomomorphismsTo_CFI_from(Graph &S) {
     exponent += static_cast<int>(S.calculateNumberofHomomorphismsTo(*this));
 
 
-    //I have no idea why this is needed, but it is
-    //NO this is not correct and the result of a incorrect calculation of a. a is not the number of homs, but smth different
-    if (exponent < 0) {
-        return 0;
+    //Now the GreedyAlgorithm
+
+    //Calculate an Outgoing array for each node in this (undirected graph)
+    vector<vector<int>> outgoing;
+    outgoing.reserve(numVertices);
+    for (int i = 0; i < numVertices; i++) {
+        vector<int> out;
+        outgoing.push_back(out);
+    }
+    for (auto edge : edges) {
+        outgoing[edge.first].push_back(edge.second);
+        outgoing[edge.second].push_back(edge.first);
+    }
+    //DONE
+
+    unordered_set<int> includedVertices;
+
+
+    int current = 0;
+
+    includedVertices.insert(current);
+
+    queue<int> q;
+
+    for (auto i : outgoing[current]) {
+        q.push(i);
     }
 
+
+    //cout << "Works until here" << endl;
+
+    //Defintion of the already defined colors that a node has edges to in S
+    vector<vector<int>> alreadydefinedcolors;
+    alreadydefinedcolors.reserve(numVertices);
+    for (int i = 0; i < numVertices; i++) {
+        vector<int> out;
+        alreadydefinedcolors.push_back(out);
+    }
+
+
+
+    //BFS
+    while (!q.empty()) {
+        current = q.front();
+        q.pop();
+
+        // Wenn der Knoten schon besucht wurde, überspringen
+        if (includedVertices.find(current) != includedVertices.end()) {
+            continue;
+        }
+
+        // Markiere den aktuellen Knoten als besucht
+        includedVertices.insert(current);
+
+
+        int numofincludedneighbours = 0;
+        bool addoneifnegative = false;
+
+        for (auto i : outgoing[current]) {
+            if (includedVertices.find(i) != includedVertices.end()) {
+                numofincludedneighbours++;
+                auto it = find(alreadydefinedcolors[i].begin(), alreadydefinedcolors[i].end(), nodes[current].color);
+                if (it == alreadydefinedcolors[i].end()) {
+                    alreadydefinedcolors[i].push_back(nodes[current].color);
+                } else {
+                    addoneifnegative = true;
+                }
+
+                auto it2 = find(alreadydefinedcolors[current].begin(), alreadydefinedcolors[current].end(), nodes[i].color);
+                if (it2 == alreadydefinedcolors[current].end()) {
+                    alreadydefinedcolors[current].push_back(nodes[i].color);
+                }
+            }
+
+        }
+
+
+        int degreeinS = degreeArray[nodes[current].color];
+        int currexp = degreeinS - numofincludedneighbours - 1;
+
+        if (currexp < 0 && addoneifnegative) {
+            ++exponent;
+        }
+
+        // Füge alle Nachbarn hinzu, die noch nicht besucht wurden
+        for (auto i : outgoing[current]) {
+            if (includedVertices.find(i) == includedVertices.end()) {
+                q.push(i);
+            }
+        }
+    }
+
+
+    delete [] degreeArray;
     return Pow_base2(exponent);
 }
 
