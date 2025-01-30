@@ -6,7 +6,7 @@
 
 #include "utilities.h"
 
-RandomGraphGenerator::RandomGraphGenerator(int vertices, int edges, bool colored, bool surjectivecoloring, int colors) : vertices(vertices), edges(edges), colored(colored), surjectivecoloring(surjectivecoloring), colors(colors) {}
+RandomGraphGenerator::RandomGraphGenerator(int vertices, int edges, bool colored, bool surjectivecoloring, int colors, bool allcolorsneeded) : allcolorsneeded(allcolorsneeded), vertices(vertices), edges(edges), colored(colored), surjectivecoloring(surjectivecoloring), colors(colors) {}
 
 Graph RandomGraphGenerator::generateRandomConnectedGraph() const {
 
@@ -32,7 +32,7 @@ Graph RandomGraphGenerator::generateRandomConnectedGraph() const {
             }
         } else {
             for (int i = 0; i < vertices; i++) {
-                if (i < colors) {
+                if (i < colors && allcolorsneeded) {
                     G.addNode(Node(i));
                 } else {
                     G.addNode(Node(getRandomNumberBetween(0, colors-1)));

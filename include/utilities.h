@@ -32,5 +32,7 @@ void printVector(const std::vector<int>& vec);
 template<typename T1, typename T2>
 void sortBySecond(std::pair<T1, T2>* arr, std::size_t size);
 
+long long powBase2(int exponent);
+
 
 #endif //GRAPH_HOMOMORPHISMS_UTILITIES_H

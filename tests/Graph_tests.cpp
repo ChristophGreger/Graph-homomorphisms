@@ -360,6 +360,42 @@ TEST(GraphTest, coloredHoms2) {
     }
 }
 
+TEST(GRAPH_Test, ShrinkGraph) {
+    //See the CFI graph from the paper
+
+    Graph S = Graph(true);
+
+    for (int i = 0; i < 4; i++) {
+        S.addNode(Node(i));
+    }
+
+    S.addEdge(0 , 1);
+    S.addEdge(0 , 2);
+    S.addEdge(1 , 2);
+    S.addEdge(1 , 3);
+    S.addEdge(2 , 3);
+
+    Graph H = Graph(true);
+    for (int i = 0; i < 4; i++) {
+        H.addNode(Node(i));
+    }
+
+    H.addNode(Node(0));
+
+    H.addEdge(0 , 1);
+    H.addEdge(0 , 2);
+    H.addEdge(1 , 2);
+    H.addEdge(1 , 3);
+    H.addEdge(2 , 3);
+
+    H.addEdge(4,0);
+
+    auto shrinked = H.shrinkGraph(S);
+    ASSERT_EQ(shrinked.first, true);
+    shrinked.second.printGraph(true);
+    S.printGraph(true);
+}
+
 
 
 

@@ -15,12 +15,13 @@ public:
     bool colored;
     bool surjectivecoloring;
     int colors;
+    bool allcolorsneeded;
     //nodes: number of vertices
     //edges: number of edges
     //colored: if the graph should be colored
     //surjectivecoloring: if the coloring should be surjective (not two nodes with same color)
     //colors: number of colors (from 0 to colors exclusive)
-    RandomGraphGenerator(int vertices, int edges, bool colored = false, bool surjectivecoloring = true, int colors = 0);
+    RandomGraphGenerator(int vertices, int edges, bool colored = false, bool surjectivecoloring = true, int colors = 0, bool allcolorsneeded = true);
     Graph generateRandomConnectedGraph() const;
 
 };

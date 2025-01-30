@@ -479,6 +479,193 @@ long long Graph::calculateNumberofSubGraphsTo(Graph &H) {
 }
 
 
+vector<vector<int>> Graph::neighbors() {
+    vector<vector<int>> neighbors;
+    for (int i = 0; i < numVertices; i++) {
+        vector<int> n;
+        for (int j = 0; j < numVertices; j++) {
+            if (isEdgebySet(i, j)) {
+                n.push_back(j);
+            }
+        }
+        neighbors.push_back(n);
+    }
+    return neighbors;
+}
+
+vector<int> Graph::degree() {
+    vector<int> deg;
+    for (int i = 0; i < numVertices; i++) {
+        int d = 0;
+        for (int j = 0; j < numVertices; j++) {
+            if (isEdgebySet(i, j)) {
+                d++;
+            }
+        }
+        deg.push_back(d);
+    }
+    return deg;
+}
+
+pair<bool, Graph> Graph::shrinkGraph(Graph &S) {
+
+    //TODO: DOESN'T WORK!!!!
+    cout << "Start" << endl;
+    int todelete = -1;
+    int tomatch = -1;
+
+    auto degS = S.degree();
+    auto deg = degree();
+    auto neighborsthis = neighbors();
+
+    for (int i = 0; i < numVertices; i++) {
+
+        if (deg[i] >= degS[nodes[i].color] - 1) {
+
+            for (int neighbor1 : neighborsthis[i]) {
+                for (int neighbor2 : neighborsthis[neighbor1]) {
+
+                    //Check for same color
+                    if (nodes[neighbor1].color != nodes[neighbor2].color) {
+                        continue;
+                    }
+
+                    //Skip if neighbor2 is i
+                    if (neighbor2 == i) {
+                        continue;
+                    }
+
+                    //Now check if i and neighbor2 have enough neighbors with different color in common
+                    vector<int> commonneighbors;
+                    unordered_set<int> commoncolorsneighbors = unordered_set<int>();
+                    for (int neighbor : neighborsthis[i]) {
+                        if (neighborsthis[neighbor2].end() != find(neighborsthis[neighbor2].begin(), neighborsthis[neighbor2].end(), neighbor)) {
+                            commonneighbors.push_back(neighbor);
+                            commoncolorsneighbors.insert(nodes[neighbor].color);
+                        }
+                    }
+
+                    if (commoncolorsneighbors.size() >= degS[nodes[i].color] - 1) {
+                        todelete = i;
+                        tomatch = neighbor2;
+                        break;
+                    }
+                }
+                if (todelete != -1) {
+                    break;
+                }
+            }
+            if (todelete != -1) {
+                break;
+            }
+        }
+    }
+
+    if (todelete == -1) {
+        return make_pair(false, *this);
+    }
+
+    Graph newGraph = Graph(colored);
+    int minus = 0;
+    for (int i = 0; i < numVertices; i++) {
+        if (i == todelete) {
+            minus = 1;
+            continue;
+        }
+        newGraph.addNode(nodes[i-minus]);
+    }
+
+    cout << "deleted: " << todelete << " matched: " << tomatch << endl;
+    for (auto edge : edges) {
+        auto first = edge.first;
+        auto second = edge.second;
+        if (first == todelete) {
+            first = tomatch;
+        } else if (second == todelete) {
+            second = tomatch;
+        }
+        if (first > todelete) {
+            first--;
+        }
+        if (second > todelete) {
+            second--;
+        }
+        newGraph.addEdge(first, second);
+    }
+
+    return make_pair(true, newGraph);
+}
+
+
+long long Graph::calculateNumberofhomomorphismsTo_CFI_from(Graph &S) {
+    //Make sure both are colored
+    if (!colored || !S.colored) {
+        throw invalid_argument("Both graphs have to be colored for this function.");
+    }
+
+    //Make sure there is no color in this that is not in H
+    //The colors in H are from 0 to H.numVertices - 1
+    for (int i = 0; i < numVertices; i++) {
+        if (nodes[i].color >= S.numVertices) {
+            return 0;
+        }
+    }
+
+    S.calculateAdjMatrix();
+
+    //Make sure there is no edge between colors in this where there is no edge between this to colors in H
+    for (auto edge : edges) {
+        auto edgecolor1 = nodes[edge.first].color;
+        auto edgecolor2 = nodes[edge.second].color;
+        if (!S.isEdge(edgecolor1, edgecolor2)) {
+            return 0;
+        }
+    }
+
+
+    //Now check if the graph can be shrinked
+    auto shrinked = shrinkGraph(S);
+    while (shrinked.first) {
+        shrinked = shrinked.second.shrinkGraph(S);
+    }
+    shrinked.second.calculateNumberofhomomorphismsTo_CFI_from(S);
+    //Now the Graph can't be shrinked anymore (Maybe get rid of the second call sometime later)
+
+
+    int exponent = 0;
+
+    //Now calculate the exponent to base 2 that counts the number of homs
+
+    auto degreeArray = S.degree();
+
+    //Calculate the degree sum of the f(v) in S
+    for (int i = 0; i < numVertices; i++) {
+        auto node = nodes[i];
+        auto color = node.color;
+        exponent += degreeArray[color];
+    }
+
+
+
+    exponent -= numVertices;
+
+    exponent -= static_cast<int>(edges.size());
+
+    exponent += static_cast<int>(S.calculateNumberofHomomorphismsTo(*this));
+
+
+    return powBase2(exponent);
+}
+
+
+
+
+
+
+
+
+
+
 
 
 
