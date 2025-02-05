@@ -8,6 +8,8 @@
 #include <CFIGraph.h>
 #include <utilities.h>
 #include <RandomGraphGenerator.h>
+#include <iostream>
+#include <exception>
 
 TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple) {
     //See the CFI graph from the paper
@@ -230,6 +232,9 @@ TEST(Closed_Formula_Trying, TryingOut_Automated_CLOSEDFORMULA) {
                 RandomGraphGenerator hgen = RandomGraphGenerator(hnodes, hedges, true, false, snodes, false);
                 Graph H = hgen.generateRandomConnectedGraph();
                 long long number = H.calculateNumberofhomomorphismsTo_CFI_from(S);
+                if (number == 0) {
+                    continue;
+                }
                 cout << "Trying for Nodes:" << snodes << ", Edges: " << sedges << " of S and Nodes: " << hnodes << ", Edges: " << hedges << " of H"<< endl;
                 cout << number << endl;
                 long long countedhoms = H.calculateNumberofHomomorphismsTo(input);
@@ -240,6 +245,71 @@ TEST(Closed_Formula_Trying, TryingOut_Automated_CLOSEDFORMULA) {
                     H.printGraph(true);
                 }
                 ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), number);
+            }
+        }
+    }
+}
+
+
+TEST(CLOSED, Example) {
+    Graph S = Graph(true);
+    for (int i = 0; i < 5; i++) {
+        S.addNode(Node(i));
+    }
+    S.addEdge(0,1);
+    S.addEdge(0,2);
+    S.addEdge(0,3);
+    S.addEdge(0,4);
+    S.addEdge(1,2);
+    S.addEdge(1,3);
+
+    Graph H = Graph(true);
+    H.addNode(Node(2));
+    H.addNode(Node(0));
+    H.addNode(Node(2));
+    H.addNode(Node(4));
+
+    H.addEdge(1,0);
+    H.addEdge(1,2);
+    H.addEdge(1,3);
+
+
+
+    ASSERT_EQ(H.calculateNumberofhomomorphismsTo_CFI_from(S), 4);
+}
+
+TEST(Closed_Formula_Trying, TryingOut_Automated_CLOSEDFORMULA2) {
+
+    for (int snodes = 3; snodes < 12; ++snodes) {
+        for (int sedges = snodes - 1; sedges <= snodes * (snodes - 1) / 2; ++sedges) {
+            for (int times = 0; times < 1000; ++times) {
+                RandomGraphGenerator sgen = RandomGraphGenerator(snodes, sedges, true, true);
+                Graph S = sgen.generateRandomConnectedGraph();
+                CFIGraph X_of_S = CFIGraph(S);
+                Graph input = X_of_S.toGraph();
+
+                int hnodes = getRandomNumberBetween(2, 6);
+                int hedges = getRandomNumberBetween(hnodes - 1, hnodes * (hnodes - 1) / 2);
+                RandomGraphGenerator hgen = RandomGraphGenerator(hnodes, hedges, true, false, snodes, false);
+                Graph H;
+                try {
+                    H = hgen.generateRandomConnectedGraphNoDoubleColorNeighbors();
+                } catch (std::exception &e) {
+                    continue;
+                }
+                long long number = H.calculateNumberofhomomorphismsTo_CFI_from(S);
+                if (number == 0) {
+                    continue;
+                }
+                long long countedhoms = H.calculateNumberofHomomorphismsTo(input);
+                if (number != countedhoms) {
+                    cout << "S: " <<endl;
+                    S.printGraph(true);
+                    cout << "H: " <<endl;
+                    H.printGraph(true);
+                }
+                cout << "Number: " << number << " Counted: " << countedhoms << endl;
+                ASSERT_EQ(countedhoms, number);
             }
         }
     }

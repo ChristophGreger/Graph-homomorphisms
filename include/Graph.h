@@ -62,11 +62,6 @@ public:
 
     long long calculateNumberofhomomorphismsTo_CFI_from(Graph &S);
 
-
-
-
-
-
 };
 
 

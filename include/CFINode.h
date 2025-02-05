@@ -13,6 +13,7 @@ using namespace std;
 
 class CFINode {
 public:
+
     CFINode(int color, int number, vector<int> ownedEdges, vector<int> notownedEdges);
     int color;
     int number;

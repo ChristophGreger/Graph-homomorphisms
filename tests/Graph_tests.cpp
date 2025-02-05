@@ -360,6 +360,77 @@ TEST(GraphTest, coloredHoms2) {
     }
 }
 
+//WORKS!
+TEST(GRAPH_Test, Neighbors) {
+    Graph S = Graph(true);
+
+    for (int i = 0; i < 4; i++) {
+        S.addNode(Node(i));
+    }
+
+    S.addEdge(0 , 1);
+    S.addEdge(0 , 2);
+    S.addEdge(1 , 2);
+    S.addEdge(1 , 3);
+    S.addEdge(2 , 3);
+
+    auto neighbors = S.neighbors();
+
+    for (int i = 0; i < 4; i++) {
+        cout << "Node: " << i << endl;
+        for (int neighbor : neighbors[i]) {
+            cout << neighbor << " ";
+        }
+        cout << endl;
+    }
+}
+
+TEST(GRAPH_Test, Neighbors2) {
+    Graph H = Graph(true);
+    for (int i = 0; i < 4; i++) {
+        H.addNode(Node(i));
+    }
+
+    H.addNode(Node(0));
+
+    H.addEdge(0 , 1);
+    H.addEdge(0 , 2);
+    H.addEdge(1 , 2);
+    H.addEdge(1 , 3);
+    H.addEdge(2 , 3);
+
+    H.addEdge(4,1);
+
+    auto degree = H.degree(); //2 4 3 2 1
+    auto expected = vector<int>{2, 4, 3, 2, 1};
+    for (int i = 0; i < 5; i++) {
+        cout << expected[i] << " " << degree[i] << endl;
+        ASSERT_EQ(degree[i] == expected[i], true);
+    }
+}
+
+
+//WORKS
+TEST(GRAPH_Test, Degree) {
+    Graph S = Graph(true);
+
+    for (int i = 0; i < 4; i++) {
+        S.addNode(Node(i));
+    }
+
+    S.addEdge(0 , 1);
+    S.addEdge(0 , 2);
+    S.addEdge(1 , 2);
+    S.addEdge(1 , 3);
+    S.addEdge(2 , 3);
+
+    auto degree = S.degree();
+
+    for (int i = 0; i < 4; i++) {
+        cout << "Node: " << i << " Degree: " << degree[i] << endl;
+    }
+}
+
 TEST(GRAPH_Test, ShrinkGraph) {
     //See the CFI graph from the paper
 
@@ -388,14 +459,66 @@ TEST(GRAPH_Test, ShrinkGraph) {
     H.addEdge(1 , 3);
     H.addEdge(2 , 3);
 
-    H.addEdge(4,0);
+    H.addEdge(4 , 1);
 
     auto shrinked = H.shrinkGraph(S);
     ASSERT_EQ(shrinked.first, true);
     shrinked.second.printGraph(true);
+    ASSERT_EQ(shrinked.second.calculateNumberofHomomorphismsTo(S), 1);
     S.printGraph(true);
 }
 
+
+TEST(Graph_Explanation, test) {
+    RandomGraphGenerator generator = RandomGraphGenerator(10, 20, false);
+    Graph G = generator.generateRandomConnectedGraph();
+
+    int * nodeIndex = G.calculateNodeIndex();
+    for (int i = 0; i < G.edges.size(); i++) {
+        cout << G.edgeArray[i].first << " -> " << G.edgeArray[i].second << endl;
+    }
+
+
+
+    cout << "NodeIndex: ";
+    for (int i = 0; i < G.numVertices; i++) {
+        cout << nodeIndex[i] << " ";
+    }
+    cout << endl;
+}
+
+
+//WORKS!
+TEST(GRAPH_Shrink, shrink2) {
+    Graph S = Graph(true);
+    for (int i = 0; i < 5; i++) {
+        S.addNode(Node(i));
+    }
+    S.addEdge(0,1);
+    S.addEdge(0,2);
+    S.addEdge(0,3);
+    S.addEdge(0,4);
+    S.addEdge(1,2);
+    S.addEdge(1,3);
+
+    Graph H = Graph(true);
+    H.addNode(Node(2));
+    H.addNode(Node(0));
+    H.addNode(Node(2));
+    H.addNode(Node(4));
+
+    H.addEdge(1,0);
+    H.addEdge(1,2);
+    H.addEdge(1,3);
+
+
+    auto shrunken = H.shrinkGraph(S);
+    ASSERT_EQ(shrunken.first, true);
+    cout << "Shrunken Graph: " << endl;
+    shrunken.second.printGraph(true);
+    cout << "Shrunken with: " << endl;
+    S.printGraph(true);
+}
 
 
 

@@ -9,11 +9,12 @@
 
 
 #include <vector>
-#include <utility>
 
 template <typename T>
 class EvenSubsetIterator {
 public:
+    /// Iterator to iterate over all subsets of even size of a given vector
+    /// @param vec The vector to create the even subsets from
     explicit EvenSubsetIterator(const std::vector<T>& vec);
     bool hasNext() const;
     std::pair<std::vector<T>, std::vector<T>> next();

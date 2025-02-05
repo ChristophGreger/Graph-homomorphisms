@@ -57,6 +57,9 @@ void Graph::printGraph(bool printcolors) {
 }
 
 void Graph::calculateAdjMatrix() {
+
+    delete [] adjMatrix;
+
     adjMatrix = new char[numVertices * numVertices];
     for (int i = 0; i < numVertices; i++) {
         for (int j = 0; j < numVertices; j++) {
@@ -70,6 +73,7 @@ void Graph::calculateAdjMatrix() {
 }
 
 void Graph::calculateEdgeArray() {
+    delete [] edgeArray;
     edgeArray = new pair<int, int>[edges.size()];
     int i = 0;
     for (auto edge : edges) {
@@ -117,14 +121,8 @@ int * Graph::calculateNodeIndex() {
     return nodeIndex;
 }
 
-
-//TODO: Improve the performance for colored by only checking the homomorphisms that are valid for the right colors.
-//For this: For each vertex in the pattern graph make a list of nodes in the input graph that this node could be mapped to, according to the colors.
-//Then only check the homomorphisms that are valid for the colors. Store the index it is at the moment in an extra array
-//At the moment only for uncolored
 long long Graph::calculateNumberofHomomorphismsTo(Graph &H) {
     H.calculateAdjMatrix();
-    //calculateEdgeArray(); //Is being called in calculateNodeIndex()
 
     int *nodeIndex = calculateNodeIndex();
 
@@ -509,8 +507,6 @@ vector<int> Graph::degree() {
 
 pair<bool, Graph> Graph::shrinkGraph(Graph &S) {
 
-    //TODO: DOESN'T WORK!!!!
-    cout << "Start" << endl;
     int todelete = -1;
     int tomatch = -1;
 
@@ -526,11 +522,10 @@ pair<bool, Graph> Graph::shrinkGraph(Graph &S) {
                 for (int neighbor2 : neighborsthis[neighbor1]) {
 
                     //Check for same color
-                    if (nodes[neighbor1].color != nodes[neighbor2].color) {
+                    if (nodes[i].color != nodes[neighbor2].color) {
                         continue;
                     }
 
-                    //Skip if neighbor2 is i
                     if (neighbor2 == i) {
                         continue;
                     }
@@ -565,17 +560,21 @@ pair<bool, Graph> Graph::shrinkGraph(Graph &S) {
         return make_pair(false, *this);
     }
 
-    Graph newGraph = Graph(colored);
-    int minus = 0;
-    for (int i = 0; i < numVertices; i++) {
-        if (i == todelete) {
-            minus = 1;
-            continue;
-        }
-        newGraph.addNode(nodes[i-minus]);
+    Graph newGraph = Graph(true);
+
+    if (todelete < tomatch) {
+        swap(todelete, tomatch);
     }
 
-    cout << "deleted: " << todelete << " matched: " << tomatch << endl;
+    for (int i = 0; i < numVertices; i++) {
+        if (i == todelete) {
+            continue;
+        }
+        newGraph.addNode(nodes[i]);
+    }
+
+
+    cout << "Deleting " << todelete << " and matching it with " << tomatch << endl;
     for (auto edge : edges) {
         auto first = edge.first;
         auto second = edge.second;
@@ -603,8 +602,8 @@ long long Graph::calculateNumberofhomomorphismsTo_CFI_from(Graph &S) {
         throw invalid_argument("Both graphs have to be colored for this function.");
     }
 
-    //Make sure there is no color in this that is not in H
-    //The colors in H are from 0 to H.numVertices - 1
+    //Make sure there is no color in this that is not in S
+    //The colors in S are from 0 to S.numVertices - 1
     for (int i = 0; i < numVertices; i++) {
         if (nodes[i].color >= S.numVertices) {
             return 0;
@@ -613,47 +612,21 @@ long long Graph::calculateNumberofhomomorphismsTo_CFI_from(Graph &S) {
 
     S.calculateAdjMatrix();
 
-    //Make sure there is no edge between colors in this where there is no edge between this to colors in H
+    //Make sure there is no edge between colors in this where there is no edge between this to colors in S
     for (auto edge : edges) {
         auto edgecolor1 = nodes[edge.first].color;
         auto edgecolor2 = nodes[edge.second].color;
         if (!S.isEdge(edgecolor1, edgecolor2)) {
+            cout << "No edge between " << edgecolor1 << " and " << edgecolor2 << endl;
             return 0;
         }
     }
 
 
-    //Now check if the graph can be shrinked
-    auto shrinked = shrinkGraph(S);
-    while (shrinked.first) {
-        shrinked = shrinked.second.shrinkGraph(S);
-    }
-    shrinked.second.calculateNumberofhomomorphismsTo_CFI_from(S);
-    //Now the Graph can't be shrinked anymore (Maybe get rid of the second call sometime later)
+    //TODO: Implement with Gauss
 
 
     int exponent = 0;
-
-    //Now calculate the exponent to base 2 that counts the number of homs
-
-    auto degreeArray = S.degree();
-
-    //Calculate the degree sum of the f(v) in S
-    for (int i = 0; i < numVertices; i++) {
-        auto node = nodes[i];
-        auto color = node.color;
-        exponent += degreeArray[color];
-    }
-
-
-
-    exponent -= numVertices;
-
-    exponent -= static_cast<int>(edges.size());
-
-    exponent += static_cast<int>(S.calculateNumberofHomomorphismsTo(*this));
-
-
     return powBase2(exponent);
 }
 
