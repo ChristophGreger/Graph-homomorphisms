@@ -44,7 +44,7 @@ long long powBase2(int exponent);
 /// Using Gauss Elimination to solve a system of linear equations
 /// @param rows Number of rows in the matrix (number of equations)
 /// @param cols Number of cols in the matrix (number of variables)
-/// @param matrix The matrix to run Gauss on
+/// @param matrix The matrix to run Gauss on. Only 0 and 1 are allowed
 /// @return The dimension of the solution space
 int getSolutionDimension(int rows, int cols, char *matrix);
 
