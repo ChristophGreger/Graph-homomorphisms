@@ -617,16 +617,90 @@ long long Graph::calculateNumberofhomomorphismsTo_CFI_from(Graph &S) {
         auto edgecolor1 = nodes[edge.first].color;
         auto edgecolor2 = nodes[edge.second].color;
         if (!S.isEdge(edgecolor1, edgecolor2)) {
-            cout << "No edge between " << edgecolor1 << " and " << edgecolor2 << endl;
+            //cout << "No edge between " << edgecolor1 << " and " << edgecolor2 << endl;
             return 0;
         }
     }
 
+    auto neighborsS = S.neighbors();
+    auto degS = S.degree();
 
-    //TODO: Implement with Gauss
+    //We want to create an possible mapping from (vertice, neighbor) pairs to an index in the matrix (column)
+    //this vector mapps every node in this to <beginning, end>, which is the range of the neighbors in S
+    //and so the range of the columns in the matrix which this node in affiliated with
+    //(from inclusive, to exclusive)
+    vector<pair<int, int>> indexMapping = vector<pair<int, int>>();
+    indexMapping.reserve(numVertices);
+
+    int columns = 0;
+    for (int i = 0; i < numVertices; ++i) {
+        indexMapping.emplace_back(columns, columns + degS[nodes[i].color]);
+        columns += degS[nodes[i].color];
+    }
+
+    //Now columns is the number of columns in the matrix
+
+    // Now calculate Number of rows, the matrix will have
+    int rows = numVertices + edges.size();
+
+    //Now we create the matrix
+    auto * matrix = new unsigned char[rows * columns];
+
+    //Initialize the matrix with 0s
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < columns; j++) {
+            matrix[i * columns + j] = 0;
+        }
+    }
+
+    //Fill with the even subset guarantee
+    for (int i = 0; i < numVertices; i++) {
+        for(int j = indexMapping[i].first; j < indexMapping[i].second; j++) {
+            matrix[i * columns + j] = 1;
+        }
+    }
+
+    int currentrow = numVertices;
+
+    //Fill for the edges
+    for (auto edge : edges) {
+        int first = edge.first;
+        int second = edge.second;
+        int firstcolor = nodes[first].color;
+        int secondcolor = nodes[second].color;
+        //We have to find the index that the two nodes are affiliated with
+        int firstindex = -1;
+        int secondindex = -1;
+
+        //Find firstindex
+        for (int i = 0; i < degS[firstcolor]; ++i) {
+            if (neighborsS[firstcolor][i] == secondcolor) {
+                firstindex = i;
+                break;
+            }
+        }
+        //Find secondindex
+        for (int i = 0; i < degS[secondcolor]; ++i) {
+            if (neighborsS[secondcolor][i] == firstcolor) {
+                secondindex = i;
+                break;
+            }
+        }
+
+        matrix[currentrow * columns + indexMapping[first].first + firstindex] = 1;
+        matrix[currentrow * columns + indexMapping[second].first + secondindex] = 1;
+        ++currentrow;
+    }
 
 
-    int exponent = 0;
+    //printMatrix(rows, columns, matrix);
+
+    //Now we can calculate the dimension of the solution space
+    int exponent = getSolutionDimension(rows, columns, matrix);
+
+    //printMatrix(rows, columns, matrix);
+
+    delete [] matrix;
     return powBase2(exponent);
 }
 

@@ -8,6 +8,8 @@
 #include <iostream>
 #include <algorithm>
 
+using namespace std;
+
 int getRandomNumberBetween(int first, int second) { //Inclusive both values
     // Create a random number generator
     std::random_device rd;  // Seed generator
@@ -52,7 +54,7 @@ void sortBySecond(std::pair<T1, T2>* arr, std::size_t size)
 template void sortBySecond<int, int>(std::pair<int, int>* arr, std::size_t size);
 template void sortBySecond<double, double>(std::pair<double, double>* arr, std::size_t size);
 
-int getSolutionDimension(int rows, int cols, char *matrix) {
+int getSolutionDimension(int rows, int cols, unsigned char *matrix) {
     int rank = 0;
     // Iteriere über alle Spalten
     for (int col = 0; col < cols && rank < rows; col++) {
@@ -94,3 +96,14 @@ int getSolutionDimension(int rows, int cols, char *matrix) {
     // Dimension des Lösungsraums: Anzahl Unbekannte - Rang
     return cols - rank;
 }
+
+void printMatrix(int rows, int columns, unsigned char *matrix) {
+    cout << "Matrix:" << endl;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < columns; j++) {
+            cout << (int)matrix[i * columns + j] << " ";
+        }
+        cout << endl;
+    }
+}
+

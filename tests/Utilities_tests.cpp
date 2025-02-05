@@ -142,7 +142,7 @@ TEST(GaussEliminationTest, ZeroMatrix) {
     int rows = 3;
     int cols = 3;
     // Alle Einträge sind 0: Rang = 0, Lösungsraumdimension = 3
-    char matrix[9] = {
+    unsigned char matrix[9] = {
         0, 0, 0,
         0, 0, 0,
         0, 0, 0
@@ -155,7 +155,7 @@ TEST(GaussEliminationTest, IdentityMatrix) {
     int rows = 3;
     int cols = 3;
     // Identitätsmatrix: Rang = 3, Lösungsraumdimension = 0
-    char matrix[9] = {
+    unsigned char matrix[9] = {
         1, 0, 0,
         0, 1, 0,
         0, 0, 1
@@ -168,7 +168,7 @@ TEST(GaussEliminationTest, SingleRow) {
     int rows = 1;
     int cols = 4;
     // Eine Zeile, z. B. [1, 0, 1, 0]: Rang = 1, Lösungsraumdimension = 4 - 1 = 3
-    char matrix[4] = {1, 0, 1, 0};
+    unsigned char matrix[4] = {1, 0, 1, 0};
     EXPECT_EQ(getSolutionDimension(rows, cols, matrix), 3);
 }
 
@@ -181,7 +181,7 @@ TEST(GaussEliminationTest, DependentRows) {
     // 1 0 1
     // 1 0 1
     // Rang = 1, Lösungsraumdimension = 3 - 1 = 2
-    char matrix[6] = {
+    unsigned char matrix[6] = {
         1, 0, 1,
         1, 0, 1
     };
@@ -200,7 +200,7 @@ TEST(GaussEliminationTest, OverdeterminedSystem) {
     // Über GF(2) ist zu beachten:
     // row0 + row1 = (1,0,1) + (0,1,1) = (1,1,0) = row2  -> row2 ist linear abhängig.
     // Also ist Rang = 2, Lösungsraumdimension = 3 - 2 = 1.
-    char matrix[12] = {
+    unsigned char matrix[12] = {
         1, 0, 1,
         0, 1, 1,
         1, 1, 0,

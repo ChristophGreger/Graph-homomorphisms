@@ -46,7 +46,14 @@ long long powBase2(int exponent);
 /// @param cols Number of cols in the matrix (number of variables)
 /// @param matrix The matrix to run Gauss on. Only 0 and 1 are allowed
 /// @return The dimension of the solution space
-int getSolutionDimension(int rows, int cols, char *matrix);
+int getSolutionDimension(int rows, int cols, unsigned char *matrix);
+
+
+/// Prints the given matrix on the console
+/// @param rows Number of rows in the matrix
+/// @param columns Number of columns in the matrix
+/// @param matrix The Matrix array consisting of 0s and 1s, rows*columns fields.
+void printMatrix(int rows, int columns, unsigned char * matrix);
 
 
 #endif //GRAPH_HOMOMORPHISMS_UTILITIES_H
