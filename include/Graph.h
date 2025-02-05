@@ -54,9 +54,13 @@ public:
 
     int * calculateNodeIndex();
 
+    vector<vector<int>> neighbors();
 
+    vector<int> degree();
 
+    pair<bool, Graph> shrinkGraph(Graph &S);
 
+    long long calculateNumberofhomomorphismsTo_CFI_from(Graph &S);
 
 };
 

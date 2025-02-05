@@ -132,3 +132,79 @@ TEST(SortBySecondTest, EmptyArray)
 
     SUCCEED() << "Test passes because we do not crash, though real usage on null is undefined.";
 }
+
+
+//Here some tests for the gauss
+
+
+// Testfall: Nullmatrix
+TEST(GaussEliminationTest, ZeroMatrix) {
+    int rows = 3;
+    int cols = 3;
+    // Alle Einträge sind 0: Rang = 0, Lösungsraumdimension = 3
+    unsigned char matrix[9] = {
+        0, 0, 0,
+        0, 0, 0,
+        0, 0, 0
+    };
+    EXPECT_EQ(getSolutionDimension(rows, cols, matrix), 3);
+}
+
+// Testfall: Einheitsmatrix (Identität)
+TEST(GaussEliminationTest, IdentityMatrix) {
+    int rows = 3;
+    int cols = 3;
+    // Identitätsmatrix: Rang = 3, Lösungsraumdimension = 0
+    unsigned char matrix[9] = {
+        1, 0, 0,
+        0, 1, 0,
+        0, 0, 1
+    };
+    EXPECT_EQ(getSolutionDimension(rows, cols, matrix), 0);
+}
+
+// Testfall: Einzeilige Matrix
+TEST(GaussEliminationTest, SingleRow) {
+    int rows = 1;
+    int cols = 4;
+    // Eine Zeile, z. B. [1, 0, 1, 0]: Rang = 1, Lösungsraumdimension = 4 - 1 = 3
+    unsigned char matrix[4] = {1, 0, 1, 0};
+    EXPECT_EQ(getSolutionDimension(rows, cols, matrix), 3);
+}
+
+// Testfall: Abhängige Zeilen
+TEST(GaussEliminationTest, DependentRows) {
+    int rows = 2;
+    int cols = 3;
+    // Zwei identische Zeilen: Nur eine ist unabhängig.
+    // Matrix:
+    // 1 0 1
+    // 1 0 1
+    // Rang = 1, Lösungsraumdimension = 3 - 1 = 2
+    unsigned char matrix[6] = {
+        1, 0, 1,
+        1, 0, 1
+    };
+    EXPECT_EQ(getSolutionDimension(rows, cols, matrix), 2);
+}
+
+// Testfall: Überbestimmtes System mit abhängigen Zeilen
+TEST(GaussEliminationTest, OverdeterminedSystem) {
+    int rows = 4;
+    int cols = 3;
+    // Matrix:
+    // 1 0 1
+    // 0 1 1
+    // 1 1 0
+    // 1 1 0   (doppelte Zeile)
+    // Über GF(2) ist zu beachten:
+    // row0 + row1 = (1,0,1) + (0,1,1) = (1,1,0) = row2  -> row2 ist linear abhängig.
+    // Also ist Rang = 2, Lösungsraumdimension = 3 - 2 = 1.
+    unsigned char matrix[12] = {
+        1, 0, 1,
+        0, 1, 1,
+        1, 1, 0,
+        1, 1, 0
+    };
+    EXPECT_EQ(getSolutionDimension(rows, cols, matrix), 1);
+}

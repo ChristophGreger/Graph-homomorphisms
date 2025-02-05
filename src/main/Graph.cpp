@@ -57,6 +57,9 @@ void Graph::printGraph(bool printcolors) {
 }
 
 void Graph::calculateAdjMatrix() {
+
+    delete [] adjMatrix;
+
     adjMatrix = new char[numVertices * numVertices];
     for (int i = 0; i < numVertices; i++) {
         for (int j = 0; j < numVertices; j++) {
@@ -70,6 +73,7 @@ void Graph::calculateAdjMatrix() {
 }
 
 void Graph::calculateEdgeArray() {
+    delete [] edgeArray;
     edgeArray = new pair<int, int>[edges.size()];
     int i = 0;
     for (auto edge : edges) {
@@ -117,14 +121,8 @@ int * Graph::calculateNodeIndex() {
     return nodeIndex;
 }
 
-
-//TODO: Improve the performance for colored by only checking the homomorphisms that are valid for the right colors.
-//For this: For each vertex in the pattern graph make a list of nodes in the input graph that this node could be mapped to, according to the colors.
-//Then only check the homomorphisms that are valid for the colors. Store the index it is at the moment in an extra array
-//At the moment only for uncolored
 long long Graph::calculateNumberofHomomorphismsTo(Graph &H) {
     H.calculateAdjMatrix();
-    //calculateEdgeArray(); //Is being called in calculateNodeIndex()
 
     int *nodeIndex = calculateNodeIndex();
 
@@ -477,6 +475,242 @@ long long Graph::calculateNumberofSubGraphsTo(Graph &H) {
     }
     return calculateNumberofInjectiveHomomorphismsTo(H) / calculateNumberofAutomorphismsWithoutColoring();
 }
+
+
+vector<vector<int>> Graph::neighbors() {
+    vector<vector<int>> neighbors;
+    for (int i = 0; i < numVertices; i++) {
+        vector<int> n;
+        for (int j = 0; j < numVertices; j++) {
+            if (isEdgebySet(i, j)) {
+                n.push_back(j);
+            }
+        }
+        neighbors.push_back(n);
+    }
+    return neighbors;
+}
+
+vector<int> Graph::degree() {
+    vector<int> deg;
+    for (int i = 0; i < numVertices; i++) {
+        int d = 0;
+        for (int j = 0; j < numVertices; j++) {
+            if (isEdgebySet(i, j)) {
+                d++;
+            }
+        }
+        deg.push_back(d);
+    }
+    return deg;
+}
+
+pair<bool, Graph> Graph::shrinkGraph(Graph &S) {
+
+    int todelete = -1;
+    int tomatch = -1;
+
+    auto degS = S.degree();
+    auto deg = degree();
+    auto neighborsthis = neighbors();
+
+    for (int i = 0; i < numVertices; i++) {
+
+        if (deg[i] >= degS[nodes[i].color] - 1) {
+
+            for (int neighbor1 : neighborsthis[i]) {
+                for (int neighbor2 : neighborsthis[neighbor1]) {
+
+                    //Check for same color
+                    if (nodes[i].color != nodes[neighbor2].color) {
+                        continue;
+                    }
+
+                    if (neighbor2 == i) {
+                        continue;
+                    }
+
+                    //Now check if i and neighbor2 have enough neighbors with different color in common
+                    vector<int> commonneighbors;
+                    unordered_set<int> commoncolorsneighbors = unordered_set<int>();
+                    for (int neighbor : neighborsthis[i]) {
+                        if (neighborsthis[neighbor2].end() != find(neighborsthis[neighbor2].begin(), neighborsthis[neighbor2].end(), neighbor)) {
+                            commonneighbors.push_back(neighbor);
+                            commoncolorsneighbors.insert(nodes[neighbor].color);
+                        }
+                    }
+
+                    if (commoncolorsneighbors.size() >= degS[nodes[i].color] - 1) {
+                        todelete = i;
+                        tomatch = neighbor2;
+                        break;
+                    }
+                }
+                if (todelete != -1) {
+                    break;
+                }
+            }
+            if (todelete != -1) {
+                break;
+            }
+        }
+    }
+
+    if (todelete == -1) {
+        return make_pair(false, *this);
+    }
+
+    Graph newGraph = Graph(true);
+
+    if (todelete < tomatch) {
+        swap(todelete, tomatch);
+    }
+
+    for (int i = 0; i < numVertices; i++) {
+        if (i == todelete) {
+            continue;
+        }
+        newGraph.addNode(nodes[i]);
+    }
+
+
+    cout << "Deleting " << todelete << " and matching it with " << tomatch << endl;
+    for (auto edge : edges) {
+        auto first = edge.first;
+        auto second = edge.second;
+        if (first == todelete) {
+            first = tomatch;
+        } else if (second == todelete) {
+            second = tomatch;
+        }
+        if (first > todelete) {
+            first--;
+        }
+        if (second > todelete) {
+            second--;
+        }
+        newGraph.addEdge(first, second);
+    }
+
+    return make_pair(true, newGraph);
+}
+
+
+long long Graph::calculateNumberofhomomorphismsTo_CFI_from(Graph &S) {
+    //Make sure both are colored
+    if (!colored || !S.colored) {
+        throw invalid_argument("Both graphs have to be colored for this function.");
+    }
+
+    //Make sure there is no color in this that is not in S
+    //The colors in S are from 0 to S.numVertices - 1
+    for (int i = 0; i < numVertices; i++) {
+        if (nodes[i].color >= S.numVertices) {
+            return 0;
+        }
+    }
+
+    S.calculateAdjMatrix();
+
+    //Make sure there is no edge between colors in this where there is no edge between this to colors in S
+    for (auto edge : edges) {
+        auto edgecolor1 = nodes[edge.first].color;
+        auto edgecolor2 = nodes[edge.second].color;
+        if (!S.isEdge(edgecolor1, edgecolor2)) {
+            //cout << "No edge between " << edgecolor1 << " and " << edgecolor2 << endl;
+            return 0;
+        }
+    }
+
+    auto neighborsS = S.neighbors();
+    auto degS = S.degree();
+
+    //We want to create an possible mapping from (vertice, neighbor) pairs to an index in the matrix (column)
+    //this vector mapps every node in this to <beginning, end>, which is the range of the neighbors in S
+    //and so the range of the columns in the matrix which this node in affiliated with
+    //(from inclusive, to exclusive)
+    vector<pair<int, int>> indexMapping = vector<pair<int, int>>();
+    indexMapping.reserve(numVertices);
+
+    int columns = 0;
+    for (int i = 0; i < numVertices; ++i) {
+        indexMapping.emplace_back(columns, columns + degS[nodes[i].color]);
+        columns += degS[nodes[i].color];
+    }
+
+    //Now columns is the number of columns in the matrix
+
+    // Now calculate Number of rows, the matrix will have
+    int rows = numVertices + edges.size();
+
+    //Now we create the matrix
+    auto * matrix = new unsigned char[rows * columns];
+
+    //Initialize the matrix with 0s
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < columns; j++) {
+            matrix[i * columns + j] = 0;
+        }
+    }
+
+    //Fill with the even subset guarantee
+    for (int i = 0; i < numVertices; i++) {
+        for(int j = indexMapping[i].first; j < indexMapping[i].second; j++) {
+            matrix[i * columns + j] = 1;
+        }
+    }
+
+    int currentrow = numVertices;
+
+    //Fill for the edges
+    for (auto edge : edges) {
+        int first = edge.first;
+        int second = edge.second;
+        int firstcolor = nodes[first].color;
+        int secondcolor = nodes[second].color;
+        //We have to find the index that the two nodes are affiliated with
+        int firstindex = -1;
+        int secondindex = -1;
+
+        //Find firstindex
+        for (int i = 0; i < degS[firstcolor]; ++i) {
+            if (neighborsS[firstcolor][i] == secondcolor) {
+                firstindex = i;
+                break;
+            }
+        }
+        //Find secondindex
+        for (int i = 0; i < degS[secondcolor]; ++i) {
+            if (neighborsS[secondcolor][i] == firstcolor) {
+                secondindex = i;
+                break;
+            }
+        }
+
+        matrix[currentrow * columns + indexMapping[first].first + firstindex] = 1;
+        matrix[currentrow * columns + indexMapping[second].first + secondindex] = 1;
+        ++currentrow;
+    }
+
+
+    //printMatrix(rows, columns, matrix);
+
+    //Now we can calculate the dimension of the solution space
+    int exponent = getSolutionDimension(rows, columns, matrix);
+
+    //printMatrix(rows, columns, matrix);
+
+    delete [] matrix;
+    return powBase2(exponent);
+}
+
+
+
+
+
+
+
+
 
 
 
