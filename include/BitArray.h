@@ -16,6 +16,7 @@ public:
     uint8_t *bits;
     int size;
 
+    BitArray(const BitArray& old);
     BitArray(uint8_t* bits, int size);
     BitArray(int size);
 
@@ -24,6 +25,7 @@ public:
     void clear(int index);
     int get(int index);
     char* toString();
+    void free();
 };
 
 

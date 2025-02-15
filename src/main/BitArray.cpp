@@ -5,13 +5,20 @@
 #include <stdlib.h>
 #include <cstdlib>
 
+BitArray::BitArray(const BitArray& old) {
+    size = old.size;
+    int sizeInBytes = (size + 7) / 8;
+    bits = new uint8_t[sizeInBytes];
+    std::copy(old.bits, old.bits + sizeInBytes, bits);
+}
+
 BitArray::BitArray(uint8_t* bits, int size) {
     this->bits = bits;
     this->size = size;
 }
 
 BitArray::BitArray(int size) {
-    int sizeInBytes = ((int) size / 8) + 1;
+    int sizeInBytes = (size + 7) / 8;
     bits = (uint8_t*) calloc(sizeInBytes, sizeof(uint8_t));
     this->size = size;
 }
@@ -49,4 +56,9 @@ char* BitArray::toString() {
     str[index] = '\0';
 
     return str;
+}
+
+void BitArray::free() {
+    std::free(bits);
+    bits = NULL;
 }
