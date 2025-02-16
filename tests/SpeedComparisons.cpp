@@ -59,7 +59,7 @@ TEST(SpeedTest, SortingEdges1024) {
 }
 
 /*
-toGraph() not available anymore
+//CFI.toGraph() is not available anymore
 //Takes 1.7 Seconds, and produces about 2464 vertices and 700160 edges. So quite fast
 TEST(SpeedTest, CFIGraphGeneration) {
     RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(20, 60, true, true);
