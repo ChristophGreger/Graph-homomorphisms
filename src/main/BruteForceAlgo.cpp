@@ -16,30 +16,31 @@ struct CFINode2 {
 };
 
 //set hom[index]
-long long callNext(CFIGraph* CFI, Graph* H2, int index, CFINode2* hom, const vector<vector<int>> colorBucketG, const vector<vector<pair<int,int>>> forwardEdgesH, const vector<vector<pair<int,int>>> backwardEdgesH) 
+long long callNext(int index, CFINode2* hom, const StaticData& d) 
 {
     long long numHoms = 0;
 
-    Graph& G = CFI->G;
-    Graph& H = *H2;
+    const Graph& G = d.CFI.G;
+    const Graph& H = d.H;
 
     //all nodes are mapped
     if(index >= H.numVertices) {
         return 1;
     }
 
-    Node& node = H.nodes[index];
+    const Node& node = H.nodes[index];
 
     //nodes in the Graph G with the correct color
-    const vector<int>& targetNodes = colorBucketG[node.color];
+    const vector<int>& targetNodes = d.colorBucketG[node.color];
+
+    hom[index].edgeSubset->reset();
 
     for(int targetNode : targetNodes) {
 
         hom[index].number = targetNode;
-        hom[index].edgeSubset->reset();
 
-        const vector<pair<int,int>>& forwardEdges = forwardEdgesH[index];
-        const vector<pair<int,int>>& backwardEdges = backwardEdgesH[index];
+        const vector<pair<int,int>>& forwardEdges = d.forwardEdgesH[index];
+        const vector<pair<int,int>>& backwardEdges = d.backwardEdgesH[index];
 
         for(const pair<int,int>& backwardEdge : backwardEdges) {
             int otherNode = backwardEdge.first;
@@ -49,36 +50,6 @@ long long callNext(CFIGraph* CFI, Graph* H2, int index, CFINode2* hom, const vec
                 hom[index].edgeSubset->set(edgeIndex);
             }
         }
-
-        /*
-        vector<int> edges = vector<int>();
-
-        for(int edgeIndex = 0; edgeIndex < H.numEdges; edgeIndex++) {
-            pair<int,int> edge = H.edgeArray[edgeIndex];
-            if(edge.first == index || edge.second == index) {
-                int otherNode;
-                if(edge.first == index) {
-                    otherNode = edge.second;
-                }else if(edge.second == index) {
-                    otherNode = edge.first;
-                }
-
-                if(otherNode > index) {
-                    edges.push_back(edgeIndex);
-                }else {
-                    //there is a opinion on the edge!
-                    int opinion = hom[otherNode].edgeSubset->get(edgeIndex);
-                    if(opinion) {
-                        hom[index].edgeSubset->set(edgeIndex);
-                    }
-                }
-            }
-        }
-
-        for(int n : edges) {
-            pair<int,int> edge = H.edgeArray[n];
-        }
-        */
         
         int n = forwardEdges.size();
         int numSubsets = 1 << n;  // 2^n possible subsets
@@ -94,7 +65,7 @@ long long callNext(CFIGraph* CFI, Graph* H2, int index, CFINode2* hom, const vec
             }
 
             if(hom[index].edgeSubset->hasEvenParity()) {
-                int value = callNext(CFI, H2, index+1, hom, colorBucketG, forwardEdgesH, backwardEdgesH);
+                int value = callNext(index+1, hom, d);
                 numHoms += value;
             }
         }
@@ -159,16 +130,16 @@ pair<vector<vector<pair<int,int>>>,vector<vector<pair<int,int>>>> sortEdgesTopo(
     return {backwardEdges, forwardEdges};
 }
 
-long long calculateNumberofHomomorphisms(CFIGraph* CFI, Graph* H)
+long long calcHoms(CFIGraph& CFI, Graph& H)
 {
-    H->calculateEdgeArray();
+    H.calculateEdgeArray();
 
     long long numHoms = 0;
 
-    int numEdgesG = CFI->G.numEdges;
-    int numVerticesH = H->numVertices;
+    int numEdgesG = CFI.G.numEdges;
+    int numVerticesH = H.numVertices;
 
-    std::cout << "numEdgesG: " << numEdgesG << " numVerticesH: " << numVerticesH << std::endl;
+    std::cout << "calcHoms(" << "CFI->G{numEdges:" << CFI.G.numEdges << ", numVertices: " << CFI.G.numVertices << "} H{numEdges:" << H.numEdges << ", numVertices: " << H.numVertices << "})" << std::endl;
 
     CFINode2* hom = new CFINode2[numVerticesH];
 
@@ -176,21 +147,19 @@ long long calculateNumberofHomomorphisms(CFIGraph* CFI, Graph* H)
         hom[i].edgeSubset = new BitArray(numEdgesG);
     }
 
-    vector<vector<int>> colorBuckets = sortyByColor(&CFI->G);
-    pair<vector<vector<pair<int,int>>>,vector<vector<pair<int,int>>>> sortedEdgesH = sortEdgesTopo(H);
+    vector<vector<int>> colorBuckets = sortyByColor(&CFI.G);
+    pair<vector<vector<pair<int,int>>>,vector<vector<pair<int,int>>>> sortedEdgesH = sortEdgesTopo(&H);
     vector<vector<pair<int,int>>> backwardEdgesH = sortedEdgesH.first;
     vector<vector<pair<int,int>>> forwardEdgesH = sortedEdgesH.second;
 
-    std::cout << "backwardEdgesH:" << std::endl;
-    print(backwardEdgesH);
-    std::cout << "forwardEdgesH:" << std::endl;
-    print(forwardEdgesH);
+    const StaticData d = {CFI, H, colorBuckets, forwardEdgesH, backwardEdgesH};
 
-    numHoms = callNext(CFI, H, 0, hom, colorBuckets,forwardEdgesH, backwardEdgesH);
+    numHoms = callNext(0, hom, d);
 
+    for (int i = 0; i < numVerticesH; i++) {
+        delete hom[i].edgeSubset;
+    }
     delete[] hom;
-
-    std::cout << "end" << std::endl;
 
     return numHoms;
 

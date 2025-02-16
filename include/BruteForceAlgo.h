@@ -7,8 +7,16 @@
 
 using namespace std;
 
-long long calculateNumberofHomomorphisms(CFIGraph* G, Graph* H);
+struct StaticData {
+    const CFIGraph& CFI;
+    const Graph& H;
+    const vector<vector<int>>& colorBucketG;
+    const vector<vector<pair<int,int>>>& forwardEdgesH;
+    const vector<vector<pair<int,int>>>& backwardEdgesH;
+};
 
-long long callNext(CFIGraph* CFI, Graph* H, int index, CFINode* hom);
+long long calcHoms(CFIGraph& G, Graph& H);
+
+long long callNext(int index, CFINode* hom, const StaticData& d);
 
 #endif
