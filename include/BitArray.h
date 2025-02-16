@@ -26,6 +26,7 @@ public:
     int get(int index);
     char* toString();
     void free();
+    bool hasEvenParity();
 };
 
 

@@ -24,18 +24,38 @@ BitArray::BitArray(int size) {
 }
 
 void BitArray::set(int index) {
+    if(index >= size) {
+        perror("index out of bounds");
+        exit(EXIT_FAILURE);
+        return;
+    }
     bits[(index) / 8] |= (1U << ((index) % 8));
 }
 
 void BitArray::clear(int index) {
+    if(index >= size) {
+        perror("index out of bounds");
+        exit(EXIT_FAILURE);
+        return;
+    }
     bits[(index) / 8] &= ~(1U << ((index) % 8));
 }
 
 void BitArray::toggle(int index) {
+    if(index >= size) {
+        perror("index out of bounds");
+        exit(EXIT_FAILURE);
+        return;
+    }
     bits[(index) / 8] ^= (1U << ((index) % 8));
 }
 
 int BitArray::get(int index) {
+    if(index >= size) {
+        perror("index out of bounds");
+        exit(EXIT_FAILURE);
+        return 0;
+    }
     return (bits[(index) / 8] >> ((index) % 8)) & 1;
 }
 
@@ -57,6 +77,15 @@ char* BitArray::toString() {
 
     return str;
 }
+
+bool BitArray::hasEvenParity() {
+    int count = 0;
+    for (int i = 0; i < size; i++) {
+        count ^= __builtin_popcount(bits[i]);  // XOR popcount of each byte
+    }
+    return (count % 2) == 0;  // True if even
+}
+
 
 void BitArray::free() {
     std::free(bits);

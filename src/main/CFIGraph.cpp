@@ -21,6 +21,7 @@ CFIGraph::CFIGraph(Graph &G, bool invert): G(G) {
     }
 
     G.calculateAdjMatrix();
+    G.calculateEdgeArray();
 
 }
 

@@ -47,6 +47,7 @@ public:
     long long calculateNumberofSubGraphsTo(Graph &H);
 
     int numVertices;
+    int numEdges;
 
     bool isConnected() const;
 

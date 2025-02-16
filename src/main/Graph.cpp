@@ -28,6 +28,7 @@ void Graph::addEdge(int node1, int node2) {
             swap(node1, node2);
         }
         edges.insert(make_pair(node1, node2));
+        numEdges++;
     }
 }
 
@@ -122,14 +123,14 @@ int * Graph::calculateNodeIndex() {
 //For this: For each vertex in the pattern graph make a list of nodes in the input graph that this node could be mapped to, according to the colors.
 //Then only check the homomorphisms that are valid for the colors. Store the index it is at the moment in an extra array
 //At the moment only for uncolored
-long long Graph::calculateNumberofHomomorphismsTo(Graph &H) {
-    H.calculateAdjMatrix();
+long long Graph::calculateNumberofHomomorphismsTo(Graph &G) {
+    G.calculateAdjMatrix();
     //calculateEdgeArray(); //Is being called in calculateNodeIndex()
 
     int *nodeIndex = calculateNodeIndex();
 
 
-    bool coloredhoms = colored && H.colored;
+    bool coloredhoms = colored && G.colored;
 
 
     long long numHomomorphisms = 0;
@@ -152,7 +153,7 @@ long long Graph::calculateNumberofHomomorphismsTo(Graph &H) {
             }
 
             if (increment) {
-                if (hom[currtochange] == H.numVertices - 1) {
+                if (hom[currtochange] == G.numVertices - 1) {
                     increment = true;
                     --currtochange;
                     continue;
@@ -164,10 +165,10 @@ long long Graph::calculateNumberofHomomorphismsTo(Graph &H) {
                     continue;
                 }
                 bool foundani = false;
-                for (int i = hom[currtochange] + 1; i < H.numVertices; i++) {
+                for (int i = hom[currtochange] + 1; i < G.numVertices; i++) {
                     bool iworks = true;
                     for (int edgeindex = nodeIndex[currtochange-1]; edgeindex < nodeIndex[currtochange]; edgeindex++) {
-                        if (!H.isEdge(hom[edgeArray[edgeindex].first], i)) {
+                        if (!G.isEdge(hom[edgeArray[edgeindex].first], i)) {
                             iworks = false;
                             break;
                         }
@@ -192,10 +193,10 @@ long long Graph::calculateNumberofHomomorphismsTo(Graph &H) {
             //If going right in the hom array
             if (!increment) {
                 bool foundani = false;
-                for (int i = 0; i < H.numVertices; i++) {
+                for (int i = 0; i < G.numVertices; i++) {
                     bool iworks = true;
                     for (int edgeindex = nodeIndex[currtochange-1]; edgeindex < nodeIndex[currtochange]; edgeindex++) {
-                        if (!H.isEdge(hom[edgeArray[edgeindex].first], i)) {
+                        if (!G.isEdge(hom[edgeArray[edgeindex].first], i)) {
                             iworks = false;
                             break;
                         }
@@ -226,15 +227,15 @@ long long Graph::calculateNumberofHomomorphismsTo(Graph &H) {
     } // ---------- COLORED BRANCH (MODIFIED) ---------- AI GENERATED (some parts)
     else {
         // Precompute valid mappings based on color
-        // possibleMappings[v].first is an array of valid node-IDs in H
+        // possibleMappings[v].first is an array of valid node-IDs in G
         // possibleMappings[v].second is how many valid node-IDs in that array
 
         pair<int*, int> * possibleMappings = new pair<int*, int>[numVertices];
         for (int v = 0; v < numVertices; v++) {
             vector<int> valid;
-            for (int w = 0; w < H.numVertices; w++) {
-                // If color matches, node w in H is a valid image of v
-                if (H.nodes[w].equals(nodes[v])) {
+            for (int w = 0; w < G.numVertices; w++) {
+                // If color matches, node w in G is a valid image of v
+                if (G.nodes[w].equals(nodes[v])) {
                     valid.push_back(w);
                 }
             }
@@ -288,7 +289,7 @@ long long Graph::calculateNumberofHomomorphismsTo(Graph &H) {
                          edgeindex < nodeIndex[currtochange];
                          edgeindex++)
                     {
-                        if (!H.isEdge(hom[edgeArray[edgeindex].first], candidate)) {
+                        if (!G.isEdge(hom[edgeArray[edgeindex].first], candidate)) {
                             works = false;
                             break;
                         }
@@ -322,7 +323,7 @@ long long Graph::calculateNumberofHomomorphismsTo(Graph &H) {
                              edgeindex < nodeIndex[currtochange];
                              edgeindex++)
                         {
-                            if (!H.isEdge(hom[edgeArray[edgeindex].first], candidate)) {
+                            if (!G.isEdge(hom[edgeArray[edgeindex].first], candidate)) {
                                 works = false;
                                 break;
                             }
@@ -398,16 +399,16 @@ void Graph::sortEdges() {
 
 
 //TODO: Write tests for the following 4 functions. They are not tested yet.
-long long Graph::calculateNumberofInjectiveHomomorphismsTo(Graph &H) {
-    H.calculateAdjMatrix();
+long long Graph::calculateNumberofInjectiveHomomorphismsTo(Graph &G) {
+    G.calculateAdjMatrix();
     calculateEdgeArray();
 
-    if (H.numVertices < numVertices) {
+    if (G.numVertices < numVertices) {
         return 0;
     }
 
     long long numHomomorphisms = 0;
-    auto nextInjection = NextInjection(numVertices, H.numVertices);
+    auto nextInjection = NextInjection(numVertices, G.numVertices);
     const vector<int>& hom = nextInjection.current();
 
 
@@ -427,9 +428,9 @@ long long Graph::calculateNumberofInjectiveHomomorphismsTo(Graph &H) {
 
         alreadynexthom = false;
 
-        if (colored && H.colored) {
+        if (colored && G.colored) {
             for (int i = 0; i < numVertices; i++) {
-                if (!H.nodes[hom[i]].equals(nodes[i])) {
+                if (!G.nodes[hom[i]].equals(nodes[i])) {
                     isnohom = true;
                     break;
                 }
@@ -440,7 +441,7 @@ long long Graph::calculateNumberofInjectiveHomomorphismsTo(Graph &H) {
         }
 
         for (int i = 0; i < edges.size(); i++) {
-            if (!H.isEdge(hom[edgeArray[i].first], hom[edgeArray[i].second])) {
+            if (!G.isEdge(hom[edgeArray[i].first], hom[edgeArray[i].second])) {
                 isnohom = true;
                 break;
             }
@@ -471,11 +472,11 @@ long long Graph::calculateNumberofAutomorphismsWithColoring() {
     return numAutomorphisms;
 }
 
-long long Graph::calculateNumberofSubGraphsTo(Graph &H) {
-    if (colored && H.colored) {
-        return calculateNumberofInjectiveHomomorphismsTo(H) / calculateNumberofAutomorphismsWithColoring();
+long long Graph::calculateNumberofSubGraphsTo(Graph &G) {
+    if (colored && G.colored) {
+        return calculateNumberofInjectiveHomomorphismsTo(G) / calculateNumberofAutomorphismsWithColoring();
     }
-    return calculateNumberofInjectiveHomomorphismsTo(H) / calculateNumberofAutomorphismsWithoutColoring();
+    return calculateNumberofInjectiveHomomorphismsTo(G) / calculateNumberofAutomorphismsWithoutColoring();
 }
 
 

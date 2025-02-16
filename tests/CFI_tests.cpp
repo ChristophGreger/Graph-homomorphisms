@@ -7,6 +7,7 @@
 #include "CFINode.h"
 #include "RandomGraphGenerator.h"
 #include "utilities.h"
+#include "BruteForceAlgo.h"
 
 
 TEST(CFIGraphTest, edgeRepresentation) {
@@ -65,6 +66,20 @@ TEST(CFIGraphTest, edgeRepresentation) {
     
 }
 
+TEST(CFIGraphTest, ByHomomorphisms3) {
+    int vertices = 20;
+    int edges = 40;
+    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, edges, true, true);
+    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
+    CFIGraph CFI = CFIGraph(G);
+    cout << "G: " << G.numVertices << " " << G.edges.size() << endl;
+    unsigned long time = clock();
+    long long numHoms = calculateNumberofHomomorphisms(&CFI, &G);
+    ASSERT_EQ(numHoms, intPow(2, (edges - vertices + 1)));
+    cout << intPow(2, (edges - vertices + 1)) << endl;
+    cout << "Time in ms: " << (clock() - time)/1000 << endl;
+    cout << "Calculated successfully" << endl;
+}
 
 /*
 TEST(CFIGraphTest, ByHomomorphisms) {
@@ -143,23 +158,7 @@ TEST(CFIGraphTest, ByHomomorphismsInverted2) {
     EXPECT_EQ(CFI.numofVertices, 12);
     EXPECT_EQ(CFI.numofEdges, 24);
 }
-
-
-TEST(CFIGraphTest, ByHomomorphisms3) {
-    int vertices = 20;
-    int edges = 40;
-    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, edges, true, true);
-    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
-    CFIGraph CFI = CFIGraph(G);
-    Graph H = CFI.toGraph();
-    cout << "G: " << G.numVertices << " " << G.edges.size() << endl;
-    cout << "H: " << H.numVertices << " " << H.edges.size() << endl;
-    unsigned long time = clock();
-    ASSERT_EQ(G.calculateNumberofHomomorphismsTo(H), intPow(2, (edges - vertices + 1)));
-    cout << intPow(2, (edges - vertices + 1)) << endl;
-    cout << "Time in ms: " << (clock() - time)/1000 << endl;
-    cout << "Calculated successfully" << endl;
-
-}
-
 */
+
+
+
