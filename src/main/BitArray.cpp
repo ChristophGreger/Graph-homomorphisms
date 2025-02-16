@@ -89,6 +89,5 @@ BitArray::~BitArray() {
 }
 
 void BitArray::reset() {
-    int sizeInBytes = (size + 7) / 8;
     memset(bits, 0, sizeInBytes);  // Set all bits to 0 efficiently
 }
