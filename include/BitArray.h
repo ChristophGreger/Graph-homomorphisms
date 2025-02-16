@@ -15,9 +15,9 @@ public:
 
     uint8_t *bits;
     int size;
+    int sizeInBytes;
 
     BitArray(const BitArray& old);
-    BitArray(uint8_t* bits, int size);
     BitArray(int size);
     ~BitArray();
 

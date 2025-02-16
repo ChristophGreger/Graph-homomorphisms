@@ -7,19 +7,14 @@
 
 BitArray::BitArray(const BitArray& old) {
     size = old.size;
-    int sizeInBytes = (size + 7) / 8;
+    sizeInBytes = old.sizeInBytes;
     bits = new uint8_t[sizeInBytes];
     std::copy(old.bits, old.bits + sizeInBytes, bits);
 }
 
-BitArray::BitArray(uint8_t* bits, int size) {
-    this->bits = bits;
-    this->size = size;
-}
-
 BitArray::BitArray(int size) {
-    int sizeInBytes = (size + 7) / 8;
-    bits = (uint8_t*) calloc(sizeInBytes, sizeof(uint8_t));
+    sizeInBytes = (size + 7) / 8;
+    bits = new uint8_t[sizeInBytes]();
     this->size = size;
 }
 
@@ -80,7 +75,7 @@ char* BitArray::toString() {
 
 bool BitArray::hasEvenParity() {
     int count = 0;
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < sizeInBytes; i++) {
         count ^= __builtin_popcount(bits[i]);  // XOR popcount of each byte
     }
     return (count % 2) == 0;  // True if even
