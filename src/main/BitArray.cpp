@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <cstdlib>
+#include <cstring>
 
 BitArray::BitArray(const BitArray& old) {
     size = old.size;

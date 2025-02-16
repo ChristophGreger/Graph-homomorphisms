@@ -32,6 +32,8 @@ add_library(bib STATIC
         include/NextInjection.h
         src/main/BruteForceAlgo.cpp
         include/BruteForceAlgo.h
+        src/main/BitArray.cpp
+        include/BitArray.h
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
