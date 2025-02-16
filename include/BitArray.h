@@ -19,6 +19,7 @@ public:
     BitArray(const BitArray& old);
     BitArray(uint8_t* bits, int size);
     BitArray(int size);
+    ~BitArray();
 
     void set(int index);
     void toggle(int index);
@@ -27,6 +28,7 @@ public:
     char* toString();
     void free();
     bool hasEvenParity();
+    void reset();
 };
 
 
