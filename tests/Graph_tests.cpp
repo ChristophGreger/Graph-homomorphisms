@@ -297,7 +297,8 @@ TEST(GraphTest, calculateNodeIndexAutomatic) {
     ASSERT_EQ(nodeIndex[G.numVertices - 1], G.edges.size());
 }
 
-
+/*
+toGraph() not available anymore
 TEST(GraphTest, coloredHoms) {
     for (int times = 0; times < 1000; times++) {
         cout << times << endl;
@@ -316,6 +317,7 @@ TEST(GraphTest, coloredHoms) {
         ASSERT_EQ(pattern.calculateNumberofHomomorphismsTo(input), 1);
     }
 }
+*/
 
 
 TEST(GraphTest, coloredHoms2) {

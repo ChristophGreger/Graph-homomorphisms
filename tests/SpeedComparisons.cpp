@@ -58,6 +58,8 @@ TEST(SpeedTest, SortingEdges1024) {
     G.sortEdges();
 }
 
+/*
+toGraph() not available anymore
 //Takes 1.7 Seconds, and produces about 2464 vertices and 700160 edges. So quite fast
 TEST(SpeedTest, CFIGraphGeneration) {
     RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(20, 60, true, true);
@@ -75,6 +77,7 @@ TEST(SpeedTest, CFIGraphGeneration2) {
     Graph H = CFI.toGraph();
     cout << "H: " << H.numVertices << " " << H.edges.size() << endl;
 }
+*/
 
 //takes about 37 ms
 TEST(SpeedTest, CounterTimeTest) {
