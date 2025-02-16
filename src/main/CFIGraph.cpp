@@ -9,13 +9,12 @@
 
 using namespace std;
 
-CFIGraph::CFIGraph(Graph &G, bool invert): G(G) {
+CFIGraph::CFIGraph(Graph &G): G(G) {
 
     int counter = 0;
     //G.edges is sorted by the smaller edge
     for (const pair<int, int>& edge : G.edges) {
         int id = edge.first * G.numVertices + edge.second;
-        //std::cout << edge.first << ":" << edge.second << " id:" << id << " counter:" << counter << std::endl;
         edgeMap.insert({id,counter});
         counter++;
     }
