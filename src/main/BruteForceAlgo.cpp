@@ -10,13 +10,7 @@
 
 using namespace std;
 
-struct CFINode2 {
-    int number;
-    BitArray* edgeSubset;
-};
-
-//set hom[index]
-long long callNext(int index, CFINode2* hom, const StaticData& d) 
+long long setNextNode(int index, CFINode* hom, const StaticData& d) 
 {
     long long numHoms = 0;
 
@@ -65,7 +59,7 @@ long long callNext(int index, CFINode2* hom, const StaticData& d)
             }
 
             if(hom[index].edgeSubset->hasEvenParity()) {
-                int value = callNext(index+1, hom, d);
+                int value = setNextNode(index+1, hom, d);
                 numHoms += value;
             }
         }
@@ -141,10 +135,10 @@ long long calcHoms(CFIGraph& CFI, Graph& H)
 
     std::cout << "calcHoms(" << "CFI->G{numEdges:" << CFI.G.numEdges << ", numVertices: " << CFI.G.numVertices << "} H{numEdges:" << H.numEdges << ", numVertices: " << H.numVertices << "})" << std::endl;
 
-    CFINode2* hom = new CFINode2[numVerticesH];
+    CFINode* hom = new CFINode[numVerticesH];
 
     for(int i = 0; i < numVerticesH; i++) {
-        hom[i].edgeSubset = new BitArray(numEdgesG);
+        hom[i].edgeSubset = std::make_unique<BitArray>(numEdgesG);
     }
 
     vector<vector<int>> colorBuckets = sortyByColor(&CFI.G);
@@ -154,11 +148,8 @@ long long calcHoms(CFIGraph& CFI, Graph& H)
 
     const StaticData d = {CFI, H, colorBuckets, forwardEdgesH, backwardEdgesH};
 
-    numHoms = callNext(0, hom, d);
+    numHoms = setNextNode(0, hom, d);
 
-    for (int i = 0; i < numVerticesH; i++) {
-        delete hom[i].edgeSubset;
-    }
     delete[] hom;
 
     return numHoms;

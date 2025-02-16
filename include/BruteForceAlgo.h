@@ -17,6 +17,6 @@ struct StaticData {
 
 long long calcHoms(CFIGraph& G, Graph& H);
 
-long long callNext(int index, CFINode* hom, const StaticData& d);
+long long setNextNode(int index, CFINode* hom, const StaticData& d);
 
 #endif

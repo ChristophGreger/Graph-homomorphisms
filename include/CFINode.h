@@ -6,16 +6,18 @@
 #define GRAPH_HOMOMORPHISMS_CFINODE_H
 
 #include <vector>
+#include <memory> 
 
+#include "BitArray.h"
 
 using namespace std;
 
-
 class CFINode {
 public:
-    CFINode(int number, vector<int> edgeSubset);
+    CFINode();
+    CFINode(int number, std::unique_ptr<BitArray> edgeSubset);
     int number;
-    vector<int> edgeSubset;
+    std::unique_ptr<BitArray> edgeSubset;
 };
 
 
