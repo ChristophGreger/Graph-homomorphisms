@@ -11,6 +11,7 @@
 
 Graph::Graph(bool colored) : colored(colored) {
     numVertices = 0;
+    numEdges = 0;
     adjMatrix = nullptr;
     nodes = vector<Node>();
     edges = unordered_set<pair<int, int>, PairHash>();
