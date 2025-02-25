@@ -73,7 +73,7 @@ int getSolutionDimension(int rows, int cols, unsigned char *matrix) {
         // Falls der Pivot nicht in der aktuellen "Pivotzeile" steht, tausche die Zeilen.
         if (pivotRow != rank) {
             for (int j = 0; j < cols; j++) {
-                char temp = matrix[rank * cols + j];
+                unsigned char temp = matrix[rank * cols + j];
                 matrix[rank * cols + j] = matrix[pivotRow * cols + j];
                 matrix[pivotRow * cols + j] = temp;
             }
