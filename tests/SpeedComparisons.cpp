@@ -30,6 +30,68 @@ TEST(SpeedTest, Nodes256) {
 }
 
 
+TEST(SpeedTest, Nodes256_2) {
+    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(30, 40, false);
+    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
+
+    CFIGraph CFI = CFIGraph(G);
+    Graph H = CFI.toGraph();
+    while (H.numVertices > 120) {
+        G = randomGraphGenerator.generateRandomConnectedGraph();
+        CFI = CFIGraph(G);
+        H = CFI.toGraph();
+    }
+
+    for (int i = 0; i < 100; i++) {
+        RandomGraphGenerator gen2 = RandomGraphGenerator(10, 9, false);
+        Graph square = gen2.generateRandomConnectedGraph();
+
+
+        cout << "Graphs generated" << endl;
+
+        unsigned long time = clock();
+
+        cout << square.calculateNumberofHomomorphismsTo(G) << endl;
+
+        cout << "Time in ms: " << (clock() - time)/1000 << endl;
+    }
+}
+
+TEST(SpeedTest, JustTrying) {
+    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(30, 40, false);
+    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
+
+    CFIGraph CFI = CFIGraph(G);
+    Graph H = CFI.toGraph();
+    while (H.numVertices > 120) {
+        G = randomGraphGenerator.generateRandomConnectedGraph();
+        CFI = CFIGraph(G);
+        H = CFI.toGraph();
+    }
+
+    long long totalnumberofhoms = 0;
+    for (int i = 0; i < 23; i++) {
+        RandomGraphGenerator gen2 = RandomGraphGenerator(8, 7, false);
+        Graph square = gen2.generateRandomConnectedGraph();
+
+
+        cout << "Graphs generated" << endl;
+
+        unsigned long time = clock();
+
+        long long numhoms = square.calculateNumberofHomomorphismsTo(G);
+
+        totalnumberofhoms += numhoms;
+
+        cout << numhoms << endl;
+
+        cout << "Time in ms: " << (clock() - time)/1000 << endl;
+    }
+
+    cout << "Total number of homomorphisms: " << totalnumberofhoms << endl;
+}
+
+
 //1 min last time executed with edge density = 0.2. With density 0.1 it takes 6 seconds
 TEST(SpeedTest, Nodes1024) {
     RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(1024, 104755, false);

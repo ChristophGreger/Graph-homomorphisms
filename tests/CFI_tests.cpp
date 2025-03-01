@@ -125,4 +125,22 @@ TEST(CFIGraphTest, ByHomomorphisms3) {
 
 }
 
+TEST(CFIGraphTest, TestingKMatchings) {
+    for (int i = 0; i < 1000; i++) {
+        int vertices = 10;
+        int edges = 15;
+        RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, edges, true, true);
+        Graph G = randomGraphGenerator.generateRandomConnectedGraph();
+        CFIGraph CFI = CFIGraph(G);
+        Graph H = CFI.toGraph();
+        while (H.numVertices > 120) {
+            G = randomGraphGenerator.generateRandomConnectedGraph();
+            CFI = CFIGraph(G);
+            H = CFI.toGraph();
+        }
+        cout << "H: " << H.numVertices << " " << H.edges.size() << endl;
+        cout << "10 Matchings: " << H.countKMatchings(10) << endl;
+    }
+}
+
 
