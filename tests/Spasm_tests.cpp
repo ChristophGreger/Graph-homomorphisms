@@ -5,132 +5,134 @@
 
 #include "gtest/gtest.h"
 #include "Graph.h"
+#include "Spasm_k_Matching.h"
+#include "Injective_Hom_Count_By_Spasm.h"
+#include "RandomGraphGenerator.h"
 
-// Test, ob wiederholte Aufrufe der kanonischen Form konsistent sind.
-TEST(CanonicalStringTest, Consistency) {
-    // Erzeuge einen Graphen (z. B. ein Dreieck)
-    Graph g(false);
-    // Wir gehen davon aus, dass Node einen Default-Konstruktor besitzt.
-    g.addNode(Node());
-    g.addNode(Node());
-    g.addNode(Node());
-    g.addEdge(0, 1);
-    g.addEdge(1, 2);
-    g.addEdge(0, 2);
 
-    std::string canon1 = g.canonicalString();
-    std::string canon2 = g.canonicalString();
-
-    EXPECT_EQ(canon1, canon2);
+TEST(SPASM_CLASS, test_generation_of_files) {
+    for (int k = 1; k <= 7; k++) {
+        std::string filename = "EineTestDatei_k_" + std::to_string(k) + ".txt";
+        std::string smallerFilename = "EineTestDatei_k_" + std::to_string(k) + "_smaller.txt";
+        createMultiSpasm_k_Matching(k, filename);
+        convert_spasm_to_smaller(filename, smallerFilename);
+    }
 }
 
-// Test, ob zwei isomorphe Graphen dieselbe kanonische Form liefern.
-TEST(CanonicalStringTest, IsomorphicGraphs) {
-    // Erzeuge den ersten Graphen
-    Graph g1(false);
-    g1.addNode(Node());
-    g1.addNode(Node());
-    g1.addNode(Node());
-    g1.addEdge(0, 1);
-    g1.addEdge(1, 2);
-    g1.addEdge(0, 2);
-
-    // Erzeuge einen zweiten Graphen, der isomorph zu g1 ist,
-    // aber die Knoten und Kanten in anderer Reihenfolge hinzugefügt wurden.
-    Graph g2(false);
-    g2.addNode(Node());
-    g2.addNode(Node());
-    g2.addNode(Node());
-    // Die Reihenfolge der Kanten ist anders, trotzdem die gleiche Struktur:
-    g2.addEdge(1, 2);
-    g2.addEdge(0, 2);
-    g2.addEdge(0, 1);
-
-    std::string canon1 = g1.canonicalString();
-    std::string canon2 = g2.canonicalString();
-
-    EXPECT_EQ(canon1, canon2);
+TEST(SPASM_CLASS, test_generation_of_files_for_k_8) {
+    createMultiSpasm_k_Matching(8, "EineTestDatei_k_8.txt");
+    convert_spasm_to_smaller("EineTestDatei_k_8.txt", "EineTestDatei_k_8_smaller.txt");
 }
 
 
-// test für die spasm generierung
-TEST(SpasmGeneration, test_k_equals_7) {
+TEST(SPASM_CLASS, test5) {
+    RandomGraphGenerator generator = RandomGraphGenerator(14, 20);
+    Graph G = generator.generateRandomConnectedGraph();
 
-    Graph k_5(false);
-    for (int i = 0; i < 14; i++) {
-        k_5.addNode(Node());
+    Graph match3 = Graph(false);
+
+    for (int i = 0; i < 6; i++) {
+        match3.addNode(Node());
     }
 
-    k_5.addEdge(0, 1);
-    k_5.addEdge(2, 3);
-    k_5.addEdge(4, 5);
-    k_5.addEdge(6, 7);
-    k_5.addEdge(8, 9);
-    k_5.addEdge(10, 11);
-    k_5.addEdge(12, 13);
-
-    k_5.enumerateQuotientGraphs_K_Matching("EineTestDatei_k_5.txt");
-
-    cout << "Done!" << endl;
+    match3.addEdge(0 , 1);
+    match3.addEdge(2 , 3);
+    match3.addEdge(4 , 5);
+    //Wir wollen jetzt die injectiven Homs von
+    std::cout << "Injective Homs: " << injective_count_by_spasm("EineTestDatei_k_3.txt", G) << std::endl;
+    std::cout << "Injective Homs by brute force: " << match3.calculateNumberofInjectiveHomomorphismsTo(G) << std::endl;
+    ASSERT_EQ(match3.calculateNumberofInjectiveHomomorphismsTo(G), injective_count_by_spasm("EineTestDatei_k_3.txt", G));
 }
 
+TEST(Spasm_make_smaller, test) {
+    convert_spasm_to_smaller("EineTestDatei_k_3.txt", "EineTestDatei_k_3_smaller.txt");
+}
 
-// test für die spasm generierung
-TEST(SpasmGeneration, test_k_equals_2) {
+TEST(Spasm_make_smaller, test_total) {
+    RandomGraphGenerator generator = RandomGraphGenerator(14, 20);
+    Graph G = generator.generateRandomConnectedGraph();
 
-    Graph k_5(false);
+    Graph match3 = Graph(false);
+
+    for (int i = 0; i < 6; i++) {
+        match3.addNode(Node());
+    }
+
+    match3.addEdge(0 , 1);
+    match3.addEdge(2 , 3);
+    match3.addEdge(4 , 5);
+    //Wir wollen jetzt die injectiven Homs von
+    std::cout << "Injective Homs: " << injective_count_by_spasm_smaller("EineTestDatei_k_3_smaller.txt", G) << std::endl;
+    std::cout << "Injective Homs by brute force: " << match3.calculateNumberofInjectiveHomomorphismsTo(G) << std::endl;
+    ASSERT_EQ(match3.calculateNumberofInjectiveHomomorphismsTo(G), injective_count_by_spasm_smaller("EineTestDatei_k_3_smaller.txt", G));
+
+}
+
+TEST(Spasm_make_smaller, test_total_k_2) {
+    RandomGraphGenerator generator = RandomGraphGenerator(14, 20);
+    Graph G = generator.generateRandomConnectedGraph();
+
+    Graph match3 = Graph(false);
+
     for (int i = 0; i < 4; i++) {
-        k_5.addNode(Node());
+        match3.addNode(Node());
     }
 
-    k_5.addEdge(0, 1);
-    k_5.addEdge(2, 3);
+    match3.addEdge(0 , 1);
+    match3.addEdge(2 , 3);
+    //Wir wollen jetzt die injectiven Homs von
+    std::cout << "Injective Homs: " << injective_count_by_spasm_smaller("EineTestDatei_k_2_smaller.txt", G) << std::endl;
+    std::cout << "Injective Homs by brute force: " << match3.calculateNumberofInjectiveHomomorphismsTo(G) << std::endl;
+    ASSERT_EQ(match3.calculateNumberofInjectiveHomomorphismsTo(G), injective_count_by_spasm_smaller("EineTestDatei_k_2_smaller.txt", G));
 
-    k_5.enumerateQuotientGraphs_K_Matching("EineTestDatei_k_2.txt");
-
-    cout << "Done!" << endl;
-}
-
-// test für die spasm generierung
-TEST(SpasmGeneration, test_k_equals_5) {
-
-    Graph k_5(false);
-    for (int i = 0; i < 14; i++) {
-        k_5.addNode(Node());
-    }
-
-    k_5.addEdge(0, 1);
-    k_5.addEdge(2, 3);
-    k_5.addEdge(4, 5);
-    k_5.addEdge(6, 7);
-    k_5.addEdge(8, 9);
-    k_5.addEdge(10, 11);
-    k_5.addEdge(12, 13);
-
-    k_5.enumerateQuotientGraphs_K_Matching("EineTestDatei_k_7.txt");
-
-    cout << "Done!" << endl;
 }
 
 
-// test für die spasm generierung
-TEST(SpasmGeneration, test_k_equals_8) {
+TEST(Spasm_make_smaller, test_total_k_4) {
+    RandomGraphGenerator generator = RandomGraphGenerator(14, 20);
+    Graph G = generator.generateRandomConnectedGraph();
 
-    Graph k_5(false);
-    for (int i = 0; i < 16; i++) {
-        k_5.addNode(Node());
+    Graph match3 = Graph(false);
+
+    for (int i = 0; i < 8; i++) {
+        match3.addNode(Node());
     }
 
-    k_5.addEdge(0, 1);
-    k_5.addEdge(2, 3);
-    k_5.addEdge(4, 5);
-    k_5.addEdge(6, 7);
-    k_5.addEdge(8, 9);
-    k_5.addEdge(10, 11);
-    k_5.addEdge(12, 13);
-    k_5.addEdge(14, 15);
+    match3.addEdge(0 , 1);
+    match3.addEdge(2 , 3);
+    match3.addEdge(4 , 5);
+    match3.addEdge(6 , 7);
+    //Wir wollen jetzt die injectiven Homs von
+    std::cout << "Injective Homs: " << injective_count_by_spasm_smaller("EineTestDatei_k_4_smaller.txt", G) << std::endl;
+    std::cout << "Injective Homs by brute force: " << match3.calculateNumberofInjectiveHomomorphismsTo(G) << std::endl;
+    ASSERT_EQ(match3.calculateNumberofInjectiveHomomorphismsTo(G), injective_count_by_spasm_smaller("EineTestDatei_k_4_smaller.txt", G));
 
-    k_5.enumerateQuotientGraphs_K_Matching("EineTestDatei_k_8.txt");
+}
 
-    cout << "Done!" << endl;
+TEST(Spasm_make_smalle, test_non_small_k_2) {
+    RandomGraphGenerator generator = RandomGraphGenerator(14, 20);
+    Graph G = generator.generateRandomConnectedGraph();
+
+    Graph match3 = Graph(false);
+
+    for (int i = 0; i < 4; i++) {
+        match3.addNode(Node());
+    }
+
+    match3.addEdge(0 , 1);
+    match3.addEdge(2 , 3);
+    //Wir wollen jetzt die injectiven Homs von
+    std::cout << "Injective Homs: " << injective_count_by_spasm("EineTestDatei_k_2.txt", G) << std::endl;
+    std::cout << "Injective Homs by brute force: " << match3.calculateNumberofInjectiveHomomorphismsTo(G) << std::endl;
+    ASSERT_EQ(match3.calculateNumberofInjectiveHomomorphismsTo(G), injective_count_by_spasm("EineTestDatei_k_2.txt", G));
+
+}
+
+
+TEST(Spasm_make_smaller, test_total_k_7_speedtest) {
+    RandomGraphGenerator generator = RandomGraphGenerator(30, 70);
+    Graph G = generator.generateRandomConnectedGraph();
+
+    //Wir wollen jetzt die injectiven Homs von
+    std::cout << "Injective Homs: " << injective_count_by_spasm_smaller("EineTestDatei_k_8_smaller.txt", G) << std::endl;
 }
