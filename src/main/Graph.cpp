@@ -737,6 +737,7 @@ std::string Graph::toString() const {
 }
 
 // Beispielimplementierung von Graph::canonicalString() mit nauty
+// Nur für Graphen mit weniger als 20 Knoten geeignet !!!!
 std::string Graph::canonicalString() const {
 
 #define set nauty_set //Wirklich kein Plan warum es das hier braucht
@@ -771,11 +772,56 @@ std::string Graph::canonicalString() const {
     std::ostringstream oss;
     // Optional: stelle sicher, dass der Stream im hexadezimalen Format arbeitet.
     oss << std::hex;
-    for (int i = 0; i < m*n; i++) {
+    for (int i = 0; i < maxm*numVertices; i++) {
         // setfill und setw sorgen für führende Nullen, sodass jedes setword als 16-stellige hexadezimale Zahl ausgegeben wird.
         oss << std::setfill('0') << std::setw(16) << canon[i];
     }
     return oss.str();
+}
+
+vector<Graph> Graph::connectedComponents() {
+    vector<Graph> components;
+    vector visited(numVertices, false);
+    const vector<vector<int>> allNeighbors = neighbors();
+
+    for (int i = 0; i < numVertices; i++) {
+        if (!visited[i]) {
+            vector<int> comp;
+            stack<int> s;
+            s.push(i);
+            visited[i] = true;
+
+            // DFS to collect vertices in the component
+            while (!s.empty()) {
+                int v = s.top();
+                s.pop();
+                comp.push_back(v);
+                for (int nb : allNeighbors[v]) {
+                    if (!visited[nb]) {
+                        visited[nb] = true;
+                        s.push(nb);
+                    }
+                }
+            }
+
+            // Create new component Graph and map old indices to new ones.
+            Graph compGraph(colored);
+            unordered_map<int, int> mapping;
+            for (size_t j = 0; j < comp.size(); j++) {
+                mapping[comp[j]] = j;
+                compGraph.addNode(nodes[comp[j]]);
+            }
+            // Add only edges internal to the component.
+            for (auto [fst, snd] : edges) {
+                int u = fst, v = snd;
+                if (mapping.contains(u) && mapping.contains(v)) {
+                    compGraph.addEdge(mapping[u], mapping[v]);
+                }
+            }
+            components.push_back(compGraph);
+        }
+    }
+    return components;
 }
 
 

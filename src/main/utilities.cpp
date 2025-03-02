@@ -107,3 +107,14 @@ void printMatrix(const int rows, const int columns, const unsigned char *matrix)
     }
 }
 
+long long powlong(long long base, int exponent) {
+    long long result = 1;
+    while (exponent > 0) {
+        if (exponent & 1) {
+            result *= base;
+        }
+        base *= base;
+        exponent >>= 1;
+    }
+    return result;
+}

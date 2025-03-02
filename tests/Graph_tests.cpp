@@ -520,5 +520,68 @@ TEST(GRAPH_Shrink, shrink2) {
     S.printGraph(true);
 }
 
+TEST(GraphConnectedComponents, SingleComponent) {
+    // Create a connected graph with 4 nodes and edges connecting all nodes.
+    Graph graph(false);
+    for (int i = 0; i < 4; i++) {
+        graph.addNode(Node());
+    }
+    graph.addEdge(0, 1);
+    graph.addEdge(1, 2);
+    graph.addEdge(2, 3);
+
+    auto components = graph.connectedComponents();
+    // Expect exactly one connected component.
+    ASSERT_EQ(components.size(), 1);
+    // The component should have the same number of nodes.
+    ASSERT_EQ(components[0].numVertices, 4);
+}
+
+TEST(GraphConnectedComponents, TwoComponents) {
+    // Create a graph with 6 nodes and two separate components:
+    // Component 1: Nodes 0,1,2. Component 2: Nodes 3,4,5.
+    Graph graph(false);
+    for (int i = 0; i < 6; i++) {
+        graph.addNode(Node());
+    }
+    // Component 1
+    graph.addEdge(0, 1);
+    graph.addEdge(1, 2);
+    // Component 2
+    graph.addEdge(3, 4);
+    graph.addEdge(4, 5);
+
+    auto components = graph.connectedComponents();
+    ASSERT_EQ(components.size(), 2);
+
+    // Check sizes of both components.
+    // As ordering is not guaranteed, count by numVertices.
+    int comp1Size = 0, comp2Size = 0;
+    for (const auto &comp : components) {
+        if (comp.numVertices == 3) {
+            if (comp1Size == 0) comp1Size = comp.numVertices;
+            else comp2Size = comp.numVertices;
+        }
+    }
+    ASSERT_EQ(comp1Size, 3);
+    ASSERT_EQ(comp2Size, 3);
+}
+
+TEST(GraphConnectedComponents, IsolatedVertices) {
+    // Create a graph with 5 nodes and no edges.
+    Graph graph(false);
+    for (int i = 0; i < 5; i++) {
+        graph.addNode(Node());
+    }
+
+    auto components = graph.connectedComponents();
+    // Each vertex is a component.
+    ASSERT_EQ(components.size(), 5);
+    for (const auto &comp : components) {
+        ASSERT_EQ(comp.numVertices, 1);
+    }
+}
+
+
 
 

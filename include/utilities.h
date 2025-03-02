@@ -40,6 +40,8 @@ void sortBySecond(std::pair<T1, T2>* arr, std::size_t size);
 
 long long powBase2(int exponent);
 
+long long powlong(long long base, int exponent);
+
 
 /// Using Gauss Elimination to solve a system of linear equations
 /// @param rows Number of rows in the matrix (number of equations)
