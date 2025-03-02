@@ -8,6 +8,18 @@
 #include "utilities.h"
 #include "NextInjection.h"
 
+#include <fstream>
+#include <sstream>
+#include <unordered_map>
+#include <functional>
+#include <vector>
+#include <algorithm>
+
+#include "Nauty_wrapper.h"
+#include <iomanip>
+#include <cmath>
+
+
 
 Graph::Graph(bool colored) : colored(colored) {
     numVertices = 0;
@@ -704,7 +716,181 @@ long long Graph::calculateNumberofhomomorphismsTo_CFI_from(Graph &S) {
     return powBase2(exponent);
 }
 
+// Methode, die den Graphen als String darstellt
+std::string Graph::toString() const {
+    std::stringstream ss;
+    ss << "Graph with " << numVertices << " vertices and " << edges.size() << " edges\n";
+    if (colored) {
+        ss << "Colors:\n";
+        for (int i = 0; i < numVertices; i++) {
+            ss << i << " -> " << nodes[i].color << "\n";
+        }
+        ss << "End colors\n";
+    }
+    ss << "Edges:\n";
+    std::vector<std::pair<int, int>> sortedEdges(edges.begin(), edges.end());
+    std::sort(sortedEdges.begin(), sortedEdges.end());
+    for (const auto &edge : sortedEdges) {
+        ss << edge.first << " -> " << edge.second << "\n";
+    }
+    return ss.str();
+}
 
+// Beispielimplementierung von Graph::canonicalString() mit nauty
+std::string Graph::canonicalString() const {
+
+#define set nauty_set //Wirklich kein Plan warum es das hier braucht
+
+    int maxn = 20;
+    int maxm = 1;
+    graph g[maxm*maxn];
+    int lab[maxn], ptn[maxn], orbits[maxn];
+    static DEFAULTOPTIONS_GRAPH(options);
+    statsblk stats;
+
+    int n,m,v;
+
+    options.getcanon = TRUE;
+
+    n = numVertices;
+
+    m = 1;
+
+    nauty_check(WORDSIZE, m, n, NAUTYVERSIONID);
+
+    EMPTYGRAPH(g,m,n);
+    for (auto &e : edges) {
+        ADDONEEDGE(g, e.first, e.second, m);
+    }
+
+    graph canon[maxm*maxn];
+    EMPTYGRAPH(canon, m, n);
+
+    densenauty(g, lab, ptn, orbits, &options, &stats, m, n, canon);
+
+    std::ostringstream oss;
+    // Optional: stelle sicher, dass der Stream im hexadezimalen Format arbeitet.
+    oss << std::hex;
+    for (int i = 0; i < m*n; i++) {
+        // setfill und setw sorgen für führende Nullen, sodass jedes setword als 16-stellige hexadezimale Zahl ausgegeben wird.
+        oss << std::setfill('0') << std::setw(16) << canon[i];
+    }
+    return oss.str();
+}
+
+
+// Diese Methode erzeugt alle Quotientgraphen des aktuellen Graphen (ohne Self-Loops) mittels Backtracking.
+// Für jeden Quotientgraph wird die kanonische Form (als String) bestimmt und zusammen mit einer
+// String-Repräsentation und der Häufigkeit in die angegebene Datei geschrieben.
+// VORSICHT!!!!!!! IST SO OPTIMIERT DASS ES NUR FÜR K MATCHINGS FUNKTIONIERT!!!!
+void Graph::enumerateQuotientGraphs_K_Matching(const std::string &filename) {
+
+    long long total = 0;
+    // Map: Schlüssel ist die kanonische Form (als String),
+    // Wert ist ein Paar aus der String-Repräsentation des Quotientgraphen und der Zählung.
+    std::unordered_map<std::string, std::pair<std::string, int>> canonicalMap;
+
+    calculateEdgeArray();
+
+    int numEdges = edges.size();
+
+    // partition[i] gibt an, zu welchem Block der Knoten i gehört.
+    std::vector<int> partition(numVertices, -1);
+    partition[0] = 0;  // Der erste Knoten wird fest Block 0 zugeordnet
+
+    // Rekursive Backtracking-Funktion:
+    std::function<void(int, int)> backtrack = [&](int vertex, int currentMax) {
+        if (vertex == numVertices) {
+            // Erzeuge den Quotientgraphen anhand der aktuellen Partition.
+            Graph quotient(false);
+            for (int i = 0; i <= currentMax; i++) {
+                quotient.addNode(Node());
+            }
+            // Für jede Kante im Originalgraphen, die zwei verschiedene Blöcke verbindet,
+            // wird im Quotientgraphen eine entsprechende Kante eingefügt.
+            for (int i = 0; i < numEdges; i++) {
+                auto edge = edgeArray[i];
+                int u = edge.first;
+                int v = edge.second;
+                int bu = partition[u];
+                int bv = partition[v];
+                quotient.addEdge(bu, bv);
+            }
+            // Berechne die kanonische Form des Quotientgraphen.
+
+            std::string canon = quotient.canonicalString();
+
+            // Hole die String-Repräsentation des Quotientgraphen.
+            std::string quotientStr = quotient.toString();
+            if (canonicalMap.find(canon) == canonicalMap.end()) {
+                canonicalMap[canon] = std::make_pair(quotientStr, 1);
+            } else {
+                canonicalMap[canon].second++;
+            }
+            ++total;
+
+
+            //DEBUGGING
+            if (total % 1000000 == 0) {
+                cout << "Total: " << total << endl;
+            }
+            return;
+        }
+        // Versuche, den aktuellen Knoten in jeden existierenden Block einzufügen.
+        for (int block = 0; block <= currentMax; block++) {
+            bool valid = true;
+            // Überprüfe, ob das Hinzufügen in Block 'block' zu einer Self-Loop (Kante innerhalb des Blocks) führen würde.
+            /**for (int v = 0; v < vertex; v++) {
+                if (partition[v] == block) {
+                    if (isEdgebySet(v, vertex)) {
+                        valid = false;
+                        break;
+                    }
+                }
+            }
+            **/
+            //Hier jetzt auf K-Matching optimiert:
+            if (vertex % 2 == 1) {
+                if (partition[vertex - 1] == block) {
+                    valid = false;
+                }
+
+            } else {
+                if (partition[vertex + 1] == block) {
+                    valid = false;
+                }
+
+            }
+
+            //Ende K Matching Optimierung
+
+            if (!valid) continue;
+            partition[vertex] = block;
+            backtrack(vertex + 1, currentMax);
+        }
+        // Eröffne einen neuen Block für den aktuellen Knoten.
+        partition[vertex] = currentMax + 1;
+        backtrack(vertex + 1, currentMax + 1);
+    };
+
+    backtrack(1, 0);
+
+    // Schreibe die Ergebnisse in die Datei.
+    std::ofstream outFile(filename);
+    if (!outFile) {
+        std::cerr << "Fehler beim Öffnen der Datei: " << filename << std::endl;
+        return;
+    }
+    auto totaldifferent = canonicalMap.size();
+    for (const auto &entry : canonicalMap) {
+        outFile << "Quotientgraph:\n" << entry.second.first << "\n";
+        outFile << "Kanonische Form:\n" << entry.first << "\n";
+        outFile << "Anzahl: " << entry.second.second << "\n\n";
+    }
+    cout << "Total: " << total << endl;
+    outFile.close();
+    cout << "Total different: " << totaldifferent << endl;
+}
 
 
 

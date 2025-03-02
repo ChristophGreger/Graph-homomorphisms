@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
 project(Graph_homomorphisms)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
@@ -31,6 +31,7 @@ add_library(bib STATIC
         include/RandomGraphGenerator.h
         src/main/NextInjection.cpp
         include/NextInjection.h
+        include/Nauty_wrapper.h
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
@@ -91,3 +92,13 @@ add_gtest(SpeedComparisons_tests tests/SpeedComparisons.cpp)
 add_gtest(NextInjection_tests tests/NextInjection_tests.cpp)
 add_gtest(Utitlities_tests tests/Utilities_tests.cpp)
 add_gtest(Closed_Formula_Trying tests/Closed_Formula_Trying.cpp)
+add_gtest(Spasm_tests tests/Spasm_tests.cpp)
+
+
+#Fuer Nauty:
+set(NAUTY_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/external/nauty/nauty.a)
+target_link_libraries(bib PRIVATE ${NAUTY_LIBRARY})
+target_include_directories(bib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/external/nauty)
+
+
+#Some stuff doesn't work: To run everything you need to run ./configure in the external/nauty and make afterwards

@@ -264,3 +264,27 @@ TEST(SpeedTest, clique5nequals60) {
 
     cout << "Time in ms: " << (clock() - time)/1000 << endl;
 }
+
+
+TEST(GraphHomTest, HomTest) {
+    Graph k_7(false);
+    for (int i = 0; i < 8; i++) {
+        k_7.addNode(Node());
+    }
+
+    k_7.addEdge(0, 1);
+    k_7.addEdge(1, 2);
+    k_7.addEdge(2, 3);
+    k_7.addEdge(3, 4);
+    k_7.addEdge(4, 5);
+    k_7.addEdge(5, 6);
+    k_7.addEdge(6, 7);
+
+
+    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(45, 100, false);
+    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
+    cout << "Graphs generated" << endl;
+    cout << "Number of homomorphisms: " << k_7.calculateNumberofHomomorphismsTo(G) << endl;
+}
+
+
