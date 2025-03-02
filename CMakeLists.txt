@@ -34,6 +34,8 @@ add_library(bib STATIC
         include/Nauty_wrapper.h
         src/main/Spasm_k_Matching.cpp
         include/Spasm_k_Matching.h
+        src/main/Injective_Hom_Count_By_Spasm.cpp
+        include/Injective_Hom_Count_By_Spasm.h
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")

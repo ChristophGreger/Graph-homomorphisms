@@ -174,7 +174,10 @@ void createMultiSpasm_k_Matching(const int k, const std::string &filename) {
         std::cerr << "Fehler beim Öffnen der Datei: " << filename << std::endl;
         return;
     }
+
     const auto totaldifferent = canonicalMap.size();
+    outFile << totaldifferent << "\n\n";
+
     for (const auto &[fst, snd] : canonicalMap) {
 
         //Now we have to get the sign of the factor
@@ -185,10 +188,10 @@ void createMultiSpasm_k_Matching(const int k, const std::string &filename) {
             factor = -factor;
         }
 
-        outFile << "Quotientgraph:\n" << snd.first << "\n";
-        outFile << "Kanonische Form:\n" << fst << "\n";
-        outFile << "Anzahl: " << snd.second.first << "\n";
-        outFile << "Faktor: " << factor << "\n\n";
+        outFile << snd.first << "\n"; //zuerst ein Graph dieser kanonischen Form
+        outFile << fst << "\n"; //dann die kanonische Form
+        outFile << snd.second.first << "\n"; //dann die Anzahl, eigentlich unnötig
+        outFile << factor << "\n\n"; //dann der Faktor
     }
     std::cout << "Total: " << total << std::endl;
     outFile.close();
