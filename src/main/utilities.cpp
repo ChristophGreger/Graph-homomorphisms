@@ -97,7 +97,7 @@ int getSolutionDimension(int rows, int cols, unsigned char *matrix) {
     return cols - rank;
 }
 
-void printMatrix(int rows, int columns, unsigned char *matrix) {
+void printMatrix(const int rows, const int columns, const unsigned char *matrix) {
     cout << "Matrix:" << endl;
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < columns; j++) {

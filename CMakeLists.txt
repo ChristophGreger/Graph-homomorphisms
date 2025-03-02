@@ -32,6 +32,8 @@ add_library(bib STATIC
         src/main/NextInjection.cpp
         include/NextInjection.h
         include/Nauty_wrapper.h
+        src/main/Spasm_k_Matching.cpp
+        include/Spasm_k_Matching.h
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
