@@ -1,3 +1,4 @@
 [submodule "external/nauty"]
 	path = external/nauty
 	url = https://github.com/lonnen/nauty
+    ignore = all
