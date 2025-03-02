@@ -62,6 +62,11 @@ public:
 
     long long calculateNumberofhomomorphismsTo_CFI_from(Graph &S);
 
+    std::string toString() const;
+
+    std::string canonicalString() const;
+
+    void enumerateQuotientGraphs_K_Matching(const std::string &filename);
 };
 
 
