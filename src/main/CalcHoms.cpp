@@ -247,15 +247,8 @@ long long CalcHoms::calcNumHoms(Graph& H, Graph& G) {
 //calc homs from H to CFI Graph of S based on a mapping
 //every node in H is mapped to one in S (predecided through mapping disregarding the color)
 //execute S.calculateAdjMatrix() in advance
+//the mapping should be correct
 long long CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping) {
-
-    //every mapped edge needs a counterpart
-    for (auto [node1, node2] : H.edges) {
-        if (!S.isEdge(node1,node2)) {
-            //cout << "No edge between " << edgecolor1 << " and " << edgecolor2 << endl;
-            return 0;
-        }
-    }
 
     auto neighborsS = S.neighbors();
     auto degS = S.degree();
