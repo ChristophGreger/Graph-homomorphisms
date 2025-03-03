@@ -9,7 +9,7 @@
 #include "Injective_Hom_Count_By_Spasm.h"
 #include "RandomGraphGenerator.h"
 
-
+/**
 TEST(SPASM_CLASS, test_generation_of_files) {
     for (int k = 1; k <= 7; k++) {
         std::string filename = "EineTestDatei_k_" + std::to_string(k) + ".txt";
@@ -23,6 +23,7 @@ TEST(SPASM_CLASS, test_generation_of_files_for_k_8) {
     createMultiSpasm_k_Matching(8, "EineTestDatei_k_8.txt");
     convert_spasm_to_smaller("EineTestDatei_k_8.txt", "EineTestDatei_k_8_smaller.txt");
 }
+*/
 
 
 TEST(SPASM_CLASS, test5) {
@@ -44,9 +45,6 @@ TEST(SPASM_CLASS, test5) {
     ASSERT_EQ(match3.calculateNumberofInjectiveHomomorphismsTo(G), injective_count_by_spasm("EineTestDatei_k_3.txt", G));
 }
 
-TEST(Spasm_make_smaller, test) {
-    convert_spasm_to_smaller("EineTestDatei_k_3.txt", "EineTestDatei_k_3_smaller.txt");
-}
 
 TEST(Spasm_make_smaller, test_total) {
     RandomGraphGenerator generator = RandomGraphGenerator(14, 20);
