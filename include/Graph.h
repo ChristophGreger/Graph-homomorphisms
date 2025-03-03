@@ -54,9 +54,9 @@ public:
 
     int * calculateNodeIndex();
 
-    vector<vector<int>> neighbors();
+    vector<vector<int>> neighbors() const;
 
-    vector<int> degree();
+    vector<int> degree() const;
 
     pair<bool, Graph> shrinkGraph(Graph &S);
 

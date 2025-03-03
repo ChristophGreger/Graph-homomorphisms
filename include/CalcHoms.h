@@ -8,11 +8,8 @@
 
 
 class CalcHoms {
-public:
     static long long calcNumHoms(Graph& H, Graph& G);
-    static long long calcNumInjectiveHomsCFI(const Graph& H, const Graph& S);
-private:
-    static long long calcNumHomsCFI(const Graph& H, Graph& S, const int* mapping);
+    static long long calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping);
 };
 
 

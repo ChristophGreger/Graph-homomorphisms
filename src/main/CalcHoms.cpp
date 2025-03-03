@@ -246,9 +246,8 @@ long long CalcHoms::calcNumHoms(Graph& H, Graph& G) {
 
 //calc homs from H to CFI Graph of S based on a mapping
 //every node in H is mapped to one in S (predecided through mapping disregarding the color)
-long long CalcHoms::calcNumHomsCFI(const Graph& H, Graph& S, const int* mapping) {
-
-    S.calculateAdjMatrix();
+//execute S.calculateAdjMatrix() in advance
+long long CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping) {
 
     //every mapped edge needs a counterpart
     for (auto [node1, node2] : H.edges) {
@@ -340,7 +339,4 @@ long long CalcHoms::calcNumHomsCFI(const Graph& H, Graph& S, const int* mapping)
     return powBase2(exponent);
 }
 
-long long CalcHoms::calcNumInjectiveHomsCFI(const Graph& H, const Graph& S) {
-    return 0;
-}
 
