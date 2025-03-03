@@ -39,3 +39,7 @@
 /.idea
 
 /build
+
+/external
+
+/googletest
