@@ -248,38 +248,32 @@ long long CalcHoms::calcNumHoms(Graph& H, Graph& G) {
 //every node in H is mapped to one in S (predecided through mapping disregarding the color)
 //execute S.calculateAdjMatrix() in advance
 //the mapping should be correct
-long long CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping) {
+int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping) {
 
-    auto neighborsS = S.neighbors();
-    auto degS = S.degree();
+    const auto neighborsS = S.neighbors();
+    const auto degS = S.degree();
 
     //We want to create an possible mapping from (vertice, neighbor) pairs to an index in the matrix (column)
     //this vector mapps every node in this to <beginning, end>, which is the range of the neighbors in S
     //and so the range of the columns in the matrix which this node in affiliated with
     //(from inclusive, to exclusive)
-    vector<pair<int, int>> indexMapping = vector<pair<int, int>>();
+    auto indexMapping = vector<pair<int, int>>();
     indexMapping.reserve(H.numVertices);
 
     int columns = 0;
     for (int i = 0; i < H.numVertices; ++i) {
-        indexMapping.emplace_back(columns, columns + degS[H.nodes[i].color]);
-        columns += degS[H.nodes[i].color];
+        indexMapping.emplace_back(columns, columns + degS[mapping[i]]);//H.nodes[i].color?? but why
+        columns += degS[mapping[i]];
     }
 
     //Now columns is the number of columns in the matrix
 
-    // Now calculate Number of rows, the matrix will have
-    int rows = H.numVertices + H.edges.size();
+    //H.numVertices -> even subset guarantee for the mapped node
+    //H.edges.size() -> same opinion on the mapped edge
+    const int rows = H.numVertices + H.edges.size();
 
-    //Now we create the matrix
-    auto * matrix = new unsigned char[rows * columns];
-
-    //Initialize the matrix with 0s
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < columns; j++) {
-            matrix[i * columns + j] = 0;
-        }
-    }
+    //Now we create the matrix and initialize with 0
+    auto * matrix = new unsigned char[rows * columns]();
 
     //Fill with the even subset guarantee
     for (int i = 0; i < H.numVertices; i++) {
@@ -288,48 +282,46 @@ long long CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* ma
         }
     }
 
-    int currentrow = H.numVertices;
+    int currentRow = H.numVertices;
 
-    //Fill for the edges
-    for (auto edge : H.edges) {
-        int first = edge.first;
-        int second = edge.second;
-        int firstcolor = H.nodes[first].color;
-        int secondcolor = H.nodes[second].color;
+    //Same opinion on the mapped edge
+    for (const auto [first,second] : H.edges) {
         //We have to find the index that the two nodes are affiliated with
-        int firstindex = -1;
-        int secondindex = -1;
+        int firstIndex = -1;
+        int secondIndex = -1;
 
-        //Find firstindex
-        for (int i = 0; i < degS[firstcolor]; ++i) {
-            if (neighborsS[firstcolor][i] == secondcolor) {
-                firstindex = i;
+        const int mFirst = mapping[first];
+        const int mSecond = mapping[second];
+
+        //Find firstIndex
+        for (int i = 0; i < degS[mFirst]; ++i) {
+            if (neighborsS[mFirst][i] == mSecond) {
+                firstIndex = i;
                 break;
             }
         }
-        //Find secondindex
-        for (int i = 0; i < degS[secondcolor]; ++i) {
-            if (neighborsS[secondcolor][i] == firstcolor) {
-                secondindex = i;
+        //Find secondIndex
+        for (int i = 0; i < degS[mSecond]; ++i) {
+            if (neighborsS[mSecond][i] == mFirst) {
+                secondIndex = i;
                 break;
             }
         }
 
-        matrix[currentrow * columns + indexMapping[first].first + firstindex] = 1;
-        matrix[currentrow * columns + indexMapping[second].first + secondindex] = 1;
-        ++currentrow;
+        matrix[currentRow * columns + indexMapping[first].first + firstIndex] = 1;
+        matrix[currentRow * columns + indexMapping[second].first + secondIndex] = 1;
+        ++currentRow;
     }
-
 
     //printMatrix(rows, columns, matrix);
 
     //Now we can calculate the dimension of the solution space
-    int exponent = getSolutionDimension(rows, columns, matrix);
+    const int exponent = getSolutionDimension(rows, columns, matrix);
 
     //printMatrix(rows, columns, matrix);
 
     delete [] matrix;
-    return powBase2(exponent);
+    return exponent;
 }
 
 

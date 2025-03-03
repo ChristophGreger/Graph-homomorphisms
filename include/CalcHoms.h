@@ -9,7 +9,7 @@
 
 class CalcHoms {
     static long long calcNumHoms(Graph& H, Graph& G);
-    static long long calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping);
+    static int calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping);
 };
 
 
