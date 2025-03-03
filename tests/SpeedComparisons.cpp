@@ -70,8 +70,8 @@ TEST(SpeedTest, JustTrying) {
     }
 
     long long totalnumberofhoms = 0;
-    for (int i = 0; i < 23; i++) {
-        RandomGraphGenerator gen2 = RandomGraphGenerator(8, 7, false);
+    for (int i = 0; i < 45; i++) {
+        RandomGraphGenerator gen2 = RandomGraphGenerator(9, 8, false);
         Graph square = gen2.generateRandomConnectedGraph();
 
 
