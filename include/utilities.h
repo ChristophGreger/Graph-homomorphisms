@@ -40,6 +40,8 @@ void sortBySecond(std::pair<T1, T2>* arr, std::size_t size);
 
 long long powBase2(int exponent);
 
+long long powlong(long long base, int exponent);
+
 
 /// Using Gauss Elimination to solve a system of linear equations
 /// @param rows Number of rows in the matrix (number of equations)
@@ -53,7 +55,22 @@ int getSolutionDimension(int rows, int cols, unsigned char *matrix);
 /// @param rows Number of rows in the matrix
 /// @param columns Number of columns in the matrix
 /// @param matrix The Matrix array consisting of 0s and 1s, rows*columns fields.
-void printMatrix(int rows, int columns, unsigned char * matrix);
+void printMatrix(int rows, int columns, const unsigned char * matrix);
+
+inline std::vector<int> factorialCache = {1, 1};
+
+inline int factorial(const int n) {
+    if (n < 0) {
+        throw std::invalid_argument("Factorial is not defined for negative numbers.");
+    }
+    if (n < factorialCache.size()) {
+        return factorialCache[n];
+    }
+    for (int i = static_cast<int>(factorialCache.size()); i <= n; i++) {
+        factorialCache.push_back(factorialCache.back() * i);
+    }
+    return factorialCache[n];
+}
 
 
 #endif //GRAPH_HOMOMORPHISMS_UTILITIES_H

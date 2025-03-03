@@ -42,8 +42,8 @@ TEST(SpeedTest, Nodes256_2) {
         H = CFI.toGraph();
     }
 
-    for (int i = 0; i < 100; i++) {
-        RandomGraphGenerator gen2 = RandomGraphGenerator(10, 9, false);
+    for (int i = 0; i < 45; i++) {
+        RandomGraphGenerator gen2 = RandomGraphGenerator(9, 8, false);
         Graph square = gen2.generateRandomConnectedGraph();
 
 
@@ -70,8 +70,8 @@ TEST(SpeedTest, JustTrying) {
     }
 
     long long totalnumberofhoms = 0;
-    for (int i = 0; i < 23; i++) {
-        RandomGraphGenerator gen2 = RandomGraphGenerator(8, 7, false);
+    for (int i = 0; i < 45; i++) {
+        RandomGraphGenerator gen2 = RandomGraphGenerator(9, 8, false);
         Graph square = gen2.generateRandomConnectedGraph();
 
 
@@ -91,29 +91,6 @@ TEST(SpeedTest, JustTrying) {
     cout << "Total number of homomorphisms: " << totalnumberofhoms << endl;
 }
 
-
-//1 min last time executed with edge density = 0.2. With density 0.1 it takes 6 seconds
-TEST(SpeedTest, Nodes1024) {
-    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(1024, 104755, false);
-    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
-    Graph square = Graph();
-    for (int i = 0; i < 4; i++) {
-        square.addNode(Node());
-    }
-    square.addEdge(0, 1);
-    square.addEdge(1, 2);
-    square.addEdge(2, 3);
-    square.addEdge(3, 0);
-
-    cout << "Graphs generated" << endl;
-
-    unsigned long time = clock();
-
-    cout << square.calculateNumberofHomomorphismsTo(G) << endl;
-
-    cout << "Time in ms: " << (clock() - time)/1000 << endl;
-}
-
 TEST(SpeedTest, SortingEdges1024) {
     RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(1024, 104755, false);
     Graph G = randomGraphGenerator.generateRandomConnectedGraph();
@@ -129,14 +106,6 @@ TEST(SpeedTest, CFIGraphGeneration) {
     cout << "H: " << H.numVertices << " " << H.edges.size() << endl;
 }
 
-//Takes 1 min 13 secs to run and produces 6948 vertices and 4377696 edges
-TEST(SpeedTest, CFIGraphGeneration2) {
-    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(30, 100, true, true);
-    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
-    CFIGraph CFI = CFIGraph(G);
-    Graph H = CFI.toGraph();
-    cout << "H: " << H.numVertices << " " << H.edges.size() << endl;
-}
 
 //takes about 37 ms
 TEST(SpeedTest, CounterTimeTest) {
@@ -212,79 +181,6 @@ TEST(SpeedTest, clique3nequals1000) {
 }
 
 
-//Takes 731ms, thats much faster than the master work implementation and glasgow subgraph solver
-TEST(SpeedTest, clique4nequals150) {
-    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(150, 6705, false);
-    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
-    Graph clique4 = Graph();
-    for (int i = 0; i < 4; i++) {
-        clique4.addNode(Node());
-    }
-    clique4.addEdge(0, 1);
-    clique4.addEdge(1, 2);
-    clique4.addEdge(2, 0);
-    clique4.addEdge(3, 0);
-    clique4.addEdge(3, 1);
-    clique4.addEdge(3, 2);
 
-
-    cout << "Graphs generated" << endl;
-
-    auto time = clock();
-
-    cout << clique4.calculateNumberofHomomorphismsTo(G) << endl;
-
-    cout << "Time in ms: " << (clock() - time)/1000 << endl;
-}
-
-//1.2 seconds, also faster than the master work implementation and glasgow subgraph solver
-TEST(SpeedTest, clique5nequals60) {
-    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(60, 1416, false);
-    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
-    Graph clique5 = Graph();
-    for (int i = 0; i < 5; i++) {
-        clique5.addNode(Node());
-    }
-    clique5.addEdge(0, 1);
-    clique5.addEdge(1, 2);
-    clique5.addEdge(2, 0);
-    clique5.addEdge(3, 0);
-    clique5.addEdge(3, 1);
-    clique5.addEdge(3, 2);
-    clique5.addEdge(4, 0);
-    clique5.addEdge(4, 1);
-    clique5.addEdge(4, 2);
-    clique5.addEdge(4, 3);
-
-    cout << "Graphs generated" << endl;
-
-    auto time = clock();
-
-    cout << clique5.calculateNumberofHomomorphismsTo(G) << endl;
-
-    cout << "Time in ms: " << (clock() - time)/1000 << endl;
-}
-
-
-TEST(GraphHomTest, HomTest) {
-    Graph k_7(false);
-    for (int i = 0; i < 8; i++) {
-        k_7.addNode(Node());
-    }
-
-    k_7.addEdge(0, 1);
-    k_7.addEdge(1, 2);
-    k_7.addEdge(2, 3);
-    k_7.addEdge(3, 4);
-    k_7.addEdge(4, 5);
-    k_7.addEdge(5, 6);
-    k_7.addEdge(6, 7);
-
-
-    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(45, 100, false);
-    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
-    cout << "Graphs generated" << endl;
-    cout << "Number of homomorphisms: " << k_7.calculateNumberofHomomorphismsTo(G) << endl;
-}
 
 

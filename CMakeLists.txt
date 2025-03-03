@@ -34,6 +34,11 @@ add_library(bib STATIC
         include/Nauty_wrapper.h
         src/main/CalcHoms.cpp
         include/CalcHoms.h
+        src/main/Spasm_k_Matching.cpp
+        include/Spasm_k_Matching.h
+        src/main/Injective_Hom_Count_By_Spasm.cpp
+        include/Injective_Hom_Count_By_Spasm.h
+        include/linear_Equations_F2_small.h
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
@@ -95,6 +100,7 @@ add_gtest(NextInjection_tests tests/NextInjection_tests.cpp)
 add_gtest(Utitlities_tests tests/Utilities_tests.cpp)
 add_gtest(Closed_Formula_Trying tests/Closed_Formula_Trying.cpp)
 add_gtest(Spasm_tests tests/Spasm_tests.cpp)
+add_gtest(Linear_Equations_F2_small_tests tests/linear_Equations_F2_small_tests.cpp)
 
 
 #Fuer Nauty:

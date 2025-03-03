@@ -66,7 +66,7 @@ public:
 
     std::string canonicalString() const;
 
-    void enumerateQuotientGraphs_K_Matching(const std::string &filename);
+    vector<Graph> connectedComponents();
 };
 
 
