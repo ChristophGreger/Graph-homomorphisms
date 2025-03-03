@@ -489,7 +489,7 @@ long long Graph::calculateNumberofSubGraphsTo(Graph &H) {
 }
 
 
-vector<vector<int>> Graph::neighbors() {
+vector<vector<int>> Graph::neighbors() const {
     vector<vector<int>> neighbors;
     for (int i = 0; i < numVertices; i++) {
         vector<int> n;
@@ -503,7 +503,7 @@ vector<vector<int>> Graph::neighbors() {
     return neighbors;
 }
 
-vector<int> Graph::degree() {
+vector<int> Graph::degree() const {
     vector<int> deg;
     for (int i = 0; i < numVertices; i++) {
         int d = 0;
