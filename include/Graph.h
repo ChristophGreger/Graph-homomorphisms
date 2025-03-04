@@ -8,29 +8,46 @@
 #include <vector>
 #include "Node.h"
 #include <unordered_set>
+
+#include "GraphTemplate.h"
 #include "utilities.h"
 
 using namespace std;
 
 class Graph {
-public:
-    char * adjMatrix;
-    unordered_set<pair<int, int>, PairHash> edges;
-    pair<int, int> * edgeArray;
-
-    bool colored;
-    vector<Node> nodes;
-    explicit Graph(bool colored = false);
-    ~Graph();
-    void addNode(const Node& node);
-    void addEdge(int node1, int node2);
-    void printGraph(bool printcolors = false);
 
     // Calculate the adjacency matrix of the graph, has to be called before using the adjacency matrix
     void calculateAdjMatrix();
 
     // Calculate the edge array of the graph, has to be called before using the edge array
     void calculateEdgeArray();
+
+    void sortEdges();
+
+    void calcNodeIndex();
+
+    void calcNeighbours() const;
+
+    void calcDegree() const;
+
+public:
+
+    const bool colored;
+    const unordered_set<pair<int, int>, PairHash> edges;
+    const vector<Node> nodes;
+
+    //calculated in the constructor
+    const pair<int, int> * edgeArray;
+    const char * adjMatrix;
+    const int numVertices;
+
+    const int* nodeIndex;
+    const vector<vector<int>> neighbours;
+    const vector<int> degrees;
+
+    explicit Graph(const GraphTemplate& t);
+    ~Graph();
+    void printGraph(bool printcolors = false);
 
     bool isEdge(int node1, int node2) const; // adjacency matrix has to be calculated before using this function
 
@@ -46,17 +63,7 @@ public:
 
     long long calculateNumberofSubGraphsTo(Graph &H);
 
-    int numVertices;
-
     bool isConnected() const;
-
-    void sortEdges();
-
-    int * calculateNodeIndex();
-
-    vector<vector<int>> neighbors() const;
-
-    vector<int> degree() const;
 
     pair<bool, Graph> shrinkGraph(Graph &S);
 
