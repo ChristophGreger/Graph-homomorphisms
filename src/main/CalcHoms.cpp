@@ -270,7 +270,7 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping)
 
     //H.numVertices -> even subset guarantee for the mapped node
     //H.edges.size() -> same opinion on the mapped edge
-    const int rows = H.numVertices + H.edges.size();
+    const int rows = H.numVertices + static_cast<int>(H.edges.size());
 
     //Now we create the matrix and initialize with 0
     auto * matrix = new unsigned char[rows * columns]();
@@ -313,12 +313,8 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping)
         ++currentRow;
     }
 
-    //printMatrix(rows, columns, matrix);
-
     //Now we can calculate the dimension of the solution space
     const int exponent = getSolutionDimension(rows, columns, matrix);
-
-    //printMatrix(rows, columns, matrix);
 
     delete [] matrix;
     return exponent;

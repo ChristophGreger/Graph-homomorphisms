@@ -7,7 +7,10 @@
 
 #include "Graph.h"
 #include "CalcHoms.h"
+#include "RandomGraphGenerator.h"
+#include "CFIGraph.h"
 
+//Check one specific graph
 //S is a triangle with two equal color (0,1)
 //H has two nodes with color (0,1) and one edge
 //we map the nodes of H to different nodes in S
@@ -42,4 +45,23 @@ TEST(CalcHomsTest, calcNumHomsCFI1) {
     const int dim2 = CalcHoms::calcNumHomsCFI(H,S,mapping2);
 
     EXPECT_EQ(dim2, 1);
+}
+
+//Check Graphs up to 30 vertices
+//S is mapped into the CFI of S
+//This testcase does not cover duplicate colors in S
+TEST(CFIGraphTest, calcNumHomsCFI2) {
+    for (int vertices = 2; vertices < 30; vertices++) {
+        for (int edges = vertices-1; edges <= (vertices * (vertices - 1)) / 2; edges++) {
+            RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, edges, true, true);
+            Graph S = randomGraphGenerator.generateRandomConnectedGraph();
+            int* mapping = new int[vertices];
+            for (int j = 0; j < vertices; j++) {
+                mapping[j] = j;
+            }
+            int dim = CalcHoms::calcNumHomsCFI(S,S,mapping);
+            int expected = (edges - vertices + 1);
+            ASSERT_EQ(dim, expected);
+        }
+    }
 }
