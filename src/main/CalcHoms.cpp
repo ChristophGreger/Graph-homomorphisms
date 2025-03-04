@@ -12,10 +12,7 @@
 //calc homs from H to G
 //works for colored and uncolored
 long long CalcHoms::calcNumHoms(Graph& H, Graph& G) {
-
-    G.calculateAdjMatrix();
-
-    int *nodeIndex = H.calculateNodeIndex();
+    const int *nodeIndex = H.nodeIndex;
     bool coloredhoms = H.colored && G.colored;
     long long numHomomorphisms = 0;
 
@@ -51,7 +48,7 @@ long long CalcHoms::calcNumHoms(Graph& H, Graph& G) {
                 for (int i = hom[currtochange] + 1; i < G.numVertices; i++) {
                     bool iworks = true;
                     for (int edgeindex = nodeIndex[currtochange-1]; edgeindex < nodeIndex[currtochange]; edgeindex++) {
-                        if (!H.isEdge(hom[H.edgeArray[edgeindex].first], i)) {
+                        if (!G.isEdge(hom[H.edgeArray[edgeindex].first], i)) {
                             iworks = false;
                             break;
                         }
@@ -71,7 +68,6 @@ long long CalcHoms::calcNumHoms(Graph& H, Graph& G) {
                     continue;
                 }
             }
-
 
             //If going right in the hom array
             if (!increment) {
@@ -105,14 +101,12 @@ long long CalcHoms::calcNumHoms(Graph& H, Graph& G) {
 
         }
         delete[] hom;
-        delete[] nodeIndex;
         return numHomomorphisms;
-    } // ---------- COLORED BRANCH (MODIFIED) ---------- AI GENERATED (some parts)
-    else {
+        // ---------- COLORED BRANCH (MODIFIED) ---------- AI GENERATED (some parts)
+    } else {
         // Precompute valid mappings based on color
         // possibleMappings[v].first is an array of valid node-IDs in G
         // possibleMappings[v].second is how many valid node-IDs in that array
-
         pair<int*, int> * possibleMappings = new pair<int*, int>[H.numVertices];
         for (int v = 0; v < H.numVertices; v++) {
             vector<int> valid;
@@ -242,7 +236,6 @@ long long CalcHoms::calcNumHoms(Graph& H, Graph& G) {
             delete[] possibleMappings;
         }
         delete[] hom;
-        delete[] nodeIndex;
         delete[] candidateIndex;
         return numHomomorphisms;
     }
@@ -256,8 +249,8 @@ long long CalcHoms::calcNumHoms(Graph& H, Graph& G) {
 //the mapping should be correct
 int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping) {
 
-    const auto neighborsS = S.neighbors();
-    const auto degS = S.degree();
+    const auto neighborsS = S.neighbours;
+    const auto degS = S.degree;
 
     //We want to create an possible mapping from (vertice, neighbor) pairs to an index in the matrix (column)
     //this vector mapps every node in this to <beginning, end>, which is the range of the neighbors in S
@@ -333,7 +326,7 @@ long long CalcHoms::calcNumHomsCFI_uncolored(Graph &H, const Graph &S) {
 
     //generate all homs and for each hom count the number of cfi homs from H to CFI(S)
 
-    const int *nodeIndex = H.calculateNodeIndex();
+    const int *nodeIndex = H.nodeIndex;
 
     int* hom = new int[H.numVertices];
     for (int i = 0; i < H.numVertices; i++) {
@@ -429,7 +422,6 @@ long long CalcHoms::calcNumHomsCFI_uncolored(Graph &H, const Graph &S) {
 
     }
     delete[] hom;
-    delete[] nodeIndex;
 
     return total;
 }
@@ -437,8 +429,6 @@ long long CalcHoms::calcNumHomsCFI_uncolored(Graph &H, const Graph &S) {
 
 //returns the number of homomorphisms from  to the CFI graph of S
 long long CalcHoms::calcNumInjectiveHomsCFI(const std::string &small_spasm_file_name, Graph &S) {
-
-    S.calculateAdjMatrix();
 
     //Now we have to get the small_spasm of the small_spasm_file_name
     auto smallspasm = getFromFile_spasm_smaller(small_spasm_file_name);
@@ -466,5 +456,3 @@ long long CalcHoms::calcNumInjectiveHomsCFI(const std::string &small_spasm_file_
 
     return total;
 }
-
-
