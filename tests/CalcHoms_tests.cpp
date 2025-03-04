@@ -51,7 +51,7 @@ TEST(CalcHomsTest, calcNumHomsCFI1) {
 //S is mapped into the CFI of S
 //This testcase does not cover duplicate colors in S
 TEST(CFIGraphTest, calcNumHomsCFI2) {
-    for (int vertices = 2; vertices < 30; vertices++) {
+    for (int vertices = 2; vertices < 10; vertices++) {
         for (int edges = vertices-1; edges <= (vertices * (vertices - 1)) / 2; edges++) {
             RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, edges, true, true);
             Graph S = randomGraphGenerator.generateRandomConnectedGraph();

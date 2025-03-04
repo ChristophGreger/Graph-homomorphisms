@@ -4,6 +4,10 @@
 
 #include "../../include/CalcHoms.h"
 
+#include <bitset>
+#include <iostream>
+#include <linear_Equations_F2_small.h>
+
 //calc homs from H to G
 //works for colored and uncolored
 long long CalcHoms::calcNumHoms(Graph& H, Graph& G) {
@@ -273,12 +277,12 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping)
     const int rows = H.numVertices + static_cast<int>(H.edges.size());
 
     //Now we create the matrix and initialize with 0
-    auto * matrix = new unsigned char[rows * columns]();
+    auto matrix = vector<bitset<128>>(rows);
 
     //Fill with the even subset guarantee
     for (int i = 0; i < H.numVertices; i++) {
         for(int j = indexMapping[i].first; j < indexMapping[i].second; j++) {
-            matrix[i * columns + j] = 1;
+            matrix[i][j] = 1;
         }
     }
 
@@ -308,16 +312,15 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping)
             }
         }
 
-        matrix[currentRow * columns + indexMapping[first].first + firstIndex] = 1;
-        matrix[currentRow * columns + indexMapping[second].first + secondIndex] = 1;
+        matrix[currentRow][indexMapping[first].first + firstIndex] = 1;
+        matrix[currentRow][indexMapping[second].first + secondIndex] = 1;
         ++currentRow;
     }
 
     //Now we can calculate the dimension of the solution space
-    const int exponent = getSolutionDimension(rows, columns, matrix);
+    const int dimension = solution_space_dimension_f2_small_homogen(matrix,columns);
 
-    delete [] matrix;
-    return exponent;
+    return dimension;
 }
 
 
