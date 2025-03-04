@@ -366,7 +366,7 @@ long long CalcHoms::calcNumHomsCFI_uncolored(Graph &H, const Graph &S) {
             for (int i = hom[currtochange] + 1; i < S.numVertices; i++) {
                 bool iworks = true;
                 for (int edgeindex = nodeIndex[currtochange-1]; edgeindex < nodeIndex[currtochange]; edgeindex++) {
-                    if (!H.isEdge(hom[H.edgeArray[edgeindex].first], i)) {
+                    if (!S.isEdge(hom[H.edgeArray[edgeindex].first], i)) {
                         iworks = false;
                         break;
                     }
@@ -394,7 +394,8 @@ long long CalcHoms::calcNumHomsCFI_uncolored(Graph &H, const Graph &S) {
             for (int i = 0; i < S.numVertices; i++) {
                 bool iworks = true;
                 for (int edgeindex = nodeIndex[currtochange-1]; edgeindex < nodeIndex[currtochange]; edgeindex++) {
-                    if (!H.isEdge(hom[H.edgeArray[edgeindex].first], i)) {
+
+                    if (!S.isEdge(hom[H.edgeArray[edgeindex].first], i)) {
                         iworks = false;
                         break;
                     }
@@ -430,7 +431,7 @@ long long CalcHoms::calcNumHomsCFI_uncolored(Graph &H, const Graph &S) {
     delete[] hom;
     delete[] nodeIndex;
 
-    return 0;
+    return total;
 }
 
 
