@@ -169,7 +169,7 @@ void convert_spasm_to_smaller(const std::string& spasm_file, const std::string& 
 
 }
 
-spasm_smaller_graph getFromFile_spasm_smaller(std::string &filename) {
+spasm_smaller_graph getFromFile_spasm_smaller(const std::string &filename) {
     spasm_smaller_graph result;
     std::ifstream inFile(filename);
     if (!inFile) {
