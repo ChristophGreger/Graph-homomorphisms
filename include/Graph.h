@@ -16,64 +16,50 @@ using namespace std;
 
 class Graph {
 
-    // Calculate the adjacency matrix of the graph, has to be called before using the adjacency matrix
     void calculateAdjMatrix();
 
-    // Calculate the edge array of the graph, has to be called before using the edge array
     void calculateEdgeArray();
 
     void sortEdges();
 
     void calcNodeIndex();
 
-    void calcNeighbours() const;
+    void calcNeighbours();
 
-    void calcDegree() const;
+    void calcDegree();
 
 public:
 
-    const bool colored;
-    const unordered_set<pair<int, int>, PairHash> edges;
-    const vector<Node> nodes;
+    //given as parameter from the GraphTemplate
+    bool colored;
+    unordered_set<pair<int, int>, PairHash> edges;
+    vector<Node> nodes;
 
     //calculated in the constructor
-    const pair<int, int> * edgeArray;
-    const char * adjMatrix;
-    const int numVertices;
+    pair<int, int> * edgeArray{};
+    char * adjMatrix{};
+    int numVertices;
 
-    const int* nodeIndex;
-    const vector<vector<int>> neighbours;
-    const vector<int> degrees;
+    int* nodeIndex{};
+    vector<vector<int>> neighbours;
+    vector<int> degree;
 
     explicit Graph(const GraphTemplate& t);
+    Graph(const Graph& g);
     ~Graph();
-    void printGraph(bool printcolors = false);
+    void printGraph(bool printcolors = false) const;
 
-    bool isEdge(int node1, int node2) const; // adjacency matrix has to be calculated before using this function
-
-    bool isEdgebySet(int node1, int node2) const; // adjacency matrix has NOT to be calculated before using this function
-
-    long long calculateNumberofHomomorphismsTo(Graph &H);
-
-    long long calculateNumberofInjectiveHomomorphismsTo(Graph &H);
-
-    long long calculateNumberofAutomorphismsWithoutColoring();
-
-    long long calculateNumberofAutomorphismsWithColoring();
-
-    long long calculateNumberofSubGraphsTo(Graph &H);
+    bool isEdge(int node1, int node2) const;
 
     bool isConnected() const;
 
-    pair<bool, Graph> shrinkGraph(Graph &S);
-
-    long long calculateNumberofhomomorphismsTo_CFI_from(Graph &S);
+    pair<bool, Graph> shrinkGraph(Graph &S) const;
 
     std::string toString() const;
 
     std::string canonicalString() const;
 
-    vector<Graph> connectedComponents();
+    vector<Graph> connectedComponents() const;
 };
 
 

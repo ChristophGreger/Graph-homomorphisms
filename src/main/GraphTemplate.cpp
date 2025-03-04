@@ -21,3 +21,10 @@ void GraphTemplate::addEdge(int node1, int node2) {
         edges.insert(make_pair(node1, node2));
     }
 }
+
+bool GraphTemplate::isEdge(int node1, int node2) const {
+    if (node2 < node1) {
+        swap(node1, node2);
+    }
+    return edges.find(make_pair(node1, node2)) != edges.end();
+}

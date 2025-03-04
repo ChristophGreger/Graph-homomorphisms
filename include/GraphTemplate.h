@@ -22,11 +22,10 @@ public:
     vector<Node> nodes;
 
     explicit GraphTemplate(bool colored = false);
-    ~GraphTemplate();
 
     void addNode(const Node& node);
     void addEdge(int node1, int node2);
-
+    bool isEdge(int node1, int node2) const;
 };
 
 
