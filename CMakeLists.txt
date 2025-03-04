@@ -57,6 +57,18 @@ target_link_libraries(Graph_homomorphisms
         bib
 )
 
+##BOOST
+cmake_policy(SET CMP0167 NEW)
+# Boost suchen (ohne COMPONENTS)
+find_package(Boost REQUIRED)
+
+# Boost Include-Pfad hinzufügen
+target_include_directories(bib PUBLIC ${Boost_INCLUDE_DIRS})
+
+# Boost-Thread und System manuell verlinken
+target_link_libraries(bib PRIVATE ${Boost_LIBRARIES})
+##END BOOST
+
 #Tests
 
 # FetchContent-Modul laden
@@ -66,7 +78,7 @@ include(FetchContent)
 FetchContent_Declare(
         googletest
         GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG        release-1.12.1  # oder eine neuere Version
+        GIT_TAG        release-1.12.1
 )
 
 FetchContent_MakeAvailable(googletest)
@@ -112,3 +124,6 @@ target_include_directories(bib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/external/nauty
 
 
 #Some stuff doesn't work: To run everything you need to run ./configure in the external/nauty and make afterwards
+#boost MUSS installiert sein!
+#--> sudo apt update
+#sudo apt install libboost-all-dev
