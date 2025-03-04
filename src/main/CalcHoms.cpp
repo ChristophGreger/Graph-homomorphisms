@@ -3,6 +3,7 @@
 //
 
 #include "../../include/CalcHoms.h"
+#include "Injective_Hom_Count_By_Spasm.h"
 
 #include <bitset>
 #include <iostream>
@@ -251,6 +252,7 @@ long long CalcHoms::calcNumHoms(Graph& H, Graph& G) {
 //calc homs from H to CFI Graph of S based on a mapping
 //every node in H is mapped to one in S (predecided through mapping disregarding the color)
 //execute S.calculateAdjMatrix() in advance
+
 //the mapping should be correct
 int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping) {
 
@@ -321,6 +323,147 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping)
     const int dimension = solution_space_dimension_f2_small_homogen(matrix,columns);
 
     return dimension;
+}
+
+//returns the number of homs from H to CFI Graph of S, (by trying every possible mapping) (works only for uncolored)
+//Be sure that H has <= 9 vertices and S has maxdegree <= 4
+long long CalcHoms::calcNumHomsCFI_uncolored(Graph &H, const Graph &S) {
+
+    long long total = 0;
+
+    //generate all homs and for each hom count the number of cfi homs from H to CFI(S)
+
+    const int *nodeIndex = H.calculateNodeIndex();
+
+    int* hom = new int[H.numVertices];
+    for (int i = 0; i < H.numVertices; i++) {
+        hom[i] = 0;
+    }
+
+    int currtochange = 1;
+    bool increment = false;
+
+
+    while (true) {
+
+        if (currtochange == -1) {
+            break; //All homomorphisms have been checked
+        }
+
+        if (increment) {
+            if (hom[currtochange] == S.numVertices - 1) {
+                increment = true;
+                --currtochange;
+                continue;
+            }
+            if (currtochange == 0) {
+                ++hom[currtochange];
+                increment = false;
+                ++currtochange;
+                continue;
+            }
+            bool foundani = false;
+            for (int i = hom[currtochange] + 1; i < S.numVertices; i++) {
+                bool iworks = true;
+                for (int edgeindex = nodeIndex[currtochange-1]; edgeindex < nodeIndex[currtochange]; edgeindex++) {
+                    if (!H.isEdge(hom[H.edgeArray[edgeindex].first], i)) {
+                        iworks = false;
+                        break;
+                    }
+                }
+                if (iworks) {
+                    foundani = true;
+                    hom[currtochange] = i;
+                    increment = false;
+                    ++currtochange;
+                    break;
+                }
+            }
+            if (!foundani) {
+                increment = true;
+                --currtochange;
+            } else {
+                continue;
+            }
+        }
+
+
+        //If going right in the hom array
+        if (!increment) {
+            bool foundani = false;
+            for (int i = 0; i < S.numVertices; i++) {
+                bool iworks = true;
+                for (int edgeindex = nodeIndex[currtochange-1]; edgeindex < nodeIndex[currtochange]; edgeindex++) {
+                    if (!H.isEdge(hom[H.edgeArray[edgeindex].first], i)) {
+                        iworks = false;
+                        break;
+                    }
+                }
+                if (iworks) {
+                    foundani = true;
+                    hom[currtochange] = i;
+                    if (currtochange == H.numVertices - 1) {
+
+
+                        //ONLY REAL DIFFERENCE TO COUNTING HOMS
+
+                        //Handling the found Hom!
+                        total += powBase2(calcNumHomsCFI(H, S, hom));
+
+                        //END ONLY REAL DIFFERENCE TO COUNTING HOMS
+
+                    } else {
+                        break;
+                    }
+                }
+            }
+            if (!foundani || currtochange == H.numVertices - 1) {
+                increment = true;
+                --currtochange;
+                continue;
+            }
+            ++currtochange;
+            continue;
+        }
+
+    }
+    delete[] hom;
+    delete[] nodeIndex;
+
+    return 0;
+}
+
+
+//returns the number of homomorphisms from  to the CFI graph of S
+long long CalcHoms::calcNumInjectiveHomsCFI(const std::string &small_spasm_file_name, Graph &S) {
+
+    S.calculateAdjMatrix();
+
+    //Now we have to get the small_spasm of the small_spasm_file_name
+    auto smallspasm = getFromFile_spasm_smaller(small_spasm_file_name);
+
+    //Now we have to calculate the number of homomorphisms for every component
+    std::unordered_map<std::string, long long> componentMap;
+
+    for (const auto &comp : smallspasm.components) {
+        std::string canon = comp.canonicalStr;
+        Graph graph = comp.graph;
+        componentMap.emplace(canon, calcNumHomsCFI_uncolored(graph, S));
+    }
+
+    long long total = 0;
+
+    for (const auto &fullGraph : smallspasm.fullGraphs) {
+        long long factor = fullGraph.factor;
+        for (const auto &comp : fullGraph.components) {
+            std::string canon = comp.first.canonicalStr;
+            const int exponent = comp.second;
+            factor *= powlong(componentMap[canon], exponent);
+        }
+        total += factor;
+    }
+
+    return total;
 }
 
 
