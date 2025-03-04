@@ -8,6 +8,7 @@
 
 
 class CalcHoms {
+public:
     static long long calcNumHoms(Graph& H, Graph& G);
 
     //Returns the exponent of the number of homomorphisms from H to S with the mapping as the homomorphism (with base 2)
