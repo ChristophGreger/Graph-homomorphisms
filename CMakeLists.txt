@@ -39,6 +39,8 @@ add_library(bib STATIC
         src/main/Injective_Hom_Count_By_Spasm.cpp
         include/Injective_Hom_Count_By_Spasm.h
         include/linear_Equations_F2_small.h
+        src/main/GraphTemplate.cpp
+        include/GraphTemplate.h
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
