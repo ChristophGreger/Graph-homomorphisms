@@ -8,6 +8,7 @@
 
 
 class CalcHoms {
+public:
     static long long calcNumHoms(Graph& H, Graph& G);
     static int calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping);
 };
