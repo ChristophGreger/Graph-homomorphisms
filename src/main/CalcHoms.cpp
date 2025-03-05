@@ -115,7 +115,7 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping)
 int CalcHoms::calcNumHomsInvCFI(const Graph& H, const Graph& S, const int* mapping, const pair<int,int> &edge) {
     auto [matrix, columns] = generateCFI_LSOE(H,S,mapping,edge);
     //Now we can calculate the dimension of the solution space
-    const int dimension = solution_space_dimension_f2_small_homogen(matrix,columns);
+    const int dimension = solution_space_dimension_f2_small_inhomogen(matrix,columns);
 
     return dimension;
 }
