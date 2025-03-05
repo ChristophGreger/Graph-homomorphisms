@@ -13,7 +13,7 @@ public:
     static int calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping);
 
     //returns the exponent of the number of homomorphisms from H to the inverted CFI of S
-    static int calcNumHomsInvCFI(const Graph& H, const Graph& S, const int* mapping, pair<int,int> edge);
+    static int calcNumHomsInvCFI(const Graph& H, const Graph& S, const int* mapping, const pair<int,int> &edge);
 
     //returns the number of homs from H to CFI Graph of S mod3, (by trying every possible mapping) (works only for uncolored)
     static long long calcNumHomsCFI_uncolored(Graph& H, const Graph& S);
