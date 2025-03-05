@@ -3,6 +3,8 @@
 //
 
 #include <gtest/gtest.h>
+
+#include "CalcHoms.h"
 #include "RandomGraphGenerator.h"
 #include "Graph.h"
 #include "CFIGraph.h"
@@ -11,20 +13,22 @@
 TEST(SpeedTest, Nodes256) {
     RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(256, 6343, false);
     Graph G = randomGraphGenerator.generateRandomConnectedGraph();
-    Graph square = Graph();
+    GraphTemplate squaret = GraphTemplate();
     for (int i = 0; i < 4; i++) {
-        square.addNode(Node());
+        squaret.addNode(Node());
     }
-    square.addEdge(0, 1);
-    square.addEdge(1, 2);
-    square.addEdge(2, 3);
-    square.addEdge(3, 0);
+    squaret.addEdge(0, 1);
+    squaret.addEdge(1, 2);
+    squaret.addEdge(2, 3);
+    squaret.addEdge(3, 0);
+
+    Graph square = Graph(squaret);
 
     cout << "Graphs generated" << endl;
 
     unsigned long time = clock();
 
-    cout << square.calculateNumberofHomomorphismsTo(G) << endl;
+    cout << CalcHoms::calcNumHoms(square, G) << endl;
 
     cout << "Time in ms: " << (clock() - time)/1000 << endl;
 }
@@ -51,7 +55,7 @@ TEST(SpeedTest, Nodes256_2) {
 
         unsigned long time = clock();
 
-        cout << square.calculateNumberofHomomorphismsTo(G) << endl;
+        cout << CalcHoms::calcNumHoms(square, G) << endl;
 
         cout << "Time in ms: " << (clock() - time)/1000 << endl;
     }
@@ -74,12 +78,11 @@ TEST(SpeedTest, JustTrying) {
         RandomGraphGenerator gen2 = RandomGraphGenerator(8, 7, false);
         Graph square = gen2.generateRandomConnectedGraph();
 
-
         cout << "Graphs generated" << endl;
 
         unsigned long time = clock();
 
-        long long numhoms = square.calculateNumberofHomomorphismsTo(G);
+        long long numhoms = CalcHoms::calcNumHoms(square, G);
 
         totalnumberofhoms += numhoms;
 
@@ -89,12 +92,6 @@ TEST(SpeedTest, JustTrying) {
     }
 
     cout << "Total number of homomorphisms: " << totalnumberofhoms << endl;
-}
-
-TEST(SpeedTest, SortingEdges1024) {
-    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(1024, 104755, false);
-    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
-    G.sortEdges();
 }
 
 //Takes 1.7 Seconds, and produces about 2464 vertices and 700160 edges. So quite fast
@@ -124,36 +121,40 @@ TEST(SpeedTest, CounterTimeTest) {
 TEST(SpeedTest, InjectiveHomomorphismIteratorHomomorphismcountcomparison) {
     RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(70, 200, false);
     Graph G = randomGraphGenerator.generateRandomConnectedGraph();
-    Graph square = Graph();
+    GraphTemplate squaret = GraphTemplate();
     for (int i = 0; i < 4; i++) {
-        square.addNode(Node());
+        squaret.addNode(Node());
     }
-    square.addEdge(0, 1);
-    square.addEdge(1, 2);
-    square.addEdge(2, 3);
-    square.addEdge(3, 0);
+    squaret.addEdge(0, 1);
+    squaret.addEdge(1, 2);
+    squaret.addEdge(2, 3);
+    squaret.addEdge(3, 0);
+
+    Graph square = Graph(squaret);
 
     cout << "Graphs generated" << endl;
 
-    cout << square.calculateNumberofInjectiveHomomorphismsTo(G) << endl;
+    cout << CalcHoms::calcNumHoms(square, G) << endl;
 }
 
 //At the moment 32 seconds --> Generation of possible Homomorphisms is really slow, checking if valid is really fast.
 TEST(SpeedTest, HomomorphismIteratorHomomorphismcountcomparison) {
     RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(70, 200, false);
     Graph G = randomGraphGenerator.generateRandomConnectedGraph();
-    Graph square = Graph();
+    GraphTemplate squaret = GraphTemplate();
     for (int i = 0; i < 4; i++) {
-        square.addNode(Node());
+        squaret.addNode(Node());
     }
-    square.addEdge(0, 1);
-    square.addEdge(1, 2);
-    square.addEdge(2, 3);
-    square.addEdge(3, 0);
+    squaret.addEdge(0, 1);
+    squaret.addEdge(1, 2);
+    squaret.addEdge(2, 3);
+    squaret.addEdge(3, 0);
+
+    Graph square = Graph(squaret);
 
     cout << "Graphs generated" << endl;
 
-    cout << square.calculateNumberofHomomorphismsTo(G) << endl;
+    cout << CalcHoms::calcNumHoms(square, G) << endl;
 }
 
 
@@ -163,19 +164,21 @@ TEST(SpeedTest, HomomorphismIteratorHomomorphismcountcomparison) {
 TEST(SpeedTest, clique3nequals1000) {
     RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(1000, 99900, false);
     Graph G = randomGraphGenerator.generateRandomConnectedGraph();
-    Graph clique3 = Graph();
+    GraphTemplate clique3t = GraphTemplate();
     for (int i = 0; i < 3; i++) {
-        clique3.addNode(Node());
+        clique3t.addNode(Node());
     }
-    clique3.addEdge(0, 1);
-    clique3.addEdge(1, 2);
-    clique3.addEdge(2, 0);
+    clique3t.addEdge(0, 1);
+    clique3t.addEdge(1, 2);
+    clique3t.addEdge(2, 0);
+
+    Graph clique3 = Graph(clique3t);
 
     cout << "Graphs generated" << endl;
 
     auto time = clock();
 
-    cout << clique3.calculateNumberofHomomorphismsTo(G) << endl;
+    cout << CalcHoms::calcNumHoms(clique3, G) << endl;
 
     cout << "Time in ms: " << (clock() - time)/1000 << endl;
 }

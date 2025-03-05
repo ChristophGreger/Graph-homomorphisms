@@ -20,10 +20,7 @@ TEST(CalcHoms_Christoph, calcNumHomsCFI_uncolored) {
     CFIGraph cfiS = CFIGraph(S);
     Graph cfiGraph = cfiS.toGraph();
 
-    //GANZ WICHTIG!!!!!!
-    S.calculateAdjMatrix();
-
-    long long numHomsBruteForce = H.calculateNumberofHomomorphismsTo(cfiGraph);
+    long long numHomsBruteForce = CalcHoms::calcNumHoms(H,cfiGraph);
 
     cout << "numHomsBruteForce: " << numHomsBruteForce << endl;
 
@@ -37,19 +34,20 @@ TEST(CalcHoms_Christoph, calcNumHomsCFI_uncolored) {
 
 TEST(CalcHoms_Christoph, calcNumInjectiveHomsCFI) {
 
-    Graph K_2_mal_6 = Graph(false);
+    GraphTemplate K_2_mal_6T = GraphTemplate(false);
 
     for (int i = 0; i < 12; i++) {
-        K_2_mal_6.addNode(Node());
+        K_2_mal_6T.addNode(Node());
     }
 
-    K_2_mal_6.addEdge(0, 1);
-    K_2_mal_6.addEdge(2, 3);
-    K_2_mal_6.addEdge(4, 5);
-    K_2_mal_6.addEdge(6, 7);
-    K_2_mal_6.addEdge(8, 9);
-    K_2_mal_6.addEdge(10, 11);
+    K_2_mal_6T.addEdge(0, 1);
+    K_2_mal_6T.addEdge(2, 3);
+    K_2_mal_6T.addEdge(4, 5);
+    K_2_mal_6T.addEdge(6, 7);
+    K_2_mal_6T.addEdge(8, 9);
+    K_2_mal_6T.addEdge(10, 11);
 
+    Graph K_2_mal_6(K_2_mal_6T);
 
     RandomGraphGenerator randomS = RandomGraphGenerator(30, 40, true);
 

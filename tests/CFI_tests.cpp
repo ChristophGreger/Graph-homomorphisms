@@ -3,25 +3,29 @@
 //
 
 #include <gtest/gtest.h>
+
+#include "CalcHoms.h"
 #include "CFIGraph.h"
 #include "RandomGraphGenerator.h"
 #include "utilities.h"
 
 TEST(CFIGraphTest, Constructor) {
-    Graph G = Graph(true);
+    GraphTemplate Gt = GraphTemplate(true);
     Node node0 = Node(0);
     Node node1 = Node(1);
     Node node2 = Node(2);
     Node node3 = Node(3);
-    G.addNode(node0);
-    G.addNode(node1);
-    G.addNode(node2);
-    G.addNode(node3);
-    G.addEdge(0, 1);
-    G.addEdge(0, 3);
-    G.addEdge(1, 3);
-    G.addEdge(3, 2);
-    G.addEdge(2, 1);
+    Gt.addNode(node0);
+    Gt.addNode(node1);
+    Gt.addNode(node2);
+    Gt.addNode(node3);
+    Gt.addEdge(0, 1);
+    Gt.addEdge(0, 3);
+    Gt.addEdge(1, 3);
+    Gt.addEdge(3, 2);
+    Gt.addEdge(2, 1);
+
+    Graph G = Graph(Gt);
 
     CFIGraph CFI = CFIGraph(G);
 
@@ -41,7 +45,7 @@ TEST(CFIGraphTest, ByHomomorphisms) {
                     Graph H = CFI.toGraph();
                     cout << "G: " << G.numVertices << " " << G.edges.size() << endl;
                     cout << "H: " << H.numVertices << " " << H.edges.size() << endl;
-                    long long homs = G.calculateNumberofHomomorphismsTo(H);
+                    long long homs = CalcHoms::calcNumHoms(G,H);
                     long long expected = intPow(2, (edges - vertices + 1));
                     if (homs != expected) {
                         cout << "G: " << G.numVertices << " " << G.edges.size() << endl;
@@ -66,9 +70,8 @@ TEST(CFIGraphTest, ByHomomorphisms2) {
     Graph H = CFI.toGraph();
     cout << "G: " << G.numVertices << " " << G.edges.size() << endl;
     cout << "H: " << H.numVertices << " " << H.edges.size() << endl;
-    ASSERT_EQ(G.calculateNumberofHomomorphismsTo(H), intPow(2, (edges - vertices + 1)));
+    ASSERT_EQ(CalcHoms::calcNumHoms(G,H), intPow(2, (edges - vertices + 1)));
     cout << "Calculated successfully" << endl;
-
 }
 
 TEST(CFIGraphTest, ByHomomorphismsInverted) {
@@ -79,27 +82,29 @@ TEST(CFIGraphTest, ByHomomorphismsInverted) {
                 Graph G = randomGraphGenerator.generateRandomConnectedGraph();
                 CFIGraph CFI = CFIGraph(G, true);
                 Graph H = CFI.toGraph();
-                ASSERT_EQ(G.calculateNumberofHomomorphismsTo(H), 0);
+                ASSERT_EQ(CalcHoms::calcNumHoms(G,H), 0);
             }
         }
     }
 }
 
 TEST(CFIGraphTest, ByHomomorphismsInverted2) {
-    Graph G = Graph(true);
+    GraphTemplate Gt = GraphTemplate(true);
     Node node0 = Node(0);
     Node node1 = Node(1);
     Node node2 = Node(2);
     Node node3 = Node(3);
-    G.addNode(node0);
-    G.addNode(node1);
-    G.addNode(node2);
-    G.addNode(node3);
-    G.addEdge(0, 1);
-    G.addEdge(0, 3);
-    G.addEdge(1, 3);
-    G.addEdge(3, 2);
-    G.addEdge(2, 1);
+    Gt.addNode(node0);
+    Gt.addNode(node1);
+    Gt.addNode(node2);
+    Gt.addNode(node3);
+    Gt.addEdge(0, 1);
+    Gt.addEdge(0, 3);
+    Gt.addEdge(1, 3);
+    Gt.addEdge(3, 2);
+    Gt.addEdge(2, 1);
+
+    Graph G = Graph(Gt);
 
     CFIGraph CFI = CFIGraph(G, true);
 
@@ -118,11 +123,10 @@ TEST(CFIGraphTest, ByHomomorphisms3) {
     cout << "G: " << G.numVertices << " " << G.edges.size() << endl;
     cout << "H: " << H.numVertices << " " << H.edges.size() << endl;
     unsigned long time = clock();
-    ASSERT_EQ(G.calculateNumberofHomomorphismsTo(H), intPow(2, (edges - vertices + 1)));
+    ASSERT_EQ(CalcHoms::calcNumHoms(G,H), intPow(2, (edges - vertices + 1)));
     cout << intPow(2, (edges - vertices + 1)) << endl;
     cout << "Time in ms: " << (clock() - time)/1000 << endl;
     cout << "Calculated successfully" << endl;
-
 }
 
 
