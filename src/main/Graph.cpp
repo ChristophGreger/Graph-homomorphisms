@@ -19,19 +19,23 @@
 #include <iomanip>
 #include <cmath>
 
+Graph::Graph(): Graph(GraphTemplate(false)) {}
+
 Graph::Graph(const GraphTemplate& t) {
     colored = t.colored;
     edges = t.edges;
     nodes = t.nodes;
     numVertices = nodes.size();
 
-    calculateAdjMatrix();
-    calculateEdgeArray();
+    if (numVertices != 0) {
+        calculateAdjMatrix();
+        calculateEdgeArray();
 
-    calcNodeIndex();
-    calcNeighbours();
-    calcDegree();
-    sortEdges();
+        calcNodeIndex();
+        calcNeighbours();
+        calcDegree();
+        sortEdges();
+    }
 }
 
 //preprocessing and private

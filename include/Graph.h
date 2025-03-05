@@ -45,6 +45,7 @@ public:
     vector<int> degree;
 
     explicit Graph(const GraphTemplate& t);
+    Graph();
     ~Graph();
     void printGraph(bool printcolors = false) const;
 
