@@ -8,65 +8,102 @@
 #include <vector>
 #include "Node.h"
 #include <unordered_set>
+
+#include "GraphTemplate.h"
 #include "utilities.h"
 
 using namespace std;
 
 class Graph {
-public:
-    char * adjMatrix;
-    unordered_set<pair<int, int>, PairHash> edges;
-    pair<int, int> * edgeArray;
 
-    bool colored;
-    vector<Node> nodes;
-    explicit Graph(bool colored = false);
-    ~Graph();
-    void addNode(const Node& node);
-    void addEdge(int node1, int node2);
-    void printGraph(bool printcolors = false);
-
-    // Calculate the adjacency matrix of the graph, has to be called before using the adjacency matrix
     void calculateAdjMatrix();
 
-    // Calculate the edge array of the graph, has to be called before using the edge array
     void calculateEdgeArray();
-
-    bool isEdge(int node1, int node2) const; // adjacency matrix has to be calculated before using this function
-
-    bool isEdgebySet(int node1, int node2) const; // adjacency matrix has NOT to be calculated before using this function
-
-    long long calculateNumberofHomomorphismsTo(Graph &H);
-
-    long long calculateNumberofInjectiveHomomorphismsTo(Graph &H);
-
-    long long calculateNumberofAutomorphismsWithoutColoring();
-
-    long long calculateNumberofAutomorphismsWithColoring();
-
-    long long calculateNumberofSubGraphsTo(Graph &H);
-
-    int numVertices;
-
-    bool isConnected() const;
 
     void sortEdges();
 
-    int * calculateNodeIndex();
+    void calcNodeIndex();
 
-    vector<vector<int>> neighbors() const;
+    void calcNeighbours();
 
-    vector<int> degree() const;
+    void calcDegree();
 
-    pair<bool, Graph> shrinkGraph(Graph &S);
+public:
 
-    long long calculateNumberofhomomorphismsTo_CFI_from(Graph &S);
+    //given as parameter from the GraphTemplate
+    bool colored;
+    unordered_set<pair<int, int>, PairHash> edges;
+    vector<Node> nodes;
+
+    //calculated in the constructor
+    pair<int, int> * edgeArray{};
+    char * adjMatrix{};
+    int numVertices;
+
+    int* nodeIndex{};
+    vector<vector<int>> neighbours;
+    vector<int> degree;
+
+    explicit Graph(const GraphTemplate& t);
+    Graph();
+    ~Graph();
+    void printGraph(bool printcolors = false) const;
+
+    bool isEdge(int node1, int node2) const;
+
+    bool isConnected() const;
+
+    pair<bool, Graph> shrinkGraph(Graph &S) const;
 
     std::string toString() const;
 
     std::string canonicalString() const;
 
-    vector<Graph> connectedComponents();
+    vector<Graph> connectedComponents() const;
+
+    //copy assignment operator (copy-and-swap idiom)
+    Graph& operator=(Graph other) { // pass by value: copy is made using deep copy constructor
+        swap(*this, other);
+        return *this;
+    }
+
+    friend void swap(Graph& first, Graph& second) noexcept {
+        using std::swap;
+        swap(first.colored, second.colored);
+        swap(first.numVertices, second.numVertices);
+        swap(first.nodes, second.nodes);
+        swap(first.edges, second.edges);
+        swap(first.adjMatrix, second.adjMatrix);
+        swap(first.edgeArray, second.edgeArray);
+        swap(first.nodeIndex, second.nodeIndex);
+        swap(first.neighbours, second.neighbours);
+        swap(first.degree, second.degree);
+    }
+
+    //deep copy constructor
+    Graph(const Graph& other)
+        : colored(other.colored),
+          numVertices(other.numVertices),
+          nodes(other.nodes),
+          edges(other.edges),
+          neighbours(other.neighbours),
+          degree(other.degree)
+    {
+        //allocate and copy the adjacency matrix.
+        adjMatrix = new char[numVertices * numVertices];
+        std::copy(other.adjMatrix, other.adjMatrix + numVertices * numVertices, adjMatrix);
+
+        //allocate and copy the edge array.
+        int edgeCount = static_cast<int>(other.edges.size());
+        edgeArray = new std::pair<int,int>[edgeCount];
+        for (int i = 0; i < edgeCount; i++) {
+            edgeArray[i] = other.edgeArray[i];
+        }
+
+        //allocate and copy the nodeIndex array.
+        nodeIndex = new int[numVertices];
+        std::copy(other.nodeIndex, other.nodeIndex + numVertices, nodeIndex);
+    }
 };
 
 

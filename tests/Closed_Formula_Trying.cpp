@@ -9,239 +9,240 @@
 #include <RandomGraphGenerator.h>
 #include <exception>
 
+#include "CalcHoms.h"
+
+using std::cout;
+using std::endl;
+
 TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple) {
-    //See the CFI graph from the paper
+    // See the CFI graph from the paper
 
-    Graph S = Graph(true);
-
+    GraphTemplate tS(true);
     for (int i = 0; i < 4; i++) {
-        S.addNode(Node(i));
+        tS.addNode(Node(i));
     }
-
-    S.addEdge(0 , 1);
-    S.addEdge(0 , 2);
-    S.addEdge(1 , 2);
-    S.addEdge(1 , 3);
-    S.addEdge(2 , 3);
+    tS.addEdge(0, 1);
+    tS.addEdge(0, 2);
+    tS.addEdge(1, 2);
+    tS.addEdge(1, 3);
+    tS.addEdge(2, 3);
+    Graph S(tS);
 
     CFIGraph X_of_S = CFIGraph(S);
     Graph input = X_of_S.toGraph();
 
-    Graph H = Graph(true);
-
+    GraphTemplate tH(true);
     for (int i = 0; i < 3; i++) {
-        H.addNode(Node(i));
+        tH.addNode(Node(i));
     }
+    tH.addNode(Node(2));
+    tH.addEdge(0, 1);
+    tH.addEdge(0, 2);
+    tH.addEdge(1, 2);
+    tH.addEdge(0, 3);
+    Graph H(tH);
 
-    H.addNode(Node(2));
-
-    H.addEdge(0 , 1);
-    H.addEdge(0 , 2);
-    H.addEdge(1 , 2);
-    H.addEdge(0, 3);
-
-    int expected = intPow(2, 11-8);
-    ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), expected);
+    int expected = intPow(2, 11 - 8);
+    ASSERT_EQ(CalcHoms::calcNumHoms(H,input), expected);
 }
 
 
 TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple3) {
-    //See the CFI graph from the paper
+    // See the CFI graph from the paper
 
-    Graph S = Graph(true);
-
+    GraphTemplate tS(true);
     for (int i = 0; i < 4; i++) {
-        S.addNode(Node(i));
+        tS.addNode(Node(i));
     }
-
-    S.addEdge(0 , 1);
-    S.addEdge(0 , 2);
-    S.addEdge(1 , 2);
-    S.addEdge(1 , 3);
-    S.addEdge(2 , 3);
+    tS.addEdge(0, 1);
+    tS.addEdge(0, 2);
+    tS.addEdge(1, 2);
+    tS.addEdge(1, 3);
+    tS.addEdge(2, 3);
+    Graph S(tS);
 
     CFIGraph X_of_S = CFIGraph(S);
     Graph input = X_of_S.toGraph();
 
-    Graph H = Graph(true);
-
+    GraphTemplate tH(true);
     for (int i = 0; i < 4; i++) {
-        H.addNode(Node(i));
+        tH.addNode(Node(i));
     }
+    tH.addNode(Node(2));
+    tH.addEdge(0, 1);
+    tH.addEdge(0, 2);
+    tH.addEdge(1, 2);
+    tH.addEdge(1, 3);
+    tH.addEdge(2, 3);
+    tH.addEdge(4, 1);
+    tH.addEdge(4, 3);
+    Graph H(tH);
 
-    H.addNode(Node(2));
-
-    H.addEdge(0 , 1);
-    H.addEdge(0 , 2);
-    H.addEdge(1 , 2);
-    H.addEdge(1 , 3);
-    H.addEdge(2 , 3);
-
-    H.addEdge(4 , 1);
-    H.addEdge(4 , 3);
-
-    ASSERT_EQ(S.calculateNumberofHomomorphismsTo(input), H.calculateNumberofHomomorphismsTo(input) * intPow(2, 3-3));
+    ASSERT_EQ(CalcHoms::calcNumHoms(S,input),
+              CalcHoms::calcNumHoms(H,input) * intPow(2, 3 - 3));
 }
-
 
 
 TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple4) {
-    //See the CFI graph from the paper
+    // See the CFI graph from the paper
 
-    Graph S = Graph(true);
-
+    GraphTemplate tS(true);
     for (int i = 0; i < 4; i++) {
-        S.addNode(Node(i));
+        tS.addNode(Node(i));
     }
-
-    S.addEdge(0 , 1);
-    S.addEdge(0 , 2);
-    S.addEdge(1 , 2);
-    S.addEdge(1 , 3);
-    S.addEdge(2 , 3);
+    tS.addEdge(0, 1);
+    tS.addEdge(0, 2);
+    tS.addEdge(1, 2);
+    tS.addEdge(1, 3);
+    tS.addEdge(2, 3);
+    Graph S(tS);
 
     CFIGraph X_of_S = CFIGraph(S);
     Graph input = X_of_S.toGraph();
 
-    Graph H = Graph(true);
-
+    GraphTemplate tH(true);
     for (int i = 0; i < 4; i++) {
-        H.addNode(Node(i));
+        tH.addNode(Node(i));
     }
+    // Adding extra nodes
+    tH.addNode(Node(0));
+    tH.addNode(Node(1));
+    tH.addNode(Node(2));
+    tH.addNode(Node(3));
 
-    H.addNode(Node(0));
-    H.addNode(Node(1));
-    H.addNode(Node(2));
-    H.addNode(Node(3));
+    tH.addEdge(0, 1);
+    tH.addEdge(0, 2);
+    tH.addEdge(1, 2);
+    tH.addEdge(1, 3);
+    tH.addEdge(2, 3);
 
-    H.addEdge(0 , 1);
-    H.addEdge(0 , 2);
-    H.addEdge(1 , 2);
-    H.addEdge(1 , 3);
-    H.addEdge(2 , 3);
+    tH.addEdge(1, 4);
+    tH.addEdge(4, 5);
+    tH.addEdge(4, 6);
+    tH.addEdge(5, 6);
+    tH.addEdge(5, 7);
+    tH.addEdge(6, 7);
+    Graph H(tH);
 
-    H.addEdge(1 , 4);
-    H.addEdge(4 , 5);
-    H.addEdge(4 , 6);
-    H.addEdge(5 , 6);
-    H.addEdge(5 , 7);
-    H.addEdge(6 , 7);
-
-
-    ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), S.calculateNumberofHomomorphismsTo(input) * intPow(2, 10-2-2-2-2-1));
+    ASSERT_EQ(CalcHoms::calcNumHoms(H,input),
+              CalcHoms::calcNumHoms(S,input) * intPow(2, 10 - 2 - 2 - 2 - 2 - 1));
 }
 
+
 TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple5) {
-    //See the CFI graph from the paper
+    // See the CFI graph from the paper
 
-    Graph S = Graph(true);
-
+    GraphTemplate tS(true);
     for (int i = 0; i < 4; i++) {
-        S.addNode(Node(i));
+        tS.addNode(Node(i));
     }
-
-    S.addEdge(0 , 1);
-    S.addEdge(0 , 2);
-    S.addEdge(1 , 2);
-    S.addEdge(1 , 3);
-    S.addEdge(2 , 3);
+    tS.addEdge(0, 1);
+    tS.addEdge(0, 2);
+    tS.addEdge(1, 2);
+    tS.addEdge(1, 3);
+    tS.addEdge(2, 3);
+    Graph S(tS);
 
     CFIGraph X_of_S = CFIGraph(S);
     Graph input = X_of_S.toGraph();
 
-    Graph H = Graph(true);
-
+    GraphTemplate tH(true);
     for (int i = 0; i < 4; i++) {
-        H.addNode(Node(i));
+        tH.addNode(Node(i));
     }
+    tH.addNode(Node(0));
+    tH.addNode(Node(1));
+    tH.addNode(Node(2));
+    tH.addNode(Node(3));
 
-    H.addNode(Node(0));
-    H.addNode(Node(1));
-    H.addNode(Node(2));
-    H.addNode(Node(3));
+    tH.addEdge(0, 1);
+    tH.addEdge(0, 2);
+    tH.addEdge(1, 2);
+    tH.addEdge(1, 3);
+    tH.addEdge(2, 3);
 
-    H.addEdge(0 , 1);
-    H.addEdge(0 , 2);
-    H.addEdge(1 , 2);
-    H.addEdge(1 , 3);
-    H.addEdge(2 , 3);
+    tH.addEdge(1, 4);
+    tH.addEdge(4, 5);
+    tH.addEdge(4, 6);
+    tH.addEdge(5, 6);
+    tH.addEdge(5, 7);
+    // Note: The next edge is commented out (i.e. one edge less).
+    // tH.addEdge(6, 7);
+    Graph H(tH);
 
-    H.addEdge(1 , 4);
-    H.addEdge(4 , 5);
-    H.addEdge(4 , 6);
-    H.addEdge(5 , 6);
-    H.addEdge(5 , 7);
-    //H.addEdge(6 , 7); THE SAME WITH ONE EDGE LESS !!!!!!!!
-
-
-    ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), S.calculateNumberofHomomorphismsTo(input) * intPow(2, 10-2-2-2-2-1)); //SAME RESULT !!!!!
+    ASSERT_EQ(CalcHoms::calcNumHoms(H,input),
+              CalcHoms::calcNumHoms(S,input) * intPow(2, 10 - 2 - 2 - 2 - 2 - 1)); // SAME RESULT!!!!
 }
 
 
 TEST(Closed_Formula_Trying, NonSurjectivelyColoredSimple6) {
-    //See the CFI graph from the paper
+    // See the CFI graph from the paper
 
-    Graph S = Graph(true);
-
+    GraphTemplate tS(true);
     for (int i = 0; i < 4; i++) {
-        S.addNode(Node(i));
+        tS.addNode(Node(i));
     }
-
-    S.addEdge(0 , 1);
-    S.addEdge(0 , 2);
-    S.addEdge(1 , 2);
-    S.addEdge(1 , 3);
-    S.addEdge(2 , 3);
+    tS.addEdge(0, 1);
+    tS.addEdge(0, 2);
+    tS.addEdge(1, 2);
+    tS.addEdge(1, 3);
+    tS.addEdge(2, 3);
+    Graph S(tS);
 
     CFIGraph X_of_S = CFIGraph(S);
     Graph input = X_of_S.toGraph();
 
-    Graph H = Graph(true);
-
+    GraphTemplate tH(true);
     for (int i = 0; i < 4; i++) {
-        H.addNode(Node(i));
+        tH.addNode(Node(i));
     }
+    tH.addNode(Node(3));
+    tH.addEdge(0, 1);
+    tH.addEdge(0, 2);
+    tH.addEdge(1, 2);
+    tH.addEdge(1, 3);
+    // tH.addEdge(2, 3); // omitted
+    tH.addEdge(2, 4);
+    Graph H(tH);
 
-    H.addNode(Node(3));
-
-    H.addEdge(0 , 1);
-    H.addEdge(0 , 2);
-    H.addEdge(1 , 2);
-    H.addEdge(1 , 3);
-    //H.addEdge(2 , 3);
-    H.addEdge(2 , 4);
-
-
-    ASSERT_EQ(H.calculateNumberofHomomorphismsTo(input), intPow(2, 2));
+    ASSERT_EQ(CalcHoms::calcNumHoms(H,input), intPow(2, 2));
 }
 
 
 TEST(CLOSED, Example) {
-    Graph S = Graph(true);
+    GraphTemplate tS(true);
     for (int i = 0; i < 5; i++) {
-        S.addNode(Node(i));
+        tS.addNode(Node(i));
     }
-    S.addEdge(0,1);
-    S.addEdge(0,2);
-    S.addEdge(0,3);
-    S.addEdge(0,4);
-    S.addEdge(1,2);
-    S.addEdge(1,3);
+    tS.addEdge(0, 1);
+    tS.addEdge(0, 2);
+    tS.addEdge(0, 3);
+    tS.addEdge(0, 4);
+    tS.addEdge(1, 2);
+    tS.addEdge(1, 3);
+    Graph S(tS);
 
-    Graph H = Graph(true);
-    H.addNode(Node(2));
-    H.addNode(Node(0));
-    H.addNode(Node(2));
-    H.addNode(Node(4));
+    GraphTemplate tH(true);
+    tH.addNode(Node(2));
+    tH.addNode(Node(0));
+    tH.addNode(Node(2));
+    tH.addNode(Node(4));
+    tH.addEdge(1, 0);
+    tH.addEdge(1, 2);
+    tH.addEdge(1, 3);
+    Graph H(tH);
 
-    H.addEdge(1,0);
-    H.addEdge(1,2);
-    H.addEdge(1,3);
+    int* mapping = new int[4];
+    mapping[0] = 2;
+    mapping[1] = 0;
+    mapping[2] = 2;
+    mapping[3] = 4;
 
+    ASSERT_EQ(intPow(2,CalcHoms::calcNumHomsCFI(H,S,mapping)), 4);
 
-
-    ASSERT_EQ(H.calculateNumberofhomomorphismsTo_CFI_from(S), 4);
+    delete[] mapping;
 }
+
 
 TEST(Closed_Formula_Trying, TryingOut_Automated_CLOSEDFORMULA2) {
 
@@ -262,23 +263,32 @@ TEST(Closed_Formula_Trying, TryingOut_Automated_CLOSEDFORMULA2) {
                 } catch (std::exception &e) {
                     continue;
                 }
-                long long number = H.calculateNumberofhomomorphismsTo_CFI_from(S);
-                if (number == 0) {
-                    continue;
+                int* mapping = new int[hnodes];
+                for (int i = 0; i < hnodes; ++i) {
+                    mapping[i] = H.nodes[i].color;
+                }
+
+                int expo = CalcHoms::calcNumHomsCFI(H,S,mapping);
+
+                long long number = 0;
+                if (expo != -1) {
+                    number = intPow(2,expo);
                 }
 
                 cout << "Starting BruteForce" << endl;
-                long long countedhoms = H.calculateNumberofHomomorphismsTo(input);
+                long long countedhoms = CalcHoms::calcNumHoms(H,input);
                 cout << "Ending BruteForce" << endl;
 
                 if (number != countedhoms) {
-                    cout << "S: " <<endl;
+                    cout << "S: " << endl;
                     S.printGraph(true);
-                    cout << "H: " <<endl;
+                    cout << "H: " << endl;
                     H.printGraph(true);
                 }
                 cout << "Number: " << number << " Counted: " << countedhoms << endl;
                 ASSERT_EQ(countedhoms, number);
+
+                delete[] mapping;
             }
         }
     }

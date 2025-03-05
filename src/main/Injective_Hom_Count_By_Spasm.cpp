@@ -9,6 +9,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <CalcHoms.h>
 
 struct spasm_graph {
     Graph graph;
@@ -47,9 +48,9 @@ vector<spasm_graph> convertFileToSpasmGraph(const std::string &spasm_file) {
         headerStream >> numVertices >> numEdges;
 
         // Create a new Graph; colored set to false.
-        Graph spGraph(false);
+        GraphTemplate spTemplate(false);
         for (int v = 0; v < numVertices; v++) {
-            spGraph.addNode(Node());
+            spTemplate.addNode(Node());
         }
 
         // Read exactly numEdges lines for edges.
@@ -59,7 +60,7 @@ vector<spasm_graph> convertFileToSpasmGraph(const std::string &spasm_file) {
             int u = 0, v = 0;
             char arrowChar;  // to consume '-' and '>'
             edgeStream >> u >> arrowChar >> arrowChar >> v;
-            spGraph.addEdge(u, v);
+            spTemplate.addEdge(u, v);
         }
 
         // Skip possible empty lines before the canonical string.
@@ -80,7 +81,7 @@ vector<spasm_graph> convertFileToSpasmGraph(const std::string &spasm_file) {
         factorStream >> factor;
 
         // Create spasm_graph and add it to the vector.
-        spasm_graph sg { spGraph, canonicalStr, graphCount, factor };
+        spasm_graph sg { Graph(spTemplate), canonicalStr, graphCount, factor };
         spasmGraphs.push_back(sg);
     }
 
@@ -98,7 +99,7 @@ long long injective_count_by_spasm(const std::string& spasm_file, Graph &target)
 
         // Compute the number of injective homomorphisms from spasmGraph to target
         Graph spasmGraph = i.graph;
-        long long Count = spasmGraph.calculateNumberofHomomorphismsTo(target);
+        long long Count = CalcHoms::calcNumHoms(spasmGraph, target);
         totalResult += Count * i.factor;
     }
     return totalResult;
@@ -113,7 +114,7 @@ void convert_spasm_to_smaller(const std::string& spasm_file, const std::string& 
     for (const auto &spasmGraph : spasmGraphs) {
         Graph graph = spasmGraph.graph;
         for (const auto &comp : graph.connectedComponents()) {
-            canonicalMap[comp.canonicalString()] = comp;
+            canonicalMap.insert({comp.canonicalString(),comp});
         }
     }
 
@@ -208,9 +209,9 @@ spasm_smaller_graph getFromFile_spasm_smaller(const std::string &filename) {
         headerStream >> numVertices >> numEdges;
 
         // Create the graph component
-        Graph compGraph(false);
+        GraphTemplate compTemplate(false);
         for (int v = 0; v < numVertices; v++) {
-            compGraph.addNode(Node());
+            compTemplate.addNode(Node());
         }
         for (int e = 0; e < numEdges; e++) {
             if (!std::getline(inFile, line)) break;
@@ -218,16 +219,17 @@ spasm_smaller_graph getFromFile_spasm_smaller(const std::string &filename) {
             int u = 0, v = 0;
             char ch1, ch2;
             edgeStream >> u >> ch1 >> ch2 >> v;
-            compGraph.addEdge(u, v);
+            compTemplate.addEdge(u, v);
         }
         // Read canonical string
         std::string canon;
         if (!std::getline(inFile, canon)) break;
 
-        spasm_smaller_component comp;
-        comp.graph = compGraph;
-        comp.canonicalStr = canon;
-        compMap[canon] = comp;
+        spasm_smaller_component comp {
+        .graph = Graph(compTemplate),
+        .canonicalStr = canon,
+        };
+        compMap.insert({canon,comp});
         result.components.push_back(comp);
     }
 
@@ -246,7 +248,7 @@ spasm_smaller_graph getFromFile_spasm_smaller(const std::string &filename) {
             if (!std::getline(inFile, countString)) break;
             count = std::stoi(countString);
             if (compMap.contains(canon))
-                fullComponents.emplace_back(compMap[canon], count);
+                fullComponents.emplace_back(compMap.at(canon), count);
         }
         if (!std::getline(inFile, line)) break;
         long long factor = 0;
@@ -275,7 +277,7 @@ long long injective_count_by_spasm_smaller(const std::string &spasm_smaller_file
     for (const auto &comp : smallspasm.components) {
         std::string canon = comp.canonicalStr;
         Graph graph = comp.graph;
-        componentMap[canon] = graph.calculateNumberofHomomorphismsTo(target);
+        componentMap[canon] = CalcHoms::calcNumHoms(graph, target);
     }
 
     for (const auto &fullGraph : smallspasm.fullGraphs) {

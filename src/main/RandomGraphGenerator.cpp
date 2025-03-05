@@ -22,26 +22,26 @@ Graph RandomGraphGenerator::generateRandomConnectedGraph() const {
         throw std::invalid_argument("The number of vertices has to be at least 2");
     }
 
-    Graph G = Graph(colored);
+    GraphTemplate t = GraphTemplate(colored);
 
     //Adding the nodes
     if (colored) {
         if (surjectivecoloring) { //colors is ignored in this case
             for (int i = 0; i < vertices; i++) {
-                G.addNode(Node(i));
+                t.addNode(Node(i));
             }
         } else {
             for (int i = 0; i < vertices; i++) {
                 if (i < colors && allcolorsneeded) {
-                    G.addNode(Node(i));
+                    t.addNode(Node(i));
                 } else {
-                    G.addNode(Node(getRandomNumberBetween(0, colors-1)));
+                    t.addNode(Node(getRandomNumberBetween(0, colors-1)));
                 }
             }
         }
     } else {
         for (int i = 0; i < vertices; i++) {
-            G.addNode(Node());
+            t.addNode(Node());
         }
     }
 
@@ -64,7 +64,7 @@ Graph RandomGraphGenerator::generateRandomConnectedGraph() const {
     while (!notyetadded.empty()) {
         int randomnode = getRandomNumberBetween(0, added.size()-1);
         int randomnotyetadded = getRandomNumberBetween(0, notyetadded.size()-1);
-        G.addEdge(added[randomnode], notyetadded[randomnotyetadded]);
+        t.addEdge(added[randomnode], notyetadded[randomnotyetadded]);
         added.push_back(notyetadded[randomnotyetadded]);
         notyetadded.erase(notyetadded.begin() + randomnotyetadded);
     }
@@ -73,14 +73,14 @@ Graph RandomGraphGenerator::generateRandomConnectedGraph() const {
     for (int i = 0; i < edges - vertices + 1; i++) {
         int node1 = getRandomNumberBetween(0, vertices-1);
         int node2 = getRandomNumberBetween(0, vertices-1);
-        while (node1 == node2 || G.isEdgebySet(node1, node2)) {
+        while (node1 == node2 || t.isEdge(node1, node2)) {
             node1 = getRandomNumberBetween(0, vertices-1);
             node2 = getRandomNumberBetween(0, vertices-1);
         }
-        G.addEdge(node1, node2);
+        t.addEdge(node1, node2);
     }
 
-    return G;
+    return Graph(t);
 }
 
 Graph RandomGraphGenerator::generateRandomConnectedGraphNoDoubleColorNeighbors() const {
@@ -101,17 +101,17 @@ Graph RandomGraphGenerator::generateRandomConnectedGraphNoDoubleColorNeighbors()
     }
 
     // Erzeuge den Graphen und füge die Knoten hinzu
-    Graph G(colored);
+    GraphTemplate t(colored);
     if (surjectivecoloring) { // Hier wird 'colors' ignoriert
         for (int i = 0; i < vertices; i++) {
-            G.addNode(Node(i));
+            t.addNode(Node(i));
         }
     } else {
         for (int i = 0; i < vertices; i++) {
             if (i < colors && allcolorsneeded) {
-                G.addNode(Node(i));
+                t.addNode(Node(i));
             } else {
-                G.addNode(Node(getRandomNumberBetween(0, colors - 1)));
+                t.addNode(Node(getRandomNumberBetween(0, colors - 1)));
             }
         }
     }
@@ -119,24 +119,24 @@ Graph RandomGraphGenerator::generateRandomConnectedGraphNoDoubleColorNeighbors()
 
     // Lambda-Funktion zur Prüfung, ob das Hinzufügen der Kante (u,v) einen Knoten dazu bringt,
     // zwei Nachbarn gleicher Farbe zu haben.
-    // Wir greifen hier direkt auf das nodes-Array zu (z. B. G.nodes[v].getColor()).
-    auto checkEdgeValidity = [&G, this](int u, int v) -> bool {
-        int colorV = G.nodes[v].color;
+    // Wir greifen hier direkt auf das nodes-Array zu (z. B. t.nodes[v].getColor()).
+    auto checkEdgeValidity = [&t, this](int u, int v) -> bool {
+        int colorV = t.nodes[v].color;
         // Für u: Iteriere über alle Knoten und prüfe, ob es eine Kante (u,j) gibt,
         // bei der der Knoten j die gleiche Farbe wie v hat.
         for (int j = 0; j < vertices; j++) {
-            if (G.isEdgebySet(u, j)) {
-                if (G.nodes[j].color == colorV) {
+            if (t.isEdge(u, j)) {
+                if (t.nodes[j].color == colorV) {
                     return false;
                 }
             }
         }
-        int colorU = G.nodes[u].color;
+        int colorU = t.nodes[u].color;
         // Für v: Iteriere über alle Knoten und prüfe, ob es eine Kante (v,j) gibt,
         // bei der der Knoten j die gleiche Farbe wie u hat.
         for (int j = 0; j < vertices; j++) {
-            if (G.isEdgebySet(v, j)) {
-                if (G.nodes[j].color == colorU) {
+            if (t.isEdge(v, j)) {
+                if (t.nodes[j].color == colorU) {
                     return false;
                 }
             }
@@ -178,7 +178,7 @@ Graph RandomGraphGenerator::generateRandomConnectedGraphNoDoubleColorNeighbors()
         int randIndex = getRandomNumberBetween(0, candidateEdges.size() - 1);
         int u = candidateEdges[randIndex].first;
         int v = candidateEdges[randIndex].second;
-        G.addEdge(u, v);
+        t.addEdge(u, v);
         added.push_back(v);
         auto it = std::find(notyetadded.begin(), notyetadded.end(), v);
         if (it != notyetadded.end()) {
@@ -195,9 +195,9 @@ Graph RandomGraphGenerator::generateRandomConnectedGraphNoDoubleColorNeighbors()
             int u = getRandomNumberBetween(0, vertices - 1);
             int v = getRandomNumberBetween(0, vertices - 1);
             if (u == v) continue;                // Selbstschleifen nicht zulassen
-            if (G.isEdgebySet(u, v)) continue;     // Vermeide doppelte Kanten
+            if (t.isEdge(u, v)) continue;     // Vermeide doppelte Kanten
             if (!checkEdgeValidity(u, v)) continue; // Achte auf die Farbbeschränkung
-            G.addEdge(u, v);
+            t.addEdge(u, v);
             edgeAdded = true;
             break;
         }
@@ -206,5 +206,5 @@ Graph RandomGraphGenerator::generateRandomConnectedGraphNoDoubleColorNeighbors()
         }
     }
 
-    return G;
+    return Graph(t);
 }

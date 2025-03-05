@@ -68,13 +68,13 @@ CFIGraph::CFIGraph(Graph &G, bool inverted) : numofVertices(0), numofEdges(0), i
 
 
 Graph CFIGraph::toGraph() {
-    Graph G = Graph(true);
+    GraphTemplate t(true);
     for (int i = 0; i < numofVertices; i++) {
-        G.addNode(Node(nodes[i].color));
+        t.addNode(Node(nodes[i].color));
     }
     for (const pair<int, int>& edge : edges) {
-        G.addEdge(edge.first, edge.second);
+        t.addEdge(edge.first, edge.second);
     }
-    return G;
+    return Graph(t);
 }
 

@@ -9,6 +9,7 @@
 #include "CalcHoms.h"
 #include "RandomGraphGenerator.h"
 #include "CFIGraph.h"
+#include "GraphTemplate.h"
 
 //Check one specific graph
 //S is a triangle with two equal color (0,1)
@@ -17,18 +18,22 @@
 //the result should be the same in both tests
 TEST(CalcHomsTest, calcNumHomsCFI1) {
     //S is a triangle
-    Graph S = Graph();
-    S.addNode(Node(0));//node has id: 0
-    S.addNode(Node(1));
-    S.addNode(Node(1));
-    S.addEdge(0,1);//edge between node with id 0 and 1
-    S.addEdge(0,2);
-    S.addEdge(1,2);
+    GraphTemplate STemplate = GraphTemplate();
+    STemplate.addNode(Node(0));//node has id: 0
+    STemplate.addNode(Node(1));
+    STemplate.addNode(Node(1));
+    STemplate.addEdge(0,1);//edge between node with id 0 and 1
+    STemplate.addEdge(0,2);
+    STemplate.addEdge(1,2);
 
-    Graph H = Graph();
-    H.addNode(Node(0));
-    H.addNode(Node(1));
-    H.addEdge(0,1);
+    Graph S(STemplate);
+
+    GraphTemplate HTemplate = GraphTemplate();
+    HTemplate.addNode(Node(0));
+    HTemplate.addNode(Node(1));
+    HTemplate.addEdge(0,1);
+
+    Graph H(HTemplate);
 
     int* mapping = new int[2];
     mapping[0] = 0;
