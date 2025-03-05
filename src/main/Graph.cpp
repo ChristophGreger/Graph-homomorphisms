@@ -34,31 +34,6 @@ Graph::Graph(const GraphTemplate& t) {
     sortEdges();
 }
 
-//deep copy constructor
-Graph::Graph(const Graph& other)
-    : colored(other.colored),
-      numVertices(other.numVertices),
-      nodes(other.nodes),
-      edges(other.edges),
-      neighbours(other.neighbours),
-      degree(other.degree)
-{
-    //allocate and copy the adjacency matrix.
-    adjMatrix = new char[numVertices * numVertices];
-    std::copy(other.adjMatrix, other.adjMatrix + numVertices * numVertices, adjMatrix);
-
-    //allocate and copy the edge array.
-    int edgeCount = static_cast<int>(other.edges.size());
-    edgeArray = new std::pair<int,int>[edgeCount];
-    for (int i = 0; i < edgeCount; i++) {
-        edgeArray[i] = other.edgeArray[i];
-    }
-
-    //allocate and copy the nodeIndex array.
-    nodeIndex = new int[numVertices];
-    std::copy(other.nodeIndex, other.nodeIndex + numVertices, nodeIndex);
-}
-
 //preprocessing and private
 void Graph::calculateAdjMatrix() {
 
@@ -401,17 +376,3 @@ vector<Graph> Graph::connectedComponents() const{
     }
     return components;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

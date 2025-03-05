@@ -45,7 +45,6 @@ public:
     vector<int> degree;
 
     explicit Graph(const GraphTemplate& t);
-    Graph(const Graph& g);
     ~Graph();
     void printGraph(bool printcolors = false) const;
 
@@ -60,6 +59,50 @@ public:
     std::string canonicalString() const;
 
     vector<Graph> connectedComponents() const;
+
+    //copy assignment operator (copy-and-swap idiom)
+    Graph& operator=(Graph other) { // pass by value: copy is made using deep copy constructor
+        swap(*this, other);
+        return *this;
+    }
+
+    friend void swap(Graph& first, Graph& second) noexcept {
+        using std::swap;
+        swap(first.colored, second.colored);
+        swap(first.numVertices, second.numVertices);
+        swap(first.nodes, second.nodes);
+        swap(first.edges, second.edges);
+        swap(first.adjMatrix, second.adjMatrix);
+        swap(first.edgeArray, second.edgeArray);
+        swap(first.nodeIndex, second.nodeIndex);
+        swap(first.neighbours, second.neighbours);
+        swap(first.degree, second.degree);
+    }
+
+    //deep copy constructor
+    Graph(const Graph& other)
+        : colored(other.colored),
+          numVertices(other.numVertices),
+          nodes(other.nodes),
+          edges(other.edges),
+          neighbours(other.neighbours),
+          degree(other.degree)
+    {
+        //allocate and copy the adjacency matrix.
+        adjMatrix = new char[numVertices * numVertices];
+        std::copy(other.adjMatrix, other.adjMatrix + numVertices * numVertices, adjMatrix);
+
+        //allocate and copy the edge array.
+        int edgeCount = static_cast<int>(other.edges.size());
+        edgeArray = new std::pair<int,int>[edgeCount];
+        for (int i = 0; i < edgeCount; i++) {
+            edgeArray[i] = other.edgeArray[i];
+        }
+
+        //allocate and copy the nodeIndex array.
+        nodeIndex = new int[numVertices];
+        std::copy(other.nodeIndex, other.nodeIndex + numVertices, nodeIndex);
+    }
 };
 
 
