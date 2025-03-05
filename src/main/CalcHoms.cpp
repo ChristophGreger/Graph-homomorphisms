@@ -11,11 +11,12 @@
 
 #include "NextInjection.h"
 
-//calc exponent of number of homs from H to CFI Graph of S based on a mapping
-//every node in H is mapped to one in S (predecided through mapping disregarding the color)
-//the exact number of homs can be calculated when applying 2^
-//also note that when there are now homs -1 is returned
-int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping) {
+struct LinearSystemOfEquations {
+    vector<bitset<128>> matrix;
+    int columns;
+};
+
+LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const int* mapping, pair<int,int> edge = {0,0}) {
 
     const auto& neighborsS = S.neighbours;
     const auto& degS = S.degree;
@@ -81,16 +82,40 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping)
 
         //mapping is invalid when edge is not found
         if (firstIndex == -1 || secondIndex == -1) {
-            return -1;
+            throw runtime_error("mapping is invalid");
         }
 
         matrix[currentRow][indexMapping[first].first + firstIndex] = 1;
         matrix[currentRow][indexMapping[second].first + secondIndex] = 1;
+
+        if (edge.first == first && edge.second == second) {
+            matrix[currentRow][columns] = 1;
+        }
+
         ++currentRow;
     }
 
+    LinearSystemOfEquations result = {matrix, columns};
+    return result;
+}
+
+//calc exponent of number of homs from H to CFI Graph of S based on a mapping
+//every node in H is mapped to one in S (predecided through mapping disregarding the color)
+//the exact number of homs can be calculated when applying 2^
+//also note that when there are now homs -1 is returned
+int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping) {
+
+    auto [matrix, columns] = generateCFI_LSOE(H,S,mapping);
     //Now we can calculate the dimension of the solution space
     const int dimension = solution_space_dimension_f2_small_homogen(matrix,columns);
+
+    return dimension;
+}
+
+int CalcHoms::calcNumHomsInvCFI(const Graph& H, const Graph& S, const int* mapping, const pair<int,int> &edge) {
+    auto [matrix, columns] = generateCFI_LSOE(H,S,mapping,edge);
+    //Now we can calculate the dimension of the solution space
+    const int dimension = solution_space_dimension_f2_small_inhomogen(matrix,columns);
 
     return dimension;
 }
@@ -202,7 +227,6 @@ long long CalcHoms::calcNumHomsCFI_uncolored(Graph &H, const Graph &S) {
 
     return total;
 }
-
 
 //returns the number of homomorphisms from  to the CFI graph of S
 long long CalcHoms::calcNumInjectiveHomsCFI(const std::string &small_spasm_file_name, Graph &S) {

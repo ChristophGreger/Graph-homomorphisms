@@ -45,7 +45,7 @@ inline int solution_space_dimension_f2_small_homogen(std::vector<std::bitset<128
 // Bit num_vars enthält den rechten Seitenwert (b).
 // num_vars sollte daher maximal 127 betragen.
 // Rückgabewert: Dimension des Lösungsraumes (bei Konsistenz) oder -1, falls das System inkonsistent ist.
-inline int solution_space_dimension_f2_small_inhom(std::vector<std::bitset<128>> mat, const int num_vars) {
+inline int solution_space_dimension_f2_small_inhomogen(std::vector<std::bitset<128>> mat, const int num_vars) {
     const int m = static_cast<int>(mat.size());
     int rank = 0;
     // Gaussian Elimination in GF(2)
