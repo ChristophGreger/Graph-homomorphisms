@@ -238,7 +238,7 @@ TEST(CLOSED, Example) {
     mapping[2] = 2;
     mapping[3] = 4;
 
-    ASSERT_EQ(CalcHoms::calcNumHomsCFI(H,S,mapping), 4);
+    ASSERT_EQ(intPow(2,CalcHoms::calcNumHomsCFI(H,S,mapping)), 4);
 
     delete[] mapping;
 }
@@ -268,9 +268,7 @@ TEST(Closed_Formula_Trying, TryingOut_Automated_CLOSEDFORMULA2) {
                     mapping[i] = H.nodes[i].color;
                 }
 
-                int expo = 0;
-
-                expo = CalcHoms::calcNumHomsCFI(H,S,mapping);
+                int expo = CalcHoms::calcNumHomsCFI(H,S,mapping);
 
                 long long number = 0;
                 if (expo != -1) {
