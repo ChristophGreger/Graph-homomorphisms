@@ -19,7 +19,7 @@ public:
     static long long calcNumInjectiveHomsCFI(const std::string &small_spasm_file_name, Graph& S);
 
     static long long calcNumHoms(const Graph& H, const Graph& G);
-    static long long CalcHoms::calcNumInjHoms(const Graph &H, const Graph &G);
+    static long long calcNumInjHoms(const Graph &H, const Graph &G);
 };
 
 
