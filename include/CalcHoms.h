@@ -9,8 +9,6 @@
 
 class CalcHoms {
 public:
-    static long long calcNumHoms(Graph& H, Graph& G);
-
     //Returns the exponent of the number of homomorphisms from H to S with the mapping as the homomorphism (with base 2)
     static int calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping);
 
@@ -19,6 +17,9 @@ public:
 
     //Returns the number of homomorphisms from H to the CFI graph of S, but mod3
     static long long calcNumInjectiveHomsCFI(const std::string &small_spasm_file_name, Graph& S);
+
+    static long long calcNumHoms(const Graph& H, const Graph& G);
+    static long long CalcHoms::calcNumInjHoms(const Graph &H, const Graph &G);
 };
 
 

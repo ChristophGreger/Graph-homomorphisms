@@ -6,6 +6,6 @@
 
 Node::Node(int color) : color(color) {}
 
-bool Node::equals(Node &node) const {
+bool Node::equals(const Node &node) const {
     return color == node.color;
 }
