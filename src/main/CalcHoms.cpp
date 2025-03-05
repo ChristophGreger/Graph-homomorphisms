@@ -242,15 +242,14 @@ long long CalcHoms::calcNumHoms(Graph& H, Graph& G) {
 
 }
 
-//calc homs from H to CFI Graph of S based on a mapping
+//calc exponent of number of homs from H to CFI Graph of S based on a mapping
 //every node in H is mapped to one in S (predecided through mapping disregarding the color)
-//execute S.calculateAdjMatrix() in advance
-
-//the mapping should be correct
+//the exact number of homs can be calculated when applying 2^
+//also note that when there are now homs -1 is returned
 int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping) {
 
-    const auto neighborsS = S.neighbours;
-    const auto degS = S.degree;
+    const auto& neighborsS = S.neighbours;
+    const auto& degS = S.degree;
 
     //We want to create an possible mapping from (vertice, neighbor) pairs to an index in the matrix (column)
     //this vector mapps every node in this to <beginning, end>, which is the range of the neighbors in S
@@ -263,6 +262,10 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping)
     for (int i = 0; i < H.numVertices; ++i) {
         indexMapping.emplace_back(columns, columns + degS[mapping[i]]);//H.nodes[i].color?? but why
         columns += degS[mapping[i]];
+    }
+
+    if (columns >= 128) {
+        throw runtime_error("to many variables for the CFI homs solver");
     }
 
     //Now columns is the number of columns in the matrix
@@ -305,6 +308,11 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping)
                 secondIndex = i;
                 break;
             }
+        }
+
+        //mapping is invalid when edge is not found
+        if (firstIndex == -1 || secondIndex == -1) {
+            return -1;
         }
 
         matrix[currentRow][indexMapping[first].first + firstIndex] = 1;
