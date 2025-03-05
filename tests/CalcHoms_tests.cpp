@@ -52,10 +52,10 @@ TEST(CalcHomsTest, calcNumHomsCFI1) {
     EXPECT_EQ(dim2, 1);
 }
 
-//Check Graphs up to 30 vertices
+//Check Graphs up to 10 vertices
 //S is mapped into the CFI of S
 //This testcase does not cover duplicate colors in S
-TEST(CFIGraphTest, calcNumHomsCFI2) {
+TEST(CalcHomsTest, calcNumHomsCFI2) {
     for (int vertices = 2; vertices < 10; vertices++) {
         for (int edges = vertices-1; edges <= (vertices * (vertices - 1)) / 2; edges++) {
             RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, edges, true, true);
@@ -67,6 +67,57 @@ TEST(CFIGraphTest, calcNumHomsCFI2) {
             int dim = CalcHoms::calcNumHomsCFI(S,S,mapping);
             int expected = (edges - vertices + 1);
             ASSERT_EQ(dim, expected);
+        }
+    }
+}
+
+//Check Graphs up to 10 vertices
+//A Graph with 4 nodes and 4 edges is mapped into the CFI of a random Graph S
+//This testcase does not cover duplicate colors in S
+TEST(CalcHomsTest, calcNumHomsInvCFI) {
+    int count = 0;
+    for (int vertices = 2; vertices < 10; vertices++) {
+        for (int edges = vertices-1; edges <= (vertices * (vertices - 1)) / 2; edges++) {
+
+            cout << "check Graph combination:" << count << endl;
+            count++;
+
+            RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, edges, true, true);
+            Graph S = randomGraphGenerator.generateRandomConnectedGraph();
+
+            RandomGraphGenerator randomGraphGenerator2 = RandomGraphGenerator(4, 4, true, true);
+            Graph H = randomGraphGenerator2.generateRandomConnectedGraph();
+
+            int* mapping = new int[vertices];
+            for (int j = 0; j < vertices; j++) {
+                mapping[j] = j;
+            }
+
+            int dim = -1;
+            try {
+                dim = CalcHoms::calcNumHomsInvCFI(H,S,mapping, S.edgeArray[0]);
+            } catch (const std::exception& e) {
+                std::cerr << "Caught exception: " << e.what() << std::endl;
+            }
+
+            if (dim != -1) {
+                cout << "dim:" << dim << endl;
+                cout << "S:" << endl;
+                S.printGraph();
+                cout << "H:" << endl;
+                H.printGraph();
+            }
+            long long result = 0;
+            if (dim != -1) {
+                result = intPow(2,dim);
+            }
+
+            CFIGraph CFI = CFIGraph(S, true);
+            Graph G = CFI.toGraph();
+            long long expected = CalcHoms::calcNumHoms(H,G);
+
+            ASSERT_EQ(result, expected);
+
         }
     }
 }
