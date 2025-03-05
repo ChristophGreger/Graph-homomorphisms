@@ -105,17 +105,17 @@ LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const i
 //also note that when there are now homs -1 is returned
 int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping) {
 
-    LinearSystemOfEquations lsoe = generateCFI_LSOE(H,S,mapping);
+    auto [matrix, columns] = generateCFI_LSOE(H,S,mapping);
     //Now we can calculate the dimension of the solution space
-    const int dimension = solution_space_dimension_f2_small_homogen(lsoe.matrix,lsoe.columns);
+    const int dimension = solution_space_dimension_f2_small_homogen(matrix,columns);
 
     return dimension;
 }
 
 int CalcHoms::calcNumHomsInvCFI(const Graph& H, const Graph& S, const int* mapping, pair<int,int> edge) {
-    LinearSystemOfEquations lsoe = generateCFI_LSOE(H,S,mapping,edge);
+    auto [matrix, columns] = generateCFI_LSOE(H,S,mapping,edge);
     //Now we can calculate the dimension of the solution space
-    const int dimension = solution_space_dimension_f2_small_homogen(lsoe.matrix,lsoe.columns);
+    const int dimension = solution_space_dimension_f2_small_homogen(matrix,columns);
 
     return dimension;
 }
