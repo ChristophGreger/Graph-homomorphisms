@@ -33,7 +33,7 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping)
         columns += degS[mapping[i]];
     }
 
-    if (columns >= 128) {
+    if (columns >= 127) {
         throw runtime_error("to many variables for the CFI homs solver");
     }
 
