@@ -9,22 +9,7 @@
 #include "Spasm_k_Matching.h"
 #include "Injective_Hom_Count_By_Spasm.h"
 #include "RandomGraphGenerator.h"
-
-/**
-TEST(SPASM_CLASS, test_generation_of_files) {
-    for (int k = 1; k <= 7; k++) {
-        std::string filename = "EineTestDatei_k_" + std::to_string(k) + ".txt";
-        std::string smallerFilename = "EineTestDatei_k_" + std::to_string(k) + "_smaller.txt";
-        createMultiSpasm_k_Matching(k, filename);
-        convert_spasm_to_smaller(filename, smallerFilename);
-    }
-}
-
-TEST(SPASM_CLASS, test_generation_of_files_for_k_8) {
-    createMultiSpasm_k_Matching(8, "EineTestDatei_k_8.txt");
-    convert_spasm_to_smaller("EineTestDatei_k_8.txt", "EineTestDatei_k_8_smaller.txt");
-}
-*/
+#include "Spasm.h"
 
 
 TEST(SPASM_CLASS, test5) {
@@ -145,3 +130,13 @@ TEST(Spasm_make_smaller, test_total_k_7_speedtest) {
     //Wir wollen jetzt die injectiven Homs von
     std::cout << "Injective Homs: " << injective_count_by_spasm_smaller("EineTestDatei_k_8_smaller.txt", G) << std::endl;
 }
+
+
+TEST(Spasm, generate_spasm_files) {
+    for (int k = 1; k <= 7; ++k) {
+        std::string filename = "k_" + std::to_string(k) + ".txt";
+        Spasm::create_and_store_Spasm_k_Matching(filename, k);
+        cout << "Finished k = " << k << endl;
+    }
+}
+

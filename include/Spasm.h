@@ -1,0 +1,46 @@
+//
+// Created by Christoph Greger on 06.03.25.
+//
+
+#ifndef SPASM_H
+#define SPASM_H
+
+#include "Graph.h"
+#include <boost/multiprecision/cpp_int.hpp>
+#include "Nauty_wrapper.h"
+
+using boost::multiprecision::uint256_t;
+
+
+namespace Spasm {
+
+    struct Spasm_Component {
+        Graph Graph;
+        std::string canonicalString;
+    };
+
+    struct Spasm_Graph {
+        std::vector<std::pair<std::string, int>> Components; //Component Graphs with its count (potentiate afterwards)
+        long long Factor;
+    };
+
+    struct Spasm {
+        Graph underlying_Graph;
+        uint256_t numAutomorphisms;
+        std::vector<Spasm_Graph> Graphs;
+        std::vector<Spasm_Component> Components;
+    };
+
+    Spasm getFromFile(const std::string &spasm_file);
+
+    void writeToFile(const std::string &output_file, const Spasm &spasm);
+
+    void create_and_store_Spasm_k_Matching(const std::string &filename, int k);
+
+    //void create_and_store_Spasm(const std::string &filename, const Graph &graph);
+
+}
+
+
+
+#endif //SPASM_H

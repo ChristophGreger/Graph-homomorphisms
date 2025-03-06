@@ -41,6 +41,8 @@ add_library(bib STATIC
         include/linear_Equations_F2_small.h
         src/main/GraphTemplate.cpp
         include/GraphTemplate.h
+        src/main/Spasm.cpp
+        include/Spasm.h
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
