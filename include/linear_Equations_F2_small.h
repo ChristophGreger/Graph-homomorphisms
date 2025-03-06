@@ -48,37 +48,33 @@ inline int solution_space_dimension_f2_small_homogen(std::vector<std::bitset<128
 inline int solution_space_dimension_f2_small_inhomogen(std::vector<std::bitset<128>> mat, const int num_vars) {
     const int m = static_cast<int>(mat.size());
     int rank = 0;
-    // Gaussian Elimination in GF(2)
+
     for (int col = 0; col < num_vars && rank < m; ++col) {
-        // Finde einen Pivot in Spalte col
         int pivot = rank;
         while (pivot < m && !mat[pivot].test(col))
             ++pivot;
         if (pivot == m)
-            continue; // Kein Pivot in dieser Spalte gefunden
+            continue;
+
         std::swap(mat[rank], mat[pivot]);
-        // Eliminiere das Bit in Spalte col in allen anderen Zeilen
+
         for (int i = 0; i < m; ++i) {
             if (i != rank && mat[i].test(col))
-                mat[i] ^= mat[rank]; // XOR entspricht Addition in GF(2)
+                mat[i] ^= mat[rank];
         }
         ++rank;
     }
-    // Prüfe auf Inkonsistenz: Zeile ohne Variablen, aber mit b = 1
+
+    std::bitset<128> var_mask;
+    for (int i = 0; i < num_vars; ++i)
+        var_mask.set(i);
+
     for (int i = rank; i < m; ++i) {
-        bool allZero = true;
-        for (int j = 0; j < num_vars; ++j) {
-            if (mat[i].test(j)) {
-                allZero = false;
-                break;
-            }
-        }
-        if (allZero && mat[i].test(num_vars))
-            return -1; // Inkonsistentes System
+        if ((mat[i] & var_mask).none() && mat[i].test(num_vars))
+            return -1; // Inkonsistent
     }
-    // Dimension des Lösungsraumes = Anzahl der Variablen - Rang
+
     return num_vars - rank;
 }
-
 
 #endif //LINEAR_EQUATIONS_F2_SMALL_H

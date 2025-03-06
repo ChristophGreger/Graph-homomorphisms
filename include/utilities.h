@@ -5,8 +5,13 @@
 #ifndef GRAPH_HOMOMORPHISMS_UTILITIES_H
 #define GRAPH_HOMOMORPHISMS_UTILITIES_H
 
-#include <utility>    // For std::pair
+
 #include <functional> // For std::hash
+#include <boost/multiprecision/cpp_int.hpp>
+
+
+
+using boost::multiprecision::int256_t;
 
 struct PairHash {
     std::size_t operator()(const std::pair<int, int>& p) const {
@@ -71,6 +76,8 @@ inline int factorial(const int n) {
     }
     return factorialCache[n];
 }
+
+int256_t int256_pow(int256_t base, int exponent);
 
 
 #endif //GRAPH_HOMOMORPHISMS_UTILITIES_H

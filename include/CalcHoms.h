@@ -5,6 +5,9 @@
 #ifndef CALCHOMS_H
 #define CALCHOMS_H
 #include "Graph.h"
+#include <boost/multiprecision/cpp_int.hpp>
+
+using boost::multiprecision::int256_t;
 
 
 class CalcHoms {
@@ -15,15 +18,12 @@ public:
     //returns the exponent of the number of homomorphisms from H to the inverted CFI of S
     static int calcNumHomsInvCFI(const Graph& H, const Graph& S, const int* mapping, const pair<int,int> &edge);
 
-    //returns the number of homs from H to CFI Graph of S mod3, (by trying every possible mapping) (works only for uncolored)
-    static long long calcNumHomsCFI_uncolored(Graph& H, const Graph& S);
-
-    //Returns the number of homomorphisms from H to the CFI graph of S, but mod3
-    static long long calcNumInjectiveHomsCFI(const std::string &small_spasm_file_name, Graph& S);
+    //returns the number of homs from H to CFI Graph of S, (by trying every possible mapping) (works only for uncolored)
+    static int256_t calcNumHomsCFI_uncolored(const Graph& H, const Graph& S, const bool inverted = false);
 
     static long long calcNumHoms(const Graph& H, const Graph& G);
     static long long calcNumInjHoms(const Graph &H, const Graph &G);
+    static int256_t calcNumInjHoms(const std::string &spasm_file_name, const Graph &G, bool CFI_OF_G = false, bool CFI_inverted = false);
 };
-
 
 #endif //CALCHOMS_H

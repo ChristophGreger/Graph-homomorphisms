@@ -87,7 +87,7 @@ TEST(InhomogeneousGF2SpeedTest, MillionRandomSystems_SolvingOnly) {
         }
         // Messe ausschließlich die Zeit für das Lösen des Systems
         auto startSolve = std::chrono::high_resolution_clock::now();
-        dummySum += solution_space_dimension_f2_small_inhom(mat, num_vars);
+        dummySum += solution_space_dimension_f2_small_inhomogen(mat, num_vars);
         auto endSolve = std::chrono::high_resolution_clock::now();
         totalSolveTimeMicro += std::chrono::duration_cast<std::chrono::microseconds>(endSolve - startSolve).count();
     }

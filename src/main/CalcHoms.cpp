@@ -3,20 +3,18 @@
 //
 
 #include "../../include/CalcHoms.h"
-#include "Injective_Hom_Count_By_Spasm.h"
 
 #include <bitset>
-#include <iostream>
 #include <linear_Equations_F2_small.h>
-
 #include "NextInjection.h"
+#include "Spasm.h"
 
 struct LinearSystemOfEquations {
     vector<bitset<128>> matrix;
     int columns;
 };
 
-LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const int* mapping, pair<int,int> edge = {0,0}) {
+LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const int* mapping, const pair<int,int> &edge = {0,0}) {
 
     const auto& neighborsS = S.neighbours;
     const auto& degS = S.degree;
@@ -88,7 +86,7 @@ LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const i
         matrix[currentRow][indexMapping[first].first + firstIndex] = 1;
         matrix[currentRow][indexMapping[second].first + secondIndex] = 1;
 
-        if (edge.first == first && edge.second == second) {
+        if ((edge.first == mFirst && edge.second == mSecond) || (edge.first == mSecond && edge.second == mFirst)) {
             matrix[currentRow][columns] = 1;
         }
 
@@ -109,6 +107,10 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping)
     //Now we can calculate the dimension of the solution space
     const int dimension = solution_space_dimension_f2_small_homogen(matrix,columns);
 
+    if (dimension > 62) {
+        throw runtime_error("Dimension of solution space was to big for long long");
+    }
+
     return dimension;
 }
 
@@ -117,14 +119,24 @@ int CalcHoms::calcNumHomsInvCFI(const Graph& H, const Graph& S, const int* mappi
     //Now we can calculate the dimension of the solution space
     const int dimension = solution_space_dimension_f2_small_inhomogen(matrix,columns);
 
+    if (dimension > 62) {
+        throw runtime_error("Dimension of solution space was to big for long long");
+    }
     return dimension;
 }
 
 //returns the number of homs from H to CFI Graph of S, (by trying every possible mapping) (works only for uncolored)
 //Be sure that H has <= 9 vertices and S has maxdegree <= 4
-long long CalcHoms::calcNumHomsCFI_uncolored(Graph &H, const Graph &S) {
+int256_t CalcHoms::calcNumHomsCFI_uncolored(const Graph &H, const Graph &S, const bool inverted) {
 
-    long long total = 0;
+    if (S.edges.size() < 1) {
+        throw runtime_error("S has to have at least one edge!");
+    }
+
+    //Edge S to be inverted with if inverted = true
+    const auto edge = S.edgeArray[0];
+
+    int256_t total = 0;
 
     //generate all homs and for each hom count the number of cfi homs from H to CFI(S)
 
@@ -204,8 +216,15 @@ long long CalcHoms::calcNumHomsCFI_uncolored(Graph &H, const Graph &S) {
                         //ONLY REAL DIFFERENCE TO COUNTING HOMS
 
                         //Handling the found Hom!
-                        total += powBase2(calcNumHomsCFI(H, S, hom));
-
+                        //We have to calculate the number of homs from H to CFI(S) with this mapping
+                        if (inverted) {
+                            int exponent = calcNumHomsInvCFI(H, S, hom, edge);
+                            if (exponent > -1) {
+                                total += powBase2(exponent);
+                            }
+                        } else {
+                            total += powBase2(calcNumHomsCFI(H, S, hom));
+                        }
                         //END ONLY REAL DIFFERENCE TO COUNTING HOMS
 
                     } else {
@@ -228,35 +247,41 @@ long long CalcHoms::calcNumHomsCFI_uncolored(Graph &H, const Graph &S) {
     return total;
 }
 
-//returns the number of homomorphisms from  to the CFI graph of S
-long long CalcHoms::calcNumInjectiveHomsCFI(const std::string &small_spasm_file_name, Graph &S) {
+int256_t CalcHoms::calcNumInjHoms(const std::string &spasm_file_name, const Graph &G, bool CFI_OF_G, bool CFI_inverted) {
+    auto spasm = Spasm::getFromFile(spasm_file_name);
 
-    //Now we have to get the small_spasm of the small_spasm_file_name
-    auto smallspasm = getFromFile_spasm_smaller(small_spasm_file_name);
+    std::unordered_map<std::string, int256_t> componentMap;
 
-    //Now we have to calculate the number of homomorphisms for every component
-    std::unordered_map<std::string, long long> componentMap;
+    for (const auto &comp : spasm.Components) {
+        std::string canon = comp.canonicalString;
+        Graph graph = comp.Graph;
 
-    for (const auto &comp : smallspasm.components) {
-        std::string canon = comp.canonicalStr;
-        Graph graph = comp.graph;
-        componentMap.emplace(canon, calcNumHomsCFI_uncolored(graph, S));
+        if (CFI_OF_G) {
+            if (CFI_inverted) {
+                componentMap.emplace(canon, calcNumHomsCFI_uncolored(graph, G, true));
+            } else {
+                componentMap.emplace(canon, calcNumHomsCFI_uncolored(graph, G));
+            }
+        } else {
+            componentMap.emplace(canon, calcNumHoms(graph, G));
+        }
     }
 
-    long long total = 0;
+    int256_t total = 0;
 
-    for (const auto &fullGraph : smallspasm.fullGraphs) {
-        long long factor = fullGraph.factor;
-        for (const auto &comp : fullGraph.components) {
-            std::string canon = comp.first.canonicalStr;
+    for (auto &fullGraph : spasm.Graphs) {
+        int256_t factor = fullGraph.Factor;
+        for (auto &comp : fullGraph.Components) {
+            std::string canon = comp.first;
             const int exponent = comp.second;
-            factor *= powlong(componentMap[canon], exponent);
+            factor *= int256_pow(componentMap[canon], exponent); //TODO: Hier ist ein Overflow
         }
         total += factor;
     }
 
     return total;
 }
+
 
 /*
  * Normal Graph
