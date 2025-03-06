@@ -32,21 +32,21 @@ TEST(CalcHoms_Christoph, calcNumHomsCFI_uncolored) {
 }
 
 
-TEST(CalcHoms_Christoph, calcNumInjectiveHomsCFI) {
+TEST(CalcHoms_Christoph, calcNumInjHomsCFI) {
 
-    GraphTemplate K_2_mal_6T = GraphTemplate(false);
+    GraphTemplate K2_mal_3T = GraphTemplate(false);
 
     for (int i = 0; i < 6; i++) {
-        K_2_mal_6T.addNode(Node());
+        K2_mal_3T.addNode(Node());
     }
 
-    K_2_mal_6T.addEdge(0, 1);
-    K_2_mal_6T.addEdge(2, 3);
-    K_2_mal_6T.addEdge(4, 5);
+    K2_mal_3T.addEdge(0, 1);
+    K2_mal_3T.addEdge(2, 3);
+    K2_mal_3T.addEdge(4, 5);
 
-    Graph K_2_mal_6(K_2_mal_6T);
+    Graph K2_mal_3(K2_mal_3T);
 
-    RandomGraphGenerator randomS = RandomGraphGenerator(4, 4, true);
+    RandomGraphGenerator randomS = RandomGraphGenerator(5, 6, true);
 
     for (int i = 0; i < 20; i++) {
         Graph S = randomS.generateRandomConnectedGraph();
@@ -54,7 +54,7 @@ TEST(CalcHoms_Christoph, calcNumInjectiveHomsCFI) {
         CFIGraph cfiS = CFIGraph(S);
         Graph cfiGraph = cfiS.toGraph();
 
-        long long numHomsBruteForce = CalcHoms::calcNumInjHoms(K_2_mal_6, cfiGraph);
+        long long numHomsBruteForce = CalcHoms::calcNumInjHoms(K2_mal_3, cfiGraph);
 
         cout << "numHomsBruteForce: " << numHomsBruteForce << endl;
 
@@ -63,5 +63,47 @@ TEST(CalcHoms_Christoph, calcNumInjectiveHomsCFI) {
         cout << "numHoms: " << numHoms << endl;
 
         ASSERT_EQ(numHoms, numHomsBruteForce);
+    }
+}
+
+TEST(CalcHoms_Christoph, calcNumInjHomsCFI_inverted) {
+
+
+    GraphTemplate K2_mal_3T = GraphTemplate(false);
+
+    for (int i = 0; i < 6; i++) {
+        K2_mal_3T.addNode(Node());
+    }
+
+    K2_mal_3T.addEdge(0, 1);
+    K2_mal_3T.addEdge(2, 3);
+    K2_mal_3T.addEdge(4, 5);
+
+    Graph K2_mal_3(K2_mal_3T);
+
+
+    RandomGraphGenerator randomS = RandomGraphGenerator(4, 4, true);
+
+    for (int i = 0; i < 20; i++) {
+        Graph S = randomS.generateRandomConnectedGraph();
+
+        auto cfiS = CFIGraph(S, true);
+        Graph cfiGraph = cfiS.toGraph();
+
+
+        long long numHomsBruteForce = CalcHoms::calcNumInjHoms("k_3.txt", cfiGraph);
+
+        cout << "numHomsBruteForce: " << numHomsBruteForce << endl;
+
+        long long numHomsBruteForce2 = CalcHoms::calcNumInjHoms(K2_mal_3, cfiGraph);
+
+        cout << "numHomsBruteForce2: " << numHomsBruteForce2 << endl;
+
+        long long numHoms = CalcHoms::calcNumInjHoms("k_3.txt", S, true, true);
+
+        cout << "numHoms: " << numHoms << endl;
+
+        ASSERT_EQ(numHoms, numHomsBruteForce);
+
     }
 }

@@ -16,7 +16,7 @@ public:
     static int calcNumHomsInvCFI(const Graph& H, const Graph& S, const int* mapping, const pair<int,int> &edge);
 
     //returns the number of homs from H to CFI Graph of S, (by trying every possible mapping) (works only for uncolored)
-    static long long calcNumHomsCFI_uncolored(Graph& H, const Graph& S);
+    static long long calcNumHomsCFI_uncolored(const Graph& H, const Graph& S, const bool inverted = false);
 
     static long long calcNumHoms(const Graph& H, const Graph& G);
     static long long calcNumInjHoms(const Graph &H, const Graph &G);

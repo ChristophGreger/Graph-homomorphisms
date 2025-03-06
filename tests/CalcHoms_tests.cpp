@@ -121,3 +121,17 @@ TEST(CalcHomsTest, calcNumHomsInvCFI) {
         }
     }
 }
+
+
+TEST(CalcHomsTest, calcNumHomsInvCFI2) {
+    RandomGraphGenerator Sgen = RandomGraphGenerator(10, 15, true, true);
+    for (int i = 0; i < 100; i++) {
+        auto S = Sgen.generateRandomConnectedGraph();
+        int* mapping = new int[S.numVertices];
+        for (int j = 0; j < S.numVertices; j++) {
+            mapping[j] = j;
+        }
+        ASSERT_EQ(-1, CalcHoms::calcNumHomsInvCFI(S, S, mapping, S.edgeArray[0]));
+        delete [] mapping;
+    }
+}

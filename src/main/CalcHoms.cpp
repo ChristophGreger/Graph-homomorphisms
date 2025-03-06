@@ -14,7 +14,7 @@ struct LinearSystemOfEquations {
     int columns;
 };
 
-LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const int* mapping, pair<int,int> edge = {0,0}) {
+LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const int* mapping, const pair<int,int> &edge = {0,0}) {
 
     const auto& neighborsS = S.neighbours;
     const auto& degS = S.degree;
@@ -114,13 +114,19 @@ int CalcHoms::calcNumHomsInvCFI(const Graph& H, const Graph& S, const int* mappi
     auto [matrix, columns] = generateCFI_LSOE(H,S,mapping,edge);
     //Now we can calculate the dimension of the solution space
     const int dimension = solution_space_dimension_f2_small_inhomogen(matrix,columns);
-
     return dimension;
 }
 
 //returns the number of homs from H to CFI Graph of S, (by trying every possible mapping) (works only for uncolored)
 //Be sure that H has <= 9 vertices and S has maxdegree <= 4
-long long CalcHoms::calcNumHomsCFI_uncolored(Graph &H, const Graph &S) {
+long long CalcHoms::calcNumHomsCFI_uncolored(const Graph &H, const Graph &S, const bool inverted) {
+
+    if (S.edges.size() < 1) {
+        throw runtime_error("S has to have at least one edge!");
+    }
+
+    //Edge S to be inverted with if inverted = true
+    const auto edge = S.edgeArray[0];
 
     long long total = 0;
 
@@ -202,8 +208,15 @@ long long CalcHoms::calcNumHomsCFI_uncolored(Graph &H, const Graph &S) {
                         //ONLY REAL DIFFERENCE TO COUNTING HOMS
 
                         //Handling the found Hom!
-                        total += powBase2(calcNumHomsCFI(H, S, hom));
-
+                        //We have to calculate the number of homs from H to CFI(S) with this mapping
+                        if (inverted) {
+                            int exponent = calcNumHomsInvCFI(H, S, hom, edge);
+                            if (exponent > -1) {
+                                total += powBase2(exponent);
+                            }
+                        } else {
+                            total += powBase2(calcNumHomsCFI(H, S, hom));
+                        }
                         //END ONLY REAL DIFFERENCE TO COUNTING HOMS
 
                     } else {
@@ -237,7 +250,7 @@ long long CalcHoms::calcNumInjHoms(const std::string &spasm_file_name, const Gra
 
         if (CFI_OF_G) {
             if (CFI_inverted) {
-                return 0; //not implemented //TODO
+                componentMap.emplace(canon, calcNumHomsCFI_uncolored(graph, G, true));
             } else {
                 componentMap.emplace(canon, calcNumHomsCFI_uncolored(graph, G));
             }
