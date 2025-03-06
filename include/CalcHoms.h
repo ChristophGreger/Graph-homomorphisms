@@ -5,6 +5,9 @@
 #ifndef CALCHOMS_H
 #define CALCHOMS_H
 #include "Graph.h"
+#include <boost/multiprecision/cpp_int.hpp>
+
+using boost::multiprecision::int256_t;
 
 
 class CalcHoms {
@@ -16,11 +19,11 @@ public:
     static int calcNumHomsInvCFI(const Graph& H, const Graph& S, const int* mapping, const pair<int,int> &edge);
 
     //returns the number of homs from H to CFI Graph of S, (by trying every possible mapping) (works only for uncolored)
-    static long long calcNumHomsCFI_uncolored(const Graph& H, const Graph& S, const bool inverted = false);
+    static int256_t calcNumHomsCFI_uncolored(const Graph& H, const Graph& S, const bool inverted = false);
 
     static long long calcNumHoms(const Graph& H, const Graph& G);
     static long long calcNumInjHoms(const Graph &H, const Graph &G);
-    static long long calcNumInjHoms(const std::string &spasm_file_name, const Graph &G, bool CFI_OF_G = false, bool CFI_inverted = false);
+    static int256_t calcNumInjHoms(const std::string &spasm_file_name, const Graph &G, bool CFI_OF_G = false, bool CFI_inverted = false);
 };
 
 #endif //CALCHOMS_H

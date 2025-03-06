@@ -49,10 +49,14 @@ void Spasm::create_and_store_Spasm_k_Matching(const std::string &filename, int k
     //string: canonical Form
     //pair: first (string) is a string representation of the graph
     //second is the factor
-    std::unordered_map<std::string, std::pair<std::string, long long>> canonicalMap;
+    std::unordered_map<std::string, std::pair<std::string, int256_t>> canonicalMap;
 
     const int numEdges = k;
     const int numVertices = 2 * k;
+
+    if (k > 62) {
+        throw runtime_error("k must be less than 63");
+    }
 
     const uint256_t numAutomorphisms = (1 << k) * factorial(k);
 
@@ -93,7 +97,7 @@ void Spasm::create_and_store_Spasm_k_Matching(const std::string &filename, int k
             const std::string canon = getCanonicalString(g, currentMax+1);
 
             //Computing the factor (or at least the Partition element product part of it) of the graph
-            long long factor = 1;
+            int256_t factor = 1;
 
             for (int i = 0; i < numVertices; i++) {
                 numperpartition[i] = 0;
@@ -104,7 +108,7 @@ void Spasm::create_and_store_Spasm_k_Matching(const std::string &filename, int k
             }
 
             for (int i = 0; i < numVerticeshere; i++) {
-                factor *= factorial(numperpartition[i]-1);
+                factor *= factorial(numperpartition[i]-1); //Pay attention of overflow
             }
             //End of factor computation (first part)
 
@@ -178,7 +182,7 @@ void Spasm::create_and_store_Spasm_k_Matching(const std::string &filename, int k
     //Now the canonicalMap is filled with all the graphs
 
     //Convert the canonicalMap to a vector of (canonical string, Graph, factor) tuples
-    vector<std::tuple<std::string, Graph, long long>> big_graphs;
+    vector<std::tuple<std::string, Graph, int256_t>> big_graphs;
     for (const auto &[canon, pair] : canonicalMap) {
         std::istringstream ss(pair.first);
         int numVertices_, numEdges_;
@@ -198,7 +202,7 @@ void Spasm::create_and_store_Spasm_k_Matching(const std::string &filename, int k
 
         //We have to make sure that the factor has the right sign (positive or negative)
         const int signexponent = numVertices - numVertices_;
-        long long factor = pair.second;
+        int256_t factor = pair.second;
         if (signexponent % 2 == 1) {
             factor = -factor;
         }

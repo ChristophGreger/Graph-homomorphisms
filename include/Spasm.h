@@ -9,6 +9,7 @@
 #include <boost/multiprecision/cpp_int.hpp>
 
 using boost::multiprecision::uint256_t;
+using boost::multiprecision::int256_t;
 
 
 namespace Spasm {
@@ -20,7 +21,7 @@ namespace Spasm {
 
     struct Spasm_Graph {
         std::vector<std::pair<std::string, int>> Components; //Component Graphs with its count (potentiate afterwards)
-        long long Factor;
+        int256_t Factor{};
     };
 
     struct Spasm {

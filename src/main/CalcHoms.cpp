@@ -107,6 +107,10 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping)
     //Now we can calculate the dimension of the solution space
     const int dimension = solution_space_dimension_f2_small_homogen(matrix,columns);
 
+    if (dimension > 62) {
+        throw runtime_error("Dimension of solution space was to big for long long");
+    }
+
     return dimension;
 }
 
@@ -114,12 +118,16 @@ int CalcHoms::calcNumHomsInvCFI(const Graph& H, const Graph& S, const int* mappi
     auto [matrix, columns] = generateCFI_LSOE(H,S,mapping,edge);
     //Now we can calculate the dimension of the solution space
     const int dimension = solution_space_dimension_f2_small_inhomogen(matrix,columns);
+
+    if (dimension > 62) {
+        throw runtime_error("Dimension of solution space was to big for long long");
+    }
     return dimension;
 }
 
 //returns the number of homs from H to CFI Graph of S, (by trying every possible mapping) (works only for uncolored)
 //Be sure that H has <= 9 vertices and S has maxdegree <= 4
-long long CalcHoms::calcNumHomsCFI_uncolored(const Graph &H, const Graph &S, const bool inverted) {
+int256_t CalcHoms::calcNumHomsCFI_uncolored(const Graph &H, const Graph &S, const bool inverted) {
 
     if (S.edges.size() < 1) {
         throw runtime_error("S has to have at least one edge!");
@@ -128,7 +136,7 @@ long long CalcHoms::calcNumHomsCFI_uncolored(const Graph &H, const Graph &S, con
     //Edge S to be inverted with if inverted = true
     const auto edge = S.edgeArray[0];
 
-    long long total = 0;
+    int256_t total = 0;
 
     //generate all homs and for each hom count the number of cfi homs from H to CFI(S)
 
@@ -239,10 +247,10 @@ long long CalcHoms::calcNumHomsCFI_uncolored(const Graph &H, const Graph &S, con
     return total;
 }
 
-long long CalcHoms::calcNumInjHoms(const std::string &spasm_file_name, const Graph &G, bool CFI_OF_G, bool CFI_inverted) {
+int256_t CalcHoms::calcNumInjHoms(const std::string &spasm_file_name, const Graph &G, bool CFI_OF_G, bool CFI_inverted) {
     auto spasm = Spasm::getFromFile(spasm_file_name);
 
-    std::unordered_map<std::string, long long> componentMap;
+    std::unordered_map<std::string, int256_t> componentMap;
 
     for (const auto &comp : spasm.Components) {
         std::string canon = comp.canonicalString;
@@ -259,14 +267,14 @@ long long CalcHoms::calcNumInjHoms(const std::string &spasm_file_name, const Gra
         }
     }
 
-    long long total = 0;
+    int256_t total = 0;
 
     for (auto &fullGraph : spasm.Graphs) {
-        long long factor = fullGraph.Factor;
+        int256_t factor = fullGraph.Factor;
         for (auto &comp : fullGraph.Components) {
             std::string canon = comp.first;
             const int exponent = comp.second;
-            factor *= powlong(componentMap[canon], exponent);
+            factor *= int256_pow(componentMap[canon], exponent); //TODO: Hier ist ein Overflow
         }
         total += factor;
     }

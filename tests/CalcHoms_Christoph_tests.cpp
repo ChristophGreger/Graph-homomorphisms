@@ -24,7 +24,7 @@ TEST(CalcHoms_Christoph, calcNumHomsCFI_uncolored) {
 
     cout << "numHomsBruteForce: " << numHomsBruteForce << endl;
 
-    long long numHoms = CalcHoms::calcNumHomsCFI_uncolored(H, S);
+    int256_t numHoms = CalcHoms::calcNumHomsCFI_uncolored(H, S);
 
     cout << "numHoms: " << numHoms << endl;
 
@@ -58,7 +58,7 @@ TEST(CalcHoms_Christoph, calcNumInjHomsCFI) {
 
         cout << "numHomsBruteForce: " << numHomsBruteForce << endl;
 
-        long long numHoms = CalcHoms::calcNumInjHoms("k_3.txt", S, true);
+        int256_t numHoms = CalcHoms::calcNumInjHoms("k_3.txt", S, true);
 
         cout << "numHoms: " << numHoms << endl;
 
@@ -93,7 +93,7 @@ TEST(CalcHoms_Christoph, calcNumInjHomsCFI_inverted) {
 
         cout << "numHomsBruteForce: " << numHomsBruteForce << endl;
 
-        long long numHoms = CalcHoms::calcNumInjHoms("k_3.txt", S, true, true);
+        int256_t numHoms = CalcHoms::calcNumInjHoms("k_3.txt", S, true, true);
 
         cout << "numHoms: " << numHoms << endl;
 
@@ -105,14 +105,21 @@ TEST(CalcHoms_Christoph, calcNumInjHomsCFI_inverted) {
 TEST(CalcHoms_Christoph, calcNumInjHomsCFI_speed) {
 
 
-    RandomGraphGenerator randomS = RandomGraphGenerator(30, 45, true);
+    RandomGraphGenerator randomS = RandomGraphGenerator(7, 7, false);
 
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 10000; i++) {
         Graph S = randomS.generateRandomConnectedGraph();
 
-        long long numHoms = CalcHoms::calcNumInjHoms("k_7.txt", S, true, true);
+        int256_t numHoms = CalcHoms::calcNumInjHoms("k_7.txt", S, true, true);
 
-        cout << "numHoms: " << numHoms << endl;
+        int256_t numHoms_not_inverted = CalcHoms::calcNumInjHoms("k_7.txt", S, true, false);
+
+        if (numHoms != numHoms_not_inverted) {
+            cout << "numHoms: " << numHoms << " not inverted: "<< numHoms_not_inverted << endl;
+            cout << "UNTERSCHIEDLICH!" << endl;
+        } else {
+            cout << "GLEICH!!!!" << endl;
+        }
 
     }
 }

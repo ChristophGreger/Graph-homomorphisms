@@ -118,3 +118,20 @@ long long powlong(long long base, int exponent) {
     }
     return result;
 }
+
+// Schnelle Potenzierung für int256_t (Exponentiation by Squaring)
+int256_t int256_pow(int256_t base, int exponent) {
+    if (exponent < 0) {
+        throw std::runtime_error("Negative exponent not supported for int256_t");
+    }
+
+    int256_t result = 1;
+    while (exponent > 0) {
+        if (exponent & 1) {  // Falls Exponent ungerade ist
+            result *= base;
+        }
+        base *= base;  // Basis quadrieren
+        exponent >>= 1; // Exponent halbieren
+    }
+    return result;
+}
