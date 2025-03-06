@@ -82,7 +82,7 @@ TEST(CalcHoms_Christoph, calcNumInjHomsCFI_inverted) {
     Graph K2_mal_3(K2_mal_3T);
 
 
-    RandomGraphGenerator randomS = RandomGraphGenerator(4, 4, true);
+    RandomGraphGenerator randomS = RandomGraphGenerator(6, 7, true);
 
     for (int i = 0; i < 20; i++) {
         Graph S = randomS.generateRandomConnectedGraph();
@@ -94,10 +94,6 @@ TEST(CalcHoms_Christoph, calcNumInjHomsCFI_inverted) {
         long long numHomsBruteForce = CalcHoms::calcNumInjHoms("k_3.txt", cfiGraph);
 
         cout << "numHomsBruteForce: " << numHomsBruteForce << endl;
-
-        long long numHomsBruteForce2 = CalcHoms::calcNumInjHoms(K2_mal_3, cfiGraph);
-
-        cout << "numHomsBruteForce2: " << numHomsBruteForce2 << endl;
 
         long long numHoms = CalcHoms::calcNumInjHoms("k_3.txt", S, true, true);
 

@@ -253,7 +253,6 @@ TEST(Closed_Formula_Trying, TryingOut_Automated_CLOSEDFORMULA2) {
                 Graph S = sgen.generateRandomConnectedGraph();
                 CFIGraph X_of_S = CFIGraph(S);
                 Graph input = X_of_S.toGraph();
-
                 int hnodes = getRandomNumberBetween(2, 6);
                 int hedges = getRandomNumberBetween(hnodes - 1, hnodes * (hnodes - 1) / 2);
                 RandomGraphGenerator hgen = RandomGraphGenerator(hnodes, hedges, true, false, snodes, false);

@@ -86,7 +86,7 @@ LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const i
         matrix[currentRow][indexMapping[first].first + firstIndex] = 1;
         matrix[currentRow][indexMapping[second].first + secondIndex] = 1;
 
-        if (edge.first == first && edge.second == second) {
+        if ((edge.first == mFirst && edge.second == mSecond) || (edge.first == mSecond && edge.second == mFirst)) {
             matrix[currentRow][columns] = 1;
         }
 
