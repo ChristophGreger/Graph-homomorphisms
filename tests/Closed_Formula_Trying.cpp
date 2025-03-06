@@ -256,18 +256,20 @@ TEST(Closed_Formula_Trying, TryingOut_Automated_CLOSEDFORMULA2) {
                 int hnodes = getRandomNumberBetween(2, 6);
                 int hedges = getRandomNumberBetween(hnodes - 1, hnodes * (hnodes - 1) / 2);
                 RandomGraphGenerator hgen = RandomGraphGenerator(hnodes, hedges, true, false, snodes, false);
-                Graph H;
-                try {
-                    H = hgen.generateRandomConnectedGraph();
-                } catch (std::exception &e) {
-                    continue;
-                }
+                Graph H = hgen.generateRandomConnectedGraph();
+
                 int* mapping = new int[hnodes];
                 for (int i = 0; i < hnodes; ++i) {
                     mapping[i] = H.nodes[i].color;
                 }
 
-                int expo = CalcHoms::calcNumHomsCFI(H,S,mapping);
+                int expo;
+                try {
+                    expo = CalcHoms::calcNumHomsCFI(H,S,mapping);
+                } catch (std::exception& e) {
+                    //There are edges between colors in H that are not in S
+                    continue;
+                }
 
                 long long number = 0;
                 if (expo != -1) {

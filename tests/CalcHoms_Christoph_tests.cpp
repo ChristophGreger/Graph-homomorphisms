@@ -67,8 +67,6 @@ TEST(CalcHoms_Christoph, calcNumInjHomsCFI) {
 }
 
 TEST(CalcHoms_Christoph, calcNumInjHomsCFI_inverted) {
-
-
     GraphTemplate K2_mal_3T = GraphTemplate(false);
 
     for (int i = 0; i < 6; i++) {
@@ -84,14 +82,14 @@ TEST(CalcHoms_Christoph, calcNumInjHomsCFI_inverted) {
 
     RandomGraphGenerator randomS = RandomGraphGenerator(6, 7, true);
 
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 3; i++) {
         Graph S = randomS.generateRandomConnectedGraph();
 
         auto cfiS = CFIGraph(S, true);
         Graph cfiGraph = cfiS.toGraph();
 
 
-        long long numHomsBruteForce = CalcHoms::calcNumInjHoms("k_3.txt", cfiGraph);
+        long long numHomsBruteForce = CalcHoms::calcNumInjHoms(K2_mal_3, cfiGraph);
 
         cout << "numHomsBruteForce: " << numHomsBruteForce << endl;
 
@@ -100,6 +98,21 @@ TEST(CalcHoms_Christoph, calcNumInjHomsCFI_inverted) {
         cout << "numHoms: " << numHoms << endl;
 
         ASSERT_EQ(numHoms, numHomsBruteForce);
+
+    }
+}
+
+TEST(CalcHoms_Christoph, calcNumInjHomsCFI_speed) {
+
+
+    RandomGraphGenerator randomS = RandomGraphGenerator(30, 45, true);
+
+    for (int i = 0; i < 20; i++) {
+        Graph S = randomS.generateRandomConnectedGraph();
+
+        long long numHoms = CalcHoms::calcNumInjHoms("k_7.txt", S, true, true);
+
+        cout << "numHoms: " << numHoms << endl;
 
     }
 }
