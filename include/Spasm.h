@@ -7,7 +7,6 @@
 
 #include "Graph.h"
 #include <boost/multiprecision/cpp_int.hpp>
-#include "Nauty_wrapper.h"
 
 using boost::multiprecision::uint256_t;
 

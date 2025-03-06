@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include "utilities.h"
+#include "Nauty_wrapper.h"
 
 #define set nauty_set
 

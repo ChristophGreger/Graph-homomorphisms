@@ -36,35 +36,32 @@ TEST(CalcHoms_Christoph, calcNumInjectiveHomsCFI) {
 
     GraphTemplate K_2_mal_6T = GraphTemplate(false);
 
-    for (int i = 0; i < 12; i++) {
+    for (int i = 0; i < 6; i++) {
         K_2_mal_6T.addNode(Node());
     }
 
     K_2_mal_6T.addEdge(0, 1);
     K_2_mal_6T.addEdge(2, 3);
     K_2_mal_6T.addEdge(4, 5);
-    K_2_mal_6T.addEdge(6, 7);
-    K_2_mal_6T.addEdge(8, 9);
-    K_2_mal_6T.addEdge(10, 11);
 
     Graph K_2_mal_6(K_2_mal_6T);
 
-    RandomGraphGenerator randomS = RandomGraphGenerator(30, 40, true);
+    RandomGraphGenerator randomS = RandomGraphGenerator(4, 4, true);
 
-    Graph S = randomS.generateRandomConnectedGraph();
+    for (int i = 0; i < 20; i++) {
+        Graph S = randomS.generateRandomConnectedGraph();
 
-    CFIGraph cfiS = CFIGraph(S);
-    Graph cfiGraph = cfiS.toGraph();
+        CFIGraph cfiS = CFIGraph(S);
+        Graph cfiGraph = cfiS.toGraph();
 
-    //long long numHomsBruteForce = K_2_mal_6.calculateNumberofInjectiveHomomorphismsTo(cfiGraph);
+        long long numHomsBruteForce = CalcHoms::calcNumInjHoms(K_2_mal_6, cfiGraph);
 
-    //long long numHomsBruteForce = 0;
+        cout << "numHomsBruteForce: " << numHomsBruteForce << endl;
 
-    //cout << "numHomsBruteForce: " << numHomsBruteForce << endl;
+        long long numHoms = CalcHoms::calcNumInjHoms("k_3.txt", S, true);
 
-    long long numHoms = CalcHoms::calcNumInjectiveHomsCFI("EineTestDatei_k_6_smaller.txt", S);
+        cout << "numHoms: " << numHoms << endl;
 
-    cout << "numHoms: " << numHoms << endl;
-
-    //ASSERT_EQ(numHoms, numHomsBruteForce);
+        ASSERT_EQ(numHoms, numHomsBruteForce);
+    }
 }

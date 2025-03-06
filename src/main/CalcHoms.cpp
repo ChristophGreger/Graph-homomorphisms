@@ -3,13 +3,11 @@
 //
 
 #include "../../include/CalcHoms.h"
-#include "Injective_Hom_Count_By_Spasm.h"
 
 #include <bitset>
-#include <iostream>
 #include <linear_Equations_F2_small.h>
-
 #include "NextInjection.h"
+#include "Spasm.h"
 
 struct LinearSystemOfEquations {
     vector<bitset<128>> matrix;
@@ -228,27 +226,32 @@ long long CalcHoms::calcNumHomsCFI_uncolored(Graph &H, const Graph &S) {
     return total;
 }
 
-//returns the number of homomorphisms from  to the CFI graph of S
-long long CalcHoms::calcNumInjectiveHomsCFI(const std::string &small_spasm_file_name, Graph &S) {
+long long CalcHoms::calcNumInjHoms(const std::string &spasm_file_name, const Graph &G, bool CFI_OF_G, bool CFI_inverted) {
+    auto spasm = Spasm::getFromFile(spasm_file_name);
 
-    //Now we have to get the small_spasm of the small_spasm_file_name
-    auto smallspasm = getFromFile_spasm_smaller(small_spasm_file_name);
-
-    //Now we have to calculate the number of homomorphisms for every component
     std::unordered_map<std::string, long long> componentMap;
 
-    for (const auto &comp : smallspasm.components) {
-        std::string canon = comp.canonicalStr;
-        Graph graph = comp.graph;
-        componentMap.emplace(canon, calcNumHomsCFI_uncolored(graph, S));
+    for (const auto &comp : spasm.Components) {
+        std::string canon = comp.canonicalString;
+        Graph graph = comp.Graph;
+
+        if (CFI_OF_G) {
+            if (CFI_inverted) {
+                return 0; //not implemented //TODO
+            } else {
+                componentMap.emplace(canon, calcNumHomsCFI_uncolored(graph, G));
+            }
+        } else {
+            componentMap.emplace(canon, calcNumHoms(graph, G));
+        }
     }
 
     long long total = 0;
 
-    for (const auto &fullGraph : smallspasm.fullGraphs) {
-        long long factor = fullGraph.factor;
-        for (const auto &comp : fullGraph.components) {
-            std::string canon = comp.first.canonicalStr;
+    for (auto &fullGraph : spasm.Graphs) {
+        long long factor = fullGraph.Factor;
+        for (auto &comp : fullGraph.Components) {
+            std::string canon = comp.first;
             const int exponent = comp.second;
             factor *= powlong(componentMap[canon], exponent);
         }
@@ -257,6 +260,7 @@ long long CalcHoms::calcNumInjectiveHomsCFI(const std::string &small_spasm_file_
 
     return total;
 }
+
 
 /*
  * Normal Graph
