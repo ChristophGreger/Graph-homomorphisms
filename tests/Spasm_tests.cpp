@@ -16,3 +16,7 @@ TEST(Spasm, generate_spasm_files) {
     }
 }
 
+TEST(Spasm, generate_File_8) {
+    Spasm::create_and_store_Spasm_k_Matching("k_8.txt", 8);
+}
+

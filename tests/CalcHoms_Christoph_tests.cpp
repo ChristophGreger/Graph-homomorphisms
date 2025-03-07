@@ -105,14 +105,17 @@ TEST(CalcHoms_Christoph, calcNumInjHomsCFI_inverted) {
 TEST(CalcHoms_Christoph, calcNumInjHomsCFI_speed) {
 
 
-    RandomGraphGenerator randomS = RandomGraphGenerator(7, 7, false);
+    RandomGraphGenerator randomS = RandomGraphGenerator(8, 13, false);
 
     for (int i = 0; i < 10000; i++) {
         Graph S = randomS.generateRandomConnectedGraph();
 
-        int256_t numHoms = CalcHoms::calcNumInjHoms("k_7.txt", S, true, true);
+        int256_t numHoms = CalcHoms::calcNumInjHoms("k_8.txt", S, true, true);
 
-        int256_t numHoms_not_inverted = CalcHoms::calcNumInjHoms("k_7.txt", S, true, false);
+        cout << "numHoms: " << numHoms << endl;
+
+        int256_t numHoms_not_inverted = CalcHoms::calcNumInjHoms("k_8.txt", S, true, false);
+
 
         if (numHoms != numHoms_not_inverted) {
             cout << "numHoms: " << numHoms << " not inverted: "<< numHoms_not_inverted << endl;
