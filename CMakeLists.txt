@@ -115,7 +115,6 @@ add_gtest(Spasm_tests tests/Spasm_tests.cpp)
 add_gtest(Linear_Equations_F2_small_tests tests/linear_Equations_F2_small_tests.cpp)
 add_gtest(CalcHoms_tests tests/CalcHoms_tests.cpp)
 add_gtest(CalcHoms_Christoph tests/CalcHoms_Christoph_tests.cpp)
-add_gtest(k_9_generation tests/k_9_generation.cpp)
 
 
 #Fuer Nauty:

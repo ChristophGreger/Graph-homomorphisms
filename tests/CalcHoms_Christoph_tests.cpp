@@ -105,9 +105,9 @@ TEST(CalcHoms_Christoph, calcNumInjHomsCFI_inverted) {
 TEST(CalcHoms_Christoph, calcNumInjHomsCFI_speed) {
 
 
-    RandomGraphGenerator randomS = RandomGraphGenerator(8, 13, false);
+    RandomGraphGenerator randomS = RandomGraphGenerator(30, 40, false);
 
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < 1; i++) {
         Graph S = randomS.generateRandomConnectedGraph();
 
         int256_t numHoms = CalcHoms::calcNumInjHoms("k_8.txt", S, true, true);
@@ -116,13 +116,26 @@ TEST(CalcHoms_Christoph, calcNumInjHomsCFI_speed) {
 
         int256_t numHoms_not_inverted = CalcHoms::calcNumInjHoms("k_8.txt", S, true, false);
 
-
-        if (numHoms != numHoms_not_inverted) {
-            cout << "numHoms: " << numHoms << " not inverted: "<< numHoms_not_inverted << endl;
-            cout << "UNTERSCHIEDLICH!" << endl;
-        } else {
-            cout << "GLEICH!!!!" << endl;
-        }
+        ASSERT_EQ(numHoms_not_inverted, numHoms);
 
     }
+}
+
+TEST(CalcHoms_Christoph, Clique_testing3) {
+    int n = 6;
+    RandomGraphGenerator randomS = RandomGraphGenerator(n, n+2);
+    auto S = randomS.generateRandomConnectedGraph();
+    std::string filename = "k_" + std::to_string(n) + ".txt";
+    auto inverted = CalcHoms::calcNumInjHoms(filename, S, true, true);
+    auto normal = CalcHoms::calcNumInjHoms(filename, S, true, false);
+    cout << "k = " << n <<" Inverted: " << inverted << " Normal: " << normal << endl;
+    ASSERT_EQ(inverted, normal);
+}
+
+TEST(CalcHoms_Christoph, Thesis) {
+    RandomGraphGenerator clique4gen = RandomGraphGenerator(4, 6);
+    Graph clique4 = clique4gen.generateRandomConnectedGraph();
+    auto normal = CalcHoms::calcNumInjHoms("k_6.txt", clique4, true, false);
+    auto inverted = CalcHoms::calcNumInjHoms("k_6.txt", clique4, true, true);
+    cout << "Normal: " << normal << " Inverted: " << inverted << endl;
 }

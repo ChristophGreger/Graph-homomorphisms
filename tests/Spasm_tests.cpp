@@ -8,6 +8,8 @@
 #include "Graph.h"
 #include "Spasm.h"
 
+
+/**
 TEST(Spasm, generate_spasm_files) {
     for (int k = 1; k <= 7; ++k) {
         std::string filename = "k_" + std::to_string(k) + ".txt";
@@ -20,3 +22,4 @@ TEST(Spasm, generate_File_8) {
     Spasm::create_and_store_Spasm_k_Matching("k_8.txt", 8);
 }
 
+*/
