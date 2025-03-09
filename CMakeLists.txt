@@ -60,7 +60,7 @@ target_link_libraries(Graph_homomorphisms
 ##BOOST
 cmake_policy(SET CMP0167 NEW)
 # Boost suchen (ohne COMPONENTS)
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS thread system)
 
 # Boost Include-Pfad hinzufügen
 target_include_directories(bib PUBLIC ${Boost_INCLUDE_DIRS})

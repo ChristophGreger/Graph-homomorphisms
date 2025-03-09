@@ -132,10 +132,12 @@ TEST(CalcHoms_Christoph, Clique_testing3) {
     ASSERT_EQ(inverted, normal);
 }
 
+//braucht ohne Multithreading 3 Minuten und 5 sec, mit multithreading 26 Sekunden
 TEST(CalcHoms_Christoph, Thesis) {
-    RandomGraphGenerator clique4gen = RandomGraphGenerator(4, 6);
+    RandomGraphGenerator clique4gen = RandomGraphGenerator(6, 15);
     Graph clique4 = clique4gen.generateRandomConnectedGraph();
-    auto normal = CalcHoms::calcNumInjHoms("k_6.txt", clique4, true, false);
-    auto inverted = CalcHoms::calcNumInjHoms("k_6.txt", clique4, true, true);
+    auto normal = CalcHoms::calcNumInjHoms("k_8.txt", clique4, true, false);
+    auto inverted = CalcHoms::calcNumInjHoms("k_8.txt", clique4, true, true);
     cout << "Normal: " << normal << " Inverted: " << inverted << endl;
+    ASSERT_EQ(inverted, normal);
 }
