@@ -121,17 +121,6 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping,
     return dimension;
 }
 
-int CalcHoms::calcNumHomsInvCFI(const Graph& H, const Graph& S, const int* mapping, const pair<int,int> &edge) {
-    auto [matrix, columns] = generateCFI_LSOE(H,S,mapping,edge);
-    //Now we can calculate the dimension of the solution space
-    const int dimension = solution_space_dimension_f2_small_inhomogen(matrix,columns);
-
-    if (dimension > 62) {
-        throw runtime_error("Dimension of solution space was to big for long long");
-    }
-    return dimension;
-}
-
 //returns the number of homs from H to CFI Graph of S, (by trying every possible mapping) (works only for uncolored)
 //Be sure that H has <= 9 vertices and S has maxdegree <= 4
 int256_t CalcHoms::calcNumHomsCFI_uncolored(const Graph &H, const Graph &S, const bool inverted) {
