@@ -13,7 +13,7 @@ using boost::multiprecision::int256_t;
 class CalcHoms {
 public:
     //returns the exponent of the number of homomorphisms from H to S with the mapping as the homomorphism (with base 2)
-    static int calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping);
+    static int calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping, const bool inverted = false, const pair<int,int> &edge = {0,0});
 
     //returns the exponent of the number of homomorphisms from H to the inverted CFI of S
     static int calcNumHomsInvCFI(const Graph& H, const Graph& S, const int* mapping, const pair<int,int> &edge);

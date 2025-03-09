@@ -95,7 +95,7 @@ TEST(CalcHomsTest, calcNumHomsInvCFI) {
 
             int dim = -1;
             try {
-                dim = CalcHoms::calcNumHomsInvCFI(H,S,mapping, S.edgeArray[0]);
+                dim = CalcHoms::calcNumHomsCFI(H,S,mapping, true, S.edgeArray[0]);
             } catch (const std::exception& e) {
                 std::cerr << "Caught exception: " << e.what() << std::endl;
             }
@@ -131,7 +131,7 @@ TEST(CalcHomsTest, calcNumHomsInvCFI2) {
         for (int j = 0; j < S.numVertices; j++) {
             mapping[j] = j;
         }
-        ASSERT_EQ(-1, CalcHoms::calcNumHomsInvCFI(S, S, mapping, S.edgeArray[0]));
+        ASSERT_EQ(-1, CalcHoms::calcNumHomsCFI(S, S, mapping, true, S.edgeArray[0]));
         delete [] mapping;
     }
 }

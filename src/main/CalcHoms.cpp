@@ -103,11 +103,16 @@ LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const i
 //every node in H is mapped to one in S (predecided through mapping disregarding the color)
 //the exact number of homs can be calculated when applying 2^
 //also note that when there are now homs -1 is returned
-int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping) {
+int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping, const bool inverted, const pair<int, int> &edge) {
 
-    auto [matrix, columns] = generateCFI_LSOE(H,S,mapping);
+    auto [matrix, columns] = generateCFI_LSOE(H,S,mapping, edge);
     //Now we can calculate the dimension of the solution space
-    const int dimension = solution_space_dimension_f2_small_homogen(matrix,columns);
+    int dimension;
+    if (inverted) {
+        dimension = solution_space_dimension_f2_small_inhomogen(matrix,columns);
+    } else {
+        dimension = solution_space_dimension_f2_small_homogen(matrix,columns);
+    }
 
     if (dimension > 62) {
         throw runtime_error("Dimension of solution space was to big for long long");
@@ -219,13 +224,9 @@ int256_t CalcHoms::calcNumHomsCFI_uncolored(const Graph &H, const Graph &S, cons
 
                         //Handling the found Hom!
                         //We have to calculate the number of homs from H to CFI(S) with this mapping
-                        if (inverted) {
-                            int exponent = calcNumHomsInvCFI(H, S, hom, edge);
-                            if (exponent > -1) {
-                                total += powBase2(exponent);
-                            }
-                        } else {
-                            total += powBase2(calcNumHomsCFI(H, S, hom));
+                        int exponent = calcNumHomsCFI(H, S, hom, inverted, edge);
+                        if (exponent > -1) {
+                            total += powBase2(exponent);
                         }
                         //END ONLY REAL DIFFERENCE TO COUNTING HOMS
 
