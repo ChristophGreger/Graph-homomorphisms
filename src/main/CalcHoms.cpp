@@ -8,6 +8,8 @@
 #include <linear_Equations_F2_small.h>
 #include "NextInjection.h"
 #include "Spasm.h"
+#include <boost/thread.hpp>
+#include <boost/asio.hpp>
 
 struct LinearSystemOfEquations {
     vector<bitset<128>> matrix;
@@ -247,25 +249,48 @@ int256_t CalcHoms::calcNumHomsCFI_uncolored(const Graph &H, const Graph &S, cons
     return total;
 }
 
+auto mtx = std::mutex();
+
+void fillMap(std::unordered_map<std::string, int256_t> &componentMap, const Graph &graph, const std::string &canon, const Graph &G, const bool CFI, const bool inverted) {
+    int256_t num = 0;
+    if (CFI) {
+        num = CalcHoms::calcNumHomsCFI_uncolored(graph, G, inverted);
+    } else {
+        num = CalcHoms::calcNumHoms(graph, G);
+    }
+
+    // Sicherer Mutex-Schutz
+    std::lock_guard<std::mutex> lock(mtx);
+    componentMap[canon] = num;
+}
+
+
 int256_t CalcHoms::calcNumInjHoms(const std::string &spasm_file_name, const Graph &G, bool CFI_OF_G, bool CFI_inverted) {
+
     auto spasm = Spasm::getFromFile(spasm_file_name);
 
     std::unordered_map<std::string, int256_t> componentMap;
+
+    auto numThreads = boost::thread::physical_concurrency();
+    if (numThreads == 0) {
+        numThreads = 10;
+        cout << "Could not determine number of threads!" << endl;
+    }
+    cout << "Using " << numThreads << " threads" << endl;
+
+    boost::asio::thread_pool pool(numThreads);
 
     for (const auto &comp : spasm.Components) {
         std::string canon = comp.canonicalString;
         Graph graph = comp.Graph;
 
-        if (CFI_OF_G) {
-            if (CFI_inverted) {
-                componentMap.emplace(canon, calcNumHomsCFI_uncolored(graph, G, true));
-            } else {
-                componentMap.emplace(canon, calcNumHomsCFI_uncolored(graph, G));
-            }
-        } else {
-            componentMap.emplace(canon, calcNumHoms(graph, G));
-        }
+        boost::asio::post(pool, [&, canon, graph]() {
+            fillMap(componentMap, graph, canon, G, CFI_OF_G, CFI_inverted);
+        });
     }
+
+    cout << "Waiting for threads to finish!" << endl;
+    pool.join();
 
     int256_t total = 0;
 
