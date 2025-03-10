@@ -15,15 +15,13 @@ public:
     //returns the exponent of the number of homomorphisms from H to S with the mapping as the homomorphism (with base 2)
     static int calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping, const bool inverted = false, const pair<int,int> &edge = {0,0});
 
-    //returns the exponent of the number of homomorphisms from H to the inverted CFI of S
-    static int calcNumHomsInvCFI(const Graph& H, const Graph& S, const int* mapping, const pair<int,int> &edge);
-
     //returns the number of homs from H to CFI Graph of S, (by trying every possible mapping) (works only for uncolored)
     static int256_t calcNumHomsCFI_uncolored(const Graph& H, const Graph& S, const bool inverted = false);
 
     static long long calcNumHoms(const Graph& H, const Graph& G);
     static long long calcNumInjHoms(const Graph &H, const Graph &G);
     static int256_t calcNumInjHoms(const std::string &spasm_file_name, const Graph &G, bool CFI_OF_G = false, bool CFI_inverted = false);
+    static int256_t calcNumAutomorphisms(const Graph &G);
 };
 
 #endif //CALCHOMS_H

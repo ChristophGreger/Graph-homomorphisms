@@ -592,15 +592,13 @@ long long CalcHoms::calcNumInjHoms(const Graph &H, const Graph &G) {
     return numHomomorphisms;
 }
 
+//calc number of automorphisms
+int256_t CalcHoms::calcNumAutomorphisms(const Graph &G) {
+    return CalcHoms::calcNumInjHoms(G, G);
+}
+
 //not tested and not used
 /*
-long long Graph::calculateNumberofAutomorphismsWithoutColoring() {
-    bool oldcolored = colored;
-    colored = false;
-    long long numAutomorphisms = calculateNumberofHomomorphismsTo(*this);
-    colored = oldcolored;
-    return numAutomorphisms;
-}
 
 long long Graph::calculateNumberofAutomorphismsWithColoring() {
     bool oldcolored = colored;
