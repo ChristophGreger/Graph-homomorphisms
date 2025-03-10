@@ -6,6 +6,7 @@
 #include "CalcHoms.h"
 #include "gtest/gtest.h"
 #include "Graph.h"
+#include "RandomGraphGenerator.h"
 #include "Spasm.h"
 
 
@@ -22,4 +23,25 @@ TEST(Spasm, generate_File_8) {
     Spasm::create_and_store_Spasm_k_Matching("k_8.txt", 8);
 }
 
+TEST(Spasm, generate_File_6) {
+    Spasm::create_and_store_Spasm_k_Matching("k_3_neu.txt", 3);
+}
 */
+
+
+
+TEST(Spasm, generateSquare) {
+    GraphTemplate squaret = GraphTemplate(false);
+    for (int i = 0; i < 4; i++) {
+        squaret.addNode(Node());
+    }
+    squaret.addEdge(0, 1);
+    squaret.addEdge(1, 2);
+    squaret.addEdge(2, 3);
+    squaret.addEdge(3, 0);
+    Graph square(squaret);
+    Spasm::create_and_store_Spasm("square.txt", square);
+    RandomGraphGenerator randomS = RandomGraphGenerator(30, 100, false);
+    Graph G = randomS.generateRandomConnectedGraph();
+    ASSERT_EQ(CalcHoms::calcNumInjHoms(square, G), CalcHoms::calcNumInjHoms("square.txt", G));
+}

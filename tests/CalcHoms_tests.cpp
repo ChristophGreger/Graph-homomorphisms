@@ -135,3 +135,19 @@ TEST(CalcHomsTest, calcNumHomsInvCFI2) {
         delete [] mapping;
     }
 }
+
+
+TEST(CalcHomsTest, NumAutomorphisms) {
+    //K-Matching Graphs
+    for (int i = 1; i < 7; i++) {
+        GraphTemplate g = GraphTemplate();
+        for (int j = 0; j < i * 2; j++) {
+            g.addNode(Node());
+        }
+        for (int j = 0; j < i*2; j+=2) {
+            g.addEdge(j, j+1);
+        }
+        Graph G(g);
+        ASSERT_EQ(CalcHoms::calcNumAutomorphisms(G), powBase2(i) * factorial(i));
+    }
+}

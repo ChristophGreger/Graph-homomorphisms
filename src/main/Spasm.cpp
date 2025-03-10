@@ -5,6 +5,8 @@
 #include "Spasm.h"
 #include <fstream>
 #include <sstream>
+
+#include "CalcHoms.h"
 #include "utilities.h"
 #include "Nauty_wrapper.h"
 
@@ -36,13 +38,9 @@ inline std::string getCanonicalString(graph *g, const int numVertices) {
     return oss.str();
 }
 
-void Spasm::create_and_store_Spasm_k_Matching(const std::string &filename, int k) {
-
-    //Construct underlying Graph
-    GraphTemplate underlying;
-    for (int i = 0; i < 2 * k; ++i) underlying.addNode(Node());
-    for (int i = 0; i < k; ++i) underlying.addEdge(2 * i, 2 * i + 1);
-    Graph underlying_Graph = Graph(underlying);
+void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, const int k, const uint256_t &numAutomorphisms) {
+    const int numEdges = G.edges.size();
+    const int numVertices = G.numVertices;
 
     long long total = 0;
 
@@ -50,15 +48,6 @@ void Spasm::create_and_store_Spasm_k_Matching(const std::string &filename, int k
     //pair: first (string) is a string representation of the graph
     //second is the factor
     std::unordered_map<std::string, std::pair<std::string, int256_t>> canonicalMap;
-
-    const int numEdges = k;
-    const int numVertices = 2 * k;
-
-    if (k > 62) {
-        throw runtime_error("k must be less than 63");
-    }
-
-    const uint256_t numAutomorphisms = (1 << k) * factorial(k);
 
     // partition[i] gibt an, zu welchem Block der Knoten i gehört.
     std::vector<int> partition(numVertices, -1);
@@ -81,16 +70,32 @@ void Spasm::create_and_store_Spasm_k_Matching(const std::string &filename, int k
 
             // Für jede Kante im Originalgraphen, die zwei verschiedene Blöcke verbindet,
             // wird im Quotientgraphen eine entsprechende Kante eingefügt.
-            for (int i = 0; i < numVertices; i += 2) {
-                const int bu = partition[i];
-                const int bv = partition[i+1];
+            if (k > 0) { //Fall das man k-Matching machen möchte
+                for (int i = 0; i < numVertices; i += 2) {
+                    const int bu = partition[i];
+                    const int bv = partition[i+1];
 
-                if (ISELEMENT(&g[bu], bv)) {
-                    continue;
+                    if (ISELEMENT(&g[bu], bv)) {
+                        continue;
+                    }
+                    ADDONEEDGE(g, bu, bv, maxm);
+                    edgeArray[numEdgeshere] = std::make_pair(bu, bv);
+                    ++numEdgeshere;
                 }
-                ADDONEEDGE(g, bu, bv, maxm);
-                edgeArray[numEdgeshere] = std::make_pair(bu, bv);
-                ++numEdgeshere;
+            } else { //Normaler Fall
+                for (auto [fst, snd] : G.edges) {
+                    const int u = fst;
+                    const int v = snd;
+                    const int bu = partition[u];
+                    const int bv = partition[v];
+
+                    if (ISELEMENT(&g[bu], bv)) {
+                        continue;
+                    }
+                    ADDONEEDGE(g, bu, bv, maxm);
+                    edgeArray[numEdgeshere] = std::make_pair(bu, bv);
+                    ++numEdgeshere;
+                }
             }
             // Berechne die kanonische Form des Quotientgraphen.
 
@@ -137,31 +142,31 @@ void Spasm::create_and_store_Spasm_k_Matching(const std::string &filename, int k
         for (int block = 0; block <= currentMax; block++) {
             bool valid = true;
 
+
             // Überprüfe, ob das Hinzufügen in Block 'block' zu einer Self-Loop (Kante innerhalb des Blocks) führen würde.
-            /**for (int v = 0; v < vertex; v++) {
-                if (partition[v] == block) {
-                    if (isEdgebySet(v, vertex)) {
+
+            if (k > 0) {
+                if (vertex % 2 == 1) {
+                    if (partition[vertex - 1] == block) {
+                        valid = false;
+                    }
+
+                } else {
+                    if (partition[vertex + 1] == block) {
+                        valid = false;
+                    }
+
+                }
+            } else {
+                for (const int v : G.neighbours[vertex]) {
+                    if (partition[v] == block) {
                         valid = false;
                         break;
                     }
                 }
             }
-            **/
 
-            //Hier jetzt auf K-Matching optimiert:
-            if (vertex % 2 == 1) {
-                if (partition[vertex - 1] == block) {
-                    valid = false;
-                }
 
-            } else {
-                if (partition[vertex + 1] == block) {
-                    valid = false;
-                }
-
-            }
-
-            //Ende K Matching Optimierung
 
             if (!valid) continue;
             partition[vertex] = block;
@@ -211,7 +216,7 @@ void Spasm::create_and_store_Spasm_k_Matching(const std::string &filename, int k
     }
 
     Spasm spasm;
-    spasm.underlying_Graph = underlying_Graph;
+    spasm.underlying_Graph = G;
     spasm.numAutomorphisms = numAutomorphisms;
 
     std::unordered_map<std::string, Graph> canonical_SmallMap; //Maps canonical Strings of the Components to a graph
@@ -246,6 +251,25 @@ void Spasm::create_and_store_Spasm_k_Matching(const std::string &filename, int k
     }
 
     writeToFile(filename, spasm);
+}
+
+
+void Spasm::create_and_store_Spasm_k_Matching(const std::string &filename, int k) {
+
+    if (k > 62 || k < 1) {
+        throw runtime_error("k must be between 1 and 62");
+    }
+
+    //Construct underlying Graph
+    GraphTemplate underlying;
+    for (int i = 0; i < 2 * k; ++i) underlying.addNode(Node());
+    for (int i = 0; i < k; ++i) underlying.addEdge(2 * i, 2 * i + 1);
+    Graph underlying_Graph = Graph(underlying);
+
+
+    const uint256_t numAutomorphisms = (1 << k) * factorial(k);
+
+    create_and_store_Spasm(filename, underlying_Graph, k, numAutomorphisms);
 }
 
 void Spasm::writeToFile(const std::string &output_file, const Spasm &spasm) {
