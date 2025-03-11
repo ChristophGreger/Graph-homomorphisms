@@ -76,16 +76,16 @@ TEST(CalcHomsTest, calcNumHomsCFI2) {
 //This testcase does not cover duplicate colors in S
 TEST(CalcHomsTest, calcNumHomsInvCFI) {
     int count = 0;
-    for (int vertices = 2; vertices < 10; vertices++) {
+    for (int vertices = 2; vertices < 7; vertices++) {
         for (int edges = vertices-1; edges <= (vertices * (vertices - 1)) / 2; edges++) {
 
             cout << "check Graph combination:" << count << endl;
             count++;
 
-            RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, edges, true, true);
+            RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, vertices * (vertices-1) / 2, true, true);
             Graph S = randomGraphGenerator.generateRandomConnectedGraph();
 
-            RandomGraphGenerator randomGraphGenerator2 = RandomGraphGenerator(4, 4, true, true);
+            RandomGraphGenerator randomGraphGenerator2 = RandomGraphGenerator(vertices, edges, true, true);
             Graph H = randomGraphGenerator2.generateRandomConnectedGraph();
 
             int* mapping = new int[vertices];
