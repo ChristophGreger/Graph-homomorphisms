@@ -15,6 +15,7 @@
 struct LinearSystemOfEquations {
     vector<bitset<128>> matrix;
     int columns;
+    bitset<128> skipColumn = bitset<128>();
 };
 
 LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const int* mapping, const pair<int,int> &edge = {0,0}) {
@@ -96,7 +97,8 @@ LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const i
         ++currentRow;
     }
 
-    LinearSystemOfEquations result = {matrix, columns};
+    bitset<128> skipColumn = bitset<128>();
+    LinearSystemOfEquations result = {matrix, columns, skipColumn};
     return result;
 }
 
@@ -127,11 +129,16 @@ LinearSystemOfEquations generateCFI_LSOE2(const Graph& H, const Graph& S, const 
     //Now columns is the number of columns in the matrix
 
     //UNION FIND INIT
+    bitset<128> skipColumn = bitset<128>();
 
     vector<int> parent(columns);
     vector<int> rank(columns);
 
     boost::disjoint_sets<int*,int*> ds(&rank[0], &parent[0]);
+
+    for (int i = 0; i < columns; ++i) {
+        ds.make_set(i);
+    }
 
     //UNION FIND INIT
 
@@ -169,7 +176,17 @@ LinearSystemOfEquations generateCFI_LSOE2(const Graph& H, const Graph& S, const 
         const int var1 = indexMapping[first].first + firstIndex;
         const int var2 = indexMapping[second].first + secondIndex;
 
+        if (var1 < var2) {
+            skipColumn[var1] = true;
+        }else {
+            skipColumn[var2] = true;
+        }
+
         ds.union_set(var1, var2);
+    }
+
+    for (int i = 0; i < columns; ++i) {
+        cout << i << ":" << ds.find_set(i) << endl;
     }
 
     //UNION FIND combine variables
@@ -184,11 +201,11 @@ LinearSystemOfEquations generateCFI_LSOE2(const Graph& H, const Graph& S, const 
     //Fill with the even subset guarantee
     for (int i = 0; i < H.numVertices; i++) {
         for(int j = indexMapping[i].first; j < indexMapping[i].second; j++) {
-            matrix[i][j] = 1;
+            matrix[i][ds.find_set(j)] = 1;
         }
     }
 
-    LinearSystemOfEquations result = {matrix, columns};
+    LinearSystemOfEquations result = {matrix, columns, skipColumn};
     return result;
 }
 
@@ -198,7 +215,8 @@ LinearSystemOfEquations generateCFI_LSOE2(const Graph& H, const Graph& S, const 
 //also note that when there are now homs -1 is returned
 int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping, const bool inverted, const pair<int, int> &edge) {
 
-    auto [matrix, columns] = generateCFI_LSOE(H,S,mapping, edge);
+    auto [matrix, columns, skipColumns] = generateCFI_LSOE(H,S,mapping, edge);
+
     //Now we can calculate the dimension of the solution space
     int dimension;
     if (inverted) {
@@ -216,13 +234,30 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping,
 
 int CalcHoms::calcNumHomsCFI2(const Graph& H, const Graph& S, const int* mapping, const bool inverted, const pair<int, int> &edge) {
 
-    auto [matrix, columns] = generateCFI_LSOE2(H,S,mapping, edge);
+    auto [matrix, columns, skipColumns] = generateCFI_LSOE2(H,S,mapping, edge);
+
+    cout << "---" << endl;
+    //print linear system of equations
+    for (int row = 0; row < matrix.size(); ++row) {
+        const bitset<128> mask = matrix[row];
+        for (int col = 0; col < columns; ++col) {
+            cout << mask[col];
+        }
+        cout << endl;
+    }
+    cout << "---" << endl;
+    for (int i = 0; i < skipColumns.size(); ++i) {
+        cout << skipColumns[i];
+    }
+    cout << endl;
+    cout << "---" << endl;
+
     //Now we can calculate the dimension of the solution space
     int dimension;
     if (inverted) {
         dimension = solution_space_dimension_f2_small_inhomogen(matrix,columns);
     } else {
-        dimension = solution_space_dimension_f2_small_homogen(matrix,columns);
+        dimension = solution_space_dimension_f2_small_homogen(matrix,columns, skipColumns);
     }
 
     if (dimension > 62) {

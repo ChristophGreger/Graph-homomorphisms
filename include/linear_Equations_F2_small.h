@@ -14,11 +14,17 @@
 // Rückgabewert: Dimension des Lösungsraumes = num_vars - Rang der Matrix
 //Die nicht genutzen bit (weil num_vars < 128) werden nicht berücksichtigt.
 //Die benutzen variablen müssen die ersten num_vars bit sein.
-inline int solution_space_dimension_f2_small_homogen(std::vector<std::bitset<128>> mat, const int num_vars) {
+inline int solution_space_dimension_f2_small_homogen(std::vector<std::bitset<128>> mat, const int num_vars, std::bitset<128> skipColumn = std::bitset<128>()) {
     int m = static_cast<int>(mat.size());
     int rank = 0;
+    int real_num_vars = 0;
     // Iteriere über alle Spalten (Variablen) und führe Eliminierung durch
     for (int col = 0; col < num_vars && rank < m; ++col) {
+        if (skipColumn[col]) {
+            std::cout << "skipColumn[col]:" << skipColumn[col] << std::endl;
+            continue;
+        }
+        real_num_vars += 1;
         // Suche die Zeile mit einem Pivot in der aktuellen Spalte
         int pivot = rank;
         while (pivot < m && !mat[pivot].test(col))
@@ -35,7 +41,7 @@ inline int solution_space_dimension_f2_small_homogen(std::vector<std::bitset<128
         ++rank;
     }
     // Die Dimension des Lösungsraumes ist (Anzahl der Variablen - Rang)
-    return num_vars - rank;
+    return real_num_vars - rank;
 }
 
 
