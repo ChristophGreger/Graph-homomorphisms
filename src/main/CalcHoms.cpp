@@ -103,7 +103,7 @@ LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const i
     return result;
 }
 
-LinearSystemOfEquations generateCFI_LSOE2(const Graph& H, const Graph& S, const int* mapping, const pair<int,int> &edge = {0,0}) {
+LinearSystemOfEquations generateCFI_LSOE2(const Graph& H, const Graph& S, const int* mapping, const int vertice) {
 
     const auto& neighborsS = S.neighbours;
     const auto& degS = S.degree;
@@ -201,6 +201,10 @@ LinearSystemOfEquations generateCFI_LSOE2(const Graph& H, const Graph& S, const 
         for(int j = indexMapping[i].first; j < indexMapping[i].second; j++) {
             matrix[i][ds.find_set(j)] = 1;
         }
+        //uneven subset guarantee
+        if (mapping[i] == vertice) {
+            matrix[i][columns] = 1;
+        }
     }
 
     LinearSystemOfEquations result = {matrix, columns, skipColumn, numVars};
@@ -218,7 +222,7 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping,
     //Now we can calculate the dimension of the solution space
     int dimension;
     if (inverted) {
-        dimension = solution_space_dimension_f2_small_inhomogen(matrix,columns);
+        dimension = solution_space_dimension_f2_small_inhomogen(matrix,columns, skipColumns, numVars);
     } else {
         dimension = solution_space_dimension_f2_small_homogen(matrix,columns, skipColumns, numVars);
     }
@@ -230,14 +234,14 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping,
     return dimension;
 }
 
-int CalcHoms::calcNumHomsCFI2(const Graph& H, const Graph& S, const int* mapping, const bool inverted, const pair<int, int> &edge) {
+int CalcHoms::calcNumHomsCFI2(const Graph& H, const Graph& S, const int* mapping, const bool inverted, const int vertice) {
 
-    auto [matrix, columns, skipColumns, numVars] = generateCFI_LSOE2(H,S,mapping, edge);
+    auto [matrix, columns, skipColumns, numVars] = generateCFI_LSOE2(H,S,mapping, vertice);
 
     //Now we can calculate the dimension of the solution space
     int dimension;
     if (inverted) {
-        dimension = solution_space_dimension_f2_small_inhomogen(matrix,columns);
+        dimension = solution_space_dimension_f2_small_inhomogen(matrix,columns, skipColumns, numVars);
     } else {
         dimension = solution_space_dimension_f2_small_homogen(matrix,columns, skipColumns, numVars);
     }

@@ -48,11 +48,12 @@ inline int solution_space_dimension_f2_small_homogen(std::vector<std::bitset<128
 // Bit num_vars enthält den rechten Seitenwert (b).
 // num_vars sollte daher maximal 127 betragen.
 // Rückgabewert: Dimension des Lösungsraumes (bei Konsistenz) oder -1, falls das System inkonsistent ist.
-inline int solution_space_dimension_f2_small_inhomogen(std::vector<std::bitset<128>> mat, const int num_vars) {
+inline int solution_space_dimension_f2_small_inhomogen(std::vector<std::bitset<128>> mat, const int columns, bitset<128> skipColumn, const int numVars) {
     const int m = static_cast<int>(mat.size());
     int rank = 0;
 
-    for (int col = 0; col < num_vars && rank < m; ++col) {
+    for (int col = 0; col < columns && rank < m; ++col) {
+        if (skipColumn[col]) {continue;}
         int pivot = rank;
         while (pivot < m && !mat[pivot].test(col))
             ++pivot;
@@ -69,15 +70,15 @@ inline int solution_space_dimension_f2_small_inhomogen(std::vector<std::bitset<1
     }
 
     std::bitset<128> var_mask;
-    for (int i = 0; i < num_vars; ++i)
+    for (int i = 0; i < columns; ++i)
         var_mask.set(i);
 
     for (int i = rank; i < m; ++i) {
-        if ((mat[i] & var_mask).none() && mat[i].test(num_vars))
+        if ((mat[i] & var_mask).none() && mat[i].test(columns))
             return -1; // Inkonsistent
     }
 
-    return num_vars - rank;
+    return numVars - rank;
 }
 
 #endif //LINEAR_EQUATIONS_F2_SMALL_H

@@ -74,18 +74,18 @@ TEST(CalcHomsTest, calcNumHomsCFI1_2) {
 //Check Graphs up to 10 vertices
 //A Graph with 4 nodes and 4 edges is mapped into the CFI of a random Graph S
 //This testcase does not cover duplicate colors in S
-TEST(CalcHomsTest, calcNumHomsInvCFI) {
+TEST(CalcHomsTest, calcNumHomsInvCFI1_1) {
     int count = 0;
-    for (int vertices = 2; vertices < 10; vertices++) {
+    for (int vertices = 2; vertices < 8; vertices++) {
         for (int edges = vertices-1; edges <= (vertices * (vertices - 1)) / 2; edges++) {
 
             cout << "check Graph combination:" << count << endl;
             count++;
 
-            RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, edges, true, true);
+            RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, vertices * (vertices-1)/2, true, true);
             Graph S = randomGraphGenerator.generateRandomConnectedGraph();
 
-            RandomGraphGenerator randomGraphGenerator2 = RandomGraphGenerator(4, 4, true, true);
+            RandomGraphGenerator randomGraphGenerator2 = RandomGraphGenerator(vertices, edges, true, true);
             Graph H = randomGraphGenerator2.generateRandomConnectedGraph();
 
             int* mapping = new int[vertices];
@@ -123,7 +123,7 @@ TEST(CalcHomsTest, calcNumHomsInvCFI) {
 }
 
 
-TEST(CalcHomsTest, calcNumHomsInvCFI2) {
+TEST(CalcHomsTest, calcNumHomsInvCFI1_2) {
     RandomGraphGenerator Sgen = RandomGraphGenerator(10, 15, true, true);
     for (int i = 0; i < 100; i++) {
         auto S = Sgen.generateRandomConnectedGraph();
@@ -212,5 +212,66 @@ TEST(CalcHomsTest, calcNumHomsCFI2_2) {
             int expected = (edges - vertices + 1);
             ASSERT_EQ(dim, expected);
         }
+    }
+}
+
+TEST(CalcHomsTest, calcNumHomsInvCFI2_1) {
+    int count = 0;
+    for (int vertices = 2; vertices < 8; vertices++) {
+        for (int edges = vertices-1; edges <= (vertices * (vertices - 1)) / 2; edges++) {
+
+            cout << "check Graph combination:" << count << endl;
+            count++;
+
+            RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, vertices * (vertices-1)/2, true, true);
+            Graph S = randomGraphGenerator.generateRandomConnectedGraph();
+
+            RandomGraphGenerator randomGraphGenerator2 = RandomGraphGenerator(vertices, edges, true, true);
+            Graph H = randomGraphGenerator2.generateRandomConnectedGraph();
+
+            int* mapping = new int[vertices];
+            for (int j = 0; j < vertices; j++) {
+                mapping[j] = j;
+            }
+
+            int dim = -1;
+            try {
+                dim = CalcHoms::calcNumHomsCFI2(H,S,mapping, true, 0);
+            } catch (const std::exception& e) {
+                std::cerr << "Caught exception: " << e.what() << std::endl;
+            }
+
+            if (dim != -1) {
+                cout << "dim:" << dim << endl;
+                cout << "S:" << endl;
+                S.printGraph();
+                cout << "H:" << endl;
+                H.printGraph();
+            }
+            long long result = 0;
+            if (dim != -1) {
+                result = intPow(2,dim);
+            }
+
+            CFIGraph CFI = CFIGraph(S, true);
+            Graph G = CFI.toGraph();
+            long long expected = CalcHoms::calcNumHoms(H,G);
+
+            ASSERT_EQ(result, expected);
+
+        }
+    }
+}
+
+TEST(CalcHomsTest, calcNumHomsInvCFI2_2) {
+    RandomGraphGenerator Sgen = RandomGraphGenerator(10, 15, true, true);
+    for (int i = 0; i < 100; i++) {
+        auto S = Sgen.generateRandomConnectedGraph();
+        int* mapping = new int[S.numVertices];
+        for (int j = 0; j < S.numVertices; j++) {
+            mapping[j] = j;
+        }
+        ASSERT_EQ(-1, CalcHoms::calcNumHomsCFI2(S, S, mapping, true, 0));
+        delete [] mapping;
     }
 }
