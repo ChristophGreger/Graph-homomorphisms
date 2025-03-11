@@ -16,6 +16,7 @@ struct LinearSystemOfEquations {
     vector<bitset<128>> matrix;
     int columns;
     bitset<128> skipColumn = bitset<128>();
+    int numVars = 0;
 };
 
 LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const int* mapping, const pair<int,int> &edge = {0,0}) {
@@ -98,7 +99,7 @@ LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const i
     }
 
     bitset<128> skipColumn = bitset<128>();
-    LinearSystemOfEquations result = {matrix, columns, skipColumn};
+    LinearSystemOfEquations result = {matrix, columns, skipColumn, columns};
     return result;
 }
 
@@ -144,6 +145,8 @@ LinearSystemOfEquations generateCFI_LSOE2(const Graph& H, const Graph& S, const 
 
     //UNION FIND combine variables
 
+    int numVars = columns;
+
     //Same opinion on the mapped edge
     for (const auto [first,second] : H.edges) {
         //We have to find the index that the two nodes are affiliated with
@@ -183,6 +186,7 @@ LinearSystemOfEquations generateCFI_LSOE2(const Graph& H, const Graph& S, const 
         }
 
         ds.union_set(var1, var2);
+        numVars -= 1;
     }
 
     for (int i = 0; i < columns; ++i) {
@@ -205,7 +209,7 @@ LinearSystemOfEquations generateCFI_LSOE2(const Graph& H, const Graph& S, const 
         }
     }
 
-    LinearSystemOfEquations result = {matrix, columns, skipColumn};
+    LinearSystemOfEquations result = {matrix, columns, skipColumn, numVars};
     return result;
 }
 
@@ -215,14 +219,14 @@ LinearSystemOfEquations generateCFI_LSOE2(const Graph& H, const Graph& S, const 
 //also note that when there are now homs -1 is returned
 int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping, const bool inverted, const pair<int, int> &edge) {
 
-    auto [matrix, columns, skipColumns] = generateCFI_LSOE(H,S,mapping, edge);
+    auto [matrix, columns, skipColumns, numVars] = generateCFI_LSOE(H,S,mapping, edge);
 
     //Now we can calculate the dimension of the solution space
     int dimension;
     if (inverted) {
         dimension = solution_space_dimension_f2_small_inhomogen(matrix,columns);
     } else {
-        dimension = solution_space_dimension_f2_small_homogen(matrix,columns);
+        dimension = solution_space_dimension_f2_small_homogen(matrix,columns, skipColumns, numVars);
     }
 
     if (dimension > 62) {
@@ -234,9 +238,9 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping,
 
 int CalcHoms::calcNumHomsCFI2(const Graph& H, const Graph& S, const int* mapping, const bool inverted, const pair<int, int> &edge) {
 
-    auto [matrix, columns, skipColumns] = generateCFI_LSOE2(H,S,mapping, edge);
+    auto [matrix, columns, skipColumns, numVars] = generateCFI_LSOE2(H,S,mapping, edge);
 
-    cout << "---" << endl;
+    cout << "---Matrix---" << endl;
     //print linear system of equations
     for (int row = 0; row < matrix.size(); ++row) {
         const bitset<128> mask = matrix[row];
@@ -245,11 +249,13 @@ int CalcHoms::calcNumHomsCFI2(const Graph& H, const Graph& S, const int* mapping
         }
         cout << endl;
     }
-    cout << "---" << endl;
+    cout << "---skipColumns---" << endl;
     for (int i = 0; i < skipColumns.size(); ++i) {
         cout << skipColumns[i];
     }
     cout << endl;
+    cout << "---numVars---" << endl;
+    cout << numVars << endl;
     cout << "---" << endl;
 
     //Now we can calculate the dimension of the solution space
@@ -257,7 +263,7 @@ int CalcHoms::calcNumHomsCFI2(const Graph& H, const Graph& S, const int* mapping
     if (inverted) {
         dimension = solution_space_dimension_f2_small_inhomogen(matrix,columns);
     } else {
-        dimension = solution_space_dimension_f2_small_homogen(matrix,columns, skipColumns);
+        dimension = solution_space_dimension_f2_small_homogen(matrix,columns, skipColumns, numVars);
     }
 
     if (dimension > 62) {
