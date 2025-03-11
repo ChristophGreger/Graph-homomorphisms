@@ -20,7 +20,6 @@ inline int solution_space_dimension_f2_small_homogen(std::vector<std::bitset<128
     // Iteriere über alle Spalten (Variablen) und führe Eliminierung durch
     for (int col = 0; col < num_vars && rank < m; ++col) {
         if (skipColumn[col]) {
-            std::cout << "skipColumn[col]:" << skipColumn[col] << std::endl;
             continue;
         }
         // Suche die Zeile mit einem Pivot in der aktuellen Spalte

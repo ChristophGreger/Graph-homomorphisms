@@ -105,8 +105,6 @@ LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const i
 
 LinearSystemOfEquations generateCFI_LSOE2(const Graph& H, const Graph& S, const int* mapping, const pair<int,int> &edge = {0,0}) {
 
-    cout << "generateCFI_LSOE2" << endl;
-
     const auto& neighborsS = S.neighbours;
     const auto& degS = S.degree;
 
@@ -189,10 +187,6 @@ LinearSystemOfEquations generateCFI_LSOE2(const Graph& H, const Graph& S, const 
         numVars -= 1;
     }
 
-    for (int i = 0; i < columns; ++i) {
-        cout << i << ":" << ds.find_set(i) << endl;
-    }
-
     //UNION FIND combine variables
 
     //H.numVertices -> even subset guarantee for the mapped node
@@ -239,24 +233,6 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping,
 int CalcHoms::calcNumHomsCFI2(const Graph& H, const Graph& S, const int* mapping, const bool inverted, const pair<int, int> &edge) {
 
     auto [matrix, columns, skipColumns, numVars] = generateCFI_LSOE2(H,S,mapping, edge);
-
-    cout << "---Matrix---" << endl;
-    //print linear system of equations
-    for (int row = 0; row < matrix.size(); ++row) {
-        const bitset<128> mask = matrix[row];
-        for (int col = 0; col < columns; ++col) {
-            cout << mask[col];
-        }
-        cout << endl;
-    }
-    cout << "---skipColumns---" << endl;
-    for (int i = 0; i < skipColumns.size(); ++i) {
-        cout << skipColumns[i];
-    }
-    cout << endl;
-    cout << "---numVars---" << endl;
-    cout << numVars << endl;
-    cout << "---" << endl;
 
     //Now we can calculate the dimension of the solution space
     int dimension;
