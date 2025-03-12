@@ -12,13 +12,6 @@
 #include <boost/thread.hpp>
 #include <boost/asio.hpp>
 
-struct LinearSystemOfEquations {
-    vector<bitset<128>> matrix;
-    int columns;
-    bitset<128> skipColumn = bitset<128>();
-    int numVars = 0;
-};
-
 LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const int* mapping, const pair<int,int> &edge = {0,0}) {
 
     const auto& neighborsS = S.neighbours;
@@ -217,14 +210,14 @@ LinearSystemOfEquations generateCFI_LSOE2(const Graph& H, const Graph& S, const 
 //also note that when there are now homs -1 is returned
 int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping, const bool inverted, const pair<int, int> &edge) {
 
-    auto [matrix, columns, skipColumns, numVars] = generateCFI_LSOE(H,S,mapping, edge);
+    auto lsoe = generateCFI_LSOE(H,S,mapping, edge);
 
     //Now we can calculate the dimension of the solution space
     int dimension;
     if (inverted) {
-        dimension = solution_space_dimension_f2_small_inhomogen(matrix,columns, skipColumns, numVars);
+        dimension = solution_space_dimension_f2_small_inhomogen(lsoe);
     } else {
-        dimension = solution_space_dimension_f2_small_homogen(matrix,columns, skipColumns, numVars);
+        dimension = solution_space_dimension_f2_small_homogen(lsoe);
     }
 
     if (dimension > 62) {
@@ -236,14 +229,14 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping,
 
 int CalcHoms::calcNumHomsCFI2(const Graph& H, const Graph& S, const int* mapping, const bool inverted, const int vertice) {
 
-    auto [matrix, columns, skipColumns, numVars] = generateCFI_LSOE2(H,S,mapping, vertice);
+    auto lsoe = generateCFI_LSOE2(H,S,mapping, vertice);
 
     //Now we can calculate the dimension of the solution space
     int dimension;
     if (inverted) {
-        dimension = solution_space_dimension_f2_small_inhomogen(matrix,columns, skipColumns, numVars);
+        dimension = solution_space_dimension_f2_small_inhomogen(lsoe);
     } else {
-        dimension = solution_space_dimension_f2_small_homogen(matrix,columns, skipColumns, numVars);
+        dimension = solution_space_dimension_f2_small_homogen(lsoe);
     }
 
     if (dimension > 62) {

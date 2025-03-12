@@ -8,17 +8,25 @@
 #include <bitset>
 #include <vector>
 
+struct LinearSystemOfEquations {
+    vector<bitset<128>> matrix;
+    int columns;
+    bitset<128> skipColumn = bitset<128>();
+    int numVars = 0;
+};
+
 // Berechnet die Dimension des Lösungsraumes eines homogenen linearen Gleichungssystems in GF(2)
 // mat: Vektor von bitset-Repräsentationen der Gleichungen (jede Zeile ist eine Gleichung)
 // num_vars: Anzahl der Variablen (maximal 128)
 // Rückgabewert: Dimension des Lösungsraumes = num_vars - Rang der Matrix
 //Die nicht genutzen bit (weil num_vars < 128) werden nicht berücksichtigt.
 //Die benutzen variablen müssen die ersten num_vars bit sein.
-inline int solution_space_dimension_f2_small_homogen(std::vector<std::bitset<128>> mat, const int num_vars, std::bitset<128> skipColumn = std::bitset<128>(), const int realNumVars = 0) {
+inline int solution_space_dimension_f2_small_homogen(LinearSystemOfEquations lsoe) {
+    auto& [mat, columns, skipColumn, numVars] = lsoe;
     int m = static_cast<int>(mat.size());
     int rank = 0;
     // Iteriere über alle Spalten (Variablen) und führe Eliminierung durch
-    for (int col = 0; col < num_vars && rank < m; ++col) {
+    for (int col = 0; col < columns && rank < m; ++col) {
         if (skipColumn[col]) {
             continue;
         }
@@ -38,7 +46,7 @@ inline int solution_space_dimension_f2_small_homogen(std::vector<std::bitset<128
         ++rank;
     }
     // Die Dimension des Lösungsraumes ist (Anzahl der Variablen - Rang)
-    return realNumVars - rank;
+    return numVars - rank;
 }
 
 
@@ -48,7 +56,8 @@ inline int solution_space_dimension_f2_small_homogen(std::vector<std::bitset<128
 // Bit num_vars enthält den rechten Seitenwert (b).
 // num_vars sollte daher maximal 127 betragen.
 // Rückgabewert: Dimension des Lösungsraumes (bei Konsistenz) oder -1, falls das System inkonsistent ist.
-inline int solution_space_dimension_f2_small_inhomogen(std::vector<std::bitset<128>> mat, const int columns, bitset<128> skipColumn, const int numVars) {
+inline int solution_space_dimension_f2_small_inhomogen(LinearSystemOfEquations lsoe) {
+    auto& [mat,columns,skipColumn,numVars] = lsoe;
     const int m = static_cast<int>(mat.size());
     int rank = 0;
 
