@@ -275,3 +275,102 @@ TEST(CalcHomsTest, calcNumHomsInvCFI2_2) {
         delete [] mapping;
     }
 }
+
+//SECTION: speed comparison
+
+TEST(CalcHomsTest, speedComparisonCFI) {
+
+    for (int vertices = 2; vertices < 12; vertices++) {
+
+        long long durationCFI1 = 0;
+        long long durationCFI2 = 0;
+
+        for (int times = 0; times < 10; times++) {
+            for (int edges = vertices-1; edges <= (vertices * (vertices - 1)) / 2; edges++) {
+                RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, edges, true, true);
+                Graph S = randomGraphGenerator.generateRandomConnectedGraph();
+                int* mapping = new int[vertices];
+                for (int j = 0; j < vertices; j++) {
+                    mapping[j] = j;
+                }
+
+                auto start1 = std::chrono::high_resolution_clock::now();
+                int dim1 = CalcHoms::calcNumHomsCFI(S, S, mapping);
+                auto end1 = std::chrono::high_resolution_clock::now();
+                auto duration1 = std::chrono::duration_cast<std::chrono::nanoseconds>(end1 - start1);
+                durationCFI1 += duration1.count();
+
+                auto start2 = std::chrono::high_resolution_clock::now();
+                int dim2 = CalcHoms::calcNumHomsCFI2(S, S, mapping);
+                auto end2 = std::chrono::high_resolution_clock::now();
+                auto duration2 = std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - start2);
+                durationCFI2 += duration2.count();
+
+                int expected = (edges - vertices + 1);
+                ASSERT_EQ(dim1, expected);
+                ASSERT_EQ(dim1,dim2);
+            }
+        }
+
+        std::cout << "Execution time for vertices = " << vertices
+        << " CFI1: " << durationCFI1 << " nanoseconds"
+        << " CFI2: " << durationCFI2 << " nanoseconds";
+
+        if (durationCFI2 < durationCFI1) {
+            std::cout << " FASTER ";
+        }
+
+        std::cout << std::endl;
+    }
+}
+
+TEST(CalcHomsTest, speedComparisonInvCFI) {
+
+    for (int vertices = 2; vertices < 10; vertices++) {
+
+        long long totalDuration1 = 0;
+        long long totalDuration2 = 0;
+
+        for (int edges = vertices-1; edges <= (vertices * (vertices - 1)) / 2; edges++) {
+
+            RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, vertices * (vertices-1)/2, true, true);
+            Graph S = randomGraphGenerator.generateRandomConnectedGraph();
+
+            RandomGraphGenerator randomGraphGenerator2 = RandomGraphGenerator(vertices, edges, true, true);
+            Graph H = randomGraphGenerator2.generateRandomConnectedGraph();
+
+            int* mapping = new int[vertices];
+            for (int j = 0; j < vertices; j++) {
+                mapping[j] = j;
+            }
+
+            auto start1 = std::chrono::high_resolution_clock::now();
+
+            CalcHoms::calcNumHomsCFI(H,S,mapping, true, S.edgeArray[0]);
+
+            auto end1 = std::chrono::high_resolution_clock::now();
+            auto duration1 = std::chrono::duration_cast<std::chrono::nanoseconds>(end1 - start1);
+            totalDuration1 += duration1.count();
+
+
+            auto start2 = std::chrono::high_resolution_clock::now();
+
+            CalcHoms::calcNumHomsCFI2(H,S,mapping, true, 0);
+
+            auto end2 = std::chrono::high_resolution_clock::now();
+            auto duration2 = std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - start2);
+            totalDuration2 += duration2.count();
+
+        }
+
+        std::cout << "Execution time for H.vertices = " << vertices
+            << " CFI1: " << totalDuration1 << " nanoseconds"
+            << " CFI2: " << totalDuration2 << " nanoseconds";
+
+        if (totalDuration2 < totalDuration1) {
+            std::cout << " FASTER ";
+        }
+
+        std::cout << std::endl;
+    }
+}
