@@ -11,8 +11,6 @@
 struct LinearSystemOfEquations {
     vector<bitset<128>> matrix;
     int columns;
-    bitset<128> skipColumn = bitset<128>();
-    int numVars = 0;
 };
 
 // Berechnet die Dimension des Lösungsraumes eines homogenen linearen Gleichungssystems in GF(2)
@@ -22,14 +20,11 @@ struct LinearSystemOfEquations {
 //Die nicht genutzen bit (weil num_vars < 128) werden nicht berücksichtigt.
 //Die benutzen variablen müssen die ersten num_vars bit sein.
 inline int solution_space_dimension_f2_small_homogen(LinearSystemOfEquations lsoe) {
-    auto& [mat, columns, skipColumn, numVars] = lsoe;
+    auto& [mat, columns] = lsoe;
     int m = static_cast<int>(mat.size());
     int rank = 0;
     // Iteriere über alle Spalten (Variablen) und führe Eliminierung durch
     for (int col = 0; col < columns && rank < m; ++col) {
-        if (skipColumn[col]) {
-            continue;
-        }
         // Suche die Zeile mit einem Pivot in der aktuellen Spalte
         int pivot = rank;
         while (pivot < m && !mat[pivot].test(col))
@@ -46,7 +41,7 @@ inline int solution_space_dimension_f2_small_homogen(LinearSystemOfEquations lso
         ++rank;
     }
     // Die Dimension des Lösungsraumes ist (Anzahl der Variablen - Rang)
-    return numVars - rank;
+    return columns - rank;
 }
 
 
@@ -57,12 +52,11 @@ inline int solution_space_dimension_f2_small_homogen(LinearSystemOfEquations lso
 // num_vars sollte daher maximal 127 betragen.
 // Rückgabewert: Dimension des Lösungsraumes (bei Konsistenz) oder -1, falls das System inkonsistent ist.
 inline int solution_space_dimension_f2_small_inhomogen(LinearSystemOfEquations lsoe) {
-    auto& [mat,columns,skipColumn,numVars] = lsoe;
+    auto& [mat,columns] = lsoe;
     const int m = static_cast<int>(mat.size());
     int rank = 0;
 
     for (int col = 0; col < columns && rank < m; ++col) {
-        if (skipColumn[col]) {continue;}
         int pivot = rank;
         while (pivot < m && !mat[pivot].test(col))
             ++pivot;
@@ -87,7 +81,7 @@ inline int solution_space_dimension_f2_small_inhomogen(LinearSystemOfEquations l
             return -1; // Inkonsistent
     }
 
-    return numVars - rank;
+    return columns - rank;
 }
 
 #endif //LINEAR_EQUATIONS_F2_SMALL_H

@@ -91,8 +91,7 @@ LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const i
         ++currentRow;
     }
 
-    bitset<128> skipColumn = bitset<128>();
-    LinearSystemOfEquations result = {matrix, columns, skipColumn, columns};
+    LinearSystemOfEquations result = {matrix, columns};
     return result;
 }
 
@@ -121,8 +120,6 @@ LinearSystemOfEquations generateCFI_LSOE2(const Graph& H, const Graph& S, const 
     //Now columns is the number of columns in the matrix
 
     //UNION FIND INIT
-    bitset<128> skipColumn = bitset<128>();
-
     vector<int> parent(columns);
     vector<int> rank(columns);
 
@@ -170,17 +167,26 @@ LinearSystemOfEquations generateCFI_LSOE2(const Graph& H, const Graph& S, const 
         const int var1 = indexMapping[first].first + firstIndex;
         const int var2 = indexMapping[second].first + secondIndex;
 
-        if (var1 < var2) {
-            skipColumn[var1] = true;
-        }else {
-            skipColumn[var2] = true;
-        }
-
         ds.union_set(var1, var2);
         numVars -= 1;
     }
 
     //UNION FIND combine variables
+
+    //UNION FIND adjust columns
+
+    int counter = 0;
+    vector<int> mapRoots(columns);
+
+    for (int i = 0; i < columns; ++i) {
+        if (ds.find_set(i) == i) {//root found
+            mapRoots[i] = counter;
+            counter++;
+        }
+    }
+    columns = counter;
+
+    //UNION FIND adjust columns
 
     //H.numVertices -> even subset guarantee for the mapped node
     //H.edges.size() -> same opinion on the mapped edge
@@ -192,7 +198,7 @@ LinearSystemOfEquations generateCFI_LSOE2(const Graph& H, const Graph& S, const 
     //Fill with the even subset guarantee
     for (int i = 0; i < H.numVertices; i++) {
         for(int j = indexMapping[i].first; j < indexMapping[i].second; j++) {
-            matrix[i][ds.find_set(j)] = 1;
+            matrix[i][mapRoots[ds.find_set(j)]] = 1;
         }
         //uneven subset guarantee
         if (mapping[i] == vertice) {
@@ -200,7 +206,7 @@ LinearSystemOfEquations generateCFI_LSOE2(const Graph& H, const Graph& S, const 
         }
     }
 
-    LinearSystemOfEquations result = {matrix, columns, skipColumn, numVars};
+    LinearSystemOfEquations result = {matrix, columns};
     return result;
 }
 
