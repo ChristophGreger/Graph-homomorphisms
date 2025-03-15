@@ -266,7 +266,7 @@ int256_t CalcHoms::calcNumInjHoms(const std::string &spasm_file_name, const Grap
         numThreads = 10;
         cout << "Could not determine number of threads!" << endl;
     }
-    cout << "Using " << numThreads << " threads" << endl;
+    //cout << "Using " << numThreads << " threads" << endl;
 
     boost::asio::thread_pool pool(numThreads);
 
@@ -279,7 +279,7 @@ int256_t CalcHoms::calcNumInjHoms(const std::string &spasm_file_name, const Grap
         });
     }
 
-    cout << "Waiting for threads to finish!" << endl;
+    //cout << "Waiting for threads to finish!" << endl;
     pool.join();
 
     int256_t total = 0;

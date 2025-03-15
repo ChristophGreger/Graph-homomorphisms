@@ -321,7 +321,7 @@ Spasm::Spasm Spasm::getFromFile(const std::string &spasm_file) {
             throw std::runtime_error("Cannot open file: " + spasm_file);
         }
     } else {
-        cout << "Found file in assets folder" << endl;
+        //cout << "Found file in assets folder" << endl;
     }
 
     Spasm spasm;
