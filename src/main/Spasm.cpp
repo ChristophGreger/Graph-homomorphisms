@@ -307,10 +307,21 @@ void Spasm::writeToFile(const std::string &output_file, const Spasm &spasm) {
 }
 
 Spasm::Spasm Spasm::getFromFile(const std::string &spasm_file) {
-    std::ifstream file(spasm_file);
+    std::ifstream file;
 
+    // Versuche zuerst, die Datei im assets-Ordner zu öffnen.
+    // Da der assets-Ordner auf gleicher Ebene wie der build-Ordner liegt, nutzen wir "../assets/"
+    std::string assetsPath = "../assets/" + spasm_file;
+    file.open(assetsPath);
+
+    // Falls die Datei dort nicht gefunden wird, versuchen wir im aktuellen (Build-)Ordner.
     if (!file.is_open()) {
-        throw std::runtime_error("Cannot open file: " + spasm_file);
+        file.open(spasm_file);
+        if (!file.is_open()) {
+            throw std::runtime_error("Cannot open file: " + spasm_file);
+        }
+    } else {
+        //cout << "Found file in assets folder" << endl;
     }
 
     Spasm spasm;

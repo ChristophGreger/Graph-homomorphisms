@@ -83,6 +83,7 @@ TEST(CalcHomsTest, calcNumHomsInvCFI_unoptimized_1) {
             count++;
 
             RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, vertices * (vertices-1)/2, true, true);
+          
             Graph S = randomGraphGenerator.generateRandomConnectedGraph();
 
             RandomGraphGenerator randomGraphGenerator2 = RandomGraphGenerator(vertices, edges, true, true);
