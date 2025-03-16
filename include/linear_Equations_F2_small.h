@@ -9,7 +9,7 @@
 #include <vector>
 
 struct LinearSystemOfEquations {
-    vector<bitset<128>> matrix;
+    std::vector<std::bitset<128>> matrix;
     int columns;
 };
 

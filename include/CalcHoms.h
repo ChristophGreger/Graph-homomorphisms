@@ -13,8 +13,8 @@ using boost::multiprecision::int256_t;
 class CalcHoms {
 public:
     //returns the exponent of the number of homomorphisms from H to S with the mapping as the homomorphism (with base 2)
-    static int calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping, const bool inverted = false, const pair<int,int> &edge = {0,0});
-    static int calcNumHomsCFI2(const Graph& H, const Graph& S, const int* mapping, bool inverted = false, int vertice = 0);
+    static int calcNumHomsCFI_unoptimized(const Graph& H, const Graph& S, const int* mapping, const bool inverted = false, const pair<int,int> &edge = {0,0});
+    static int calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping, bool inverted = false, int vertice = 0);
 
     //returns the number of homs from H to CFI Graph of S, (by trying every possible mapping) (works only for uncolored)
     static int256_t calcNumHomsCFI_uncolored(const Graph& H, const Graph& S, const bool inverted = false);

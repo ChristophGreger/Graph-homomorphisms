@@ -12,7 +12,7 @@
 #include <boost/thread.hpp>
 #include <boost/asio.hpp>
 
-LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const int* mapping, const pair<int,int> &edge = {0,0}) {
+LinearSystemOfEquations generateCFI_LSOE_unoptimized(const Graph& H, const Graph& S, const int* mapping, const pair<int,int> &edge = {0,0}) {
 
     const auto& neighborsS = S.neighbours;
     const auto& degS = S.degree;
@@ -95,7 +95,7 @@ LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const i
     return result;
 }
 
-LinearSystemOfEquations generateCFI_LSOE2(const Graph& H, const Graph& S, const int* mapping, const int vertice) {
+LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const int* mapping, const int vertice) {
 
     const auto& neighborsS = S.neighbours;
     const auto& degS = S.degree;
@@ -214,9 +214,9 @@ LinearSystemOfEquations generateCFI_LSOE2(const Graph& H, const Graph& S, const 
 //every node in H is mapped to one in S (predecided through mapping disregarding the color)
 //the exact number of homs can be calculated when applying 2^
 //also note that when there are now homs -1 is returned
-int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping, const bool inverted, const pair<int, int> &edge) {
+int CalcHoms::calcNumHomsCFI_unoptimized(const Graph& H, const Graph& S, const int* mapping, const bool inverted, const pair<int, int> &edge) {
 
-    auto lsoe = generateCFI_LSOE(H,S,mapping, edge);
+    auto lsoe = generateCFI_LSOE_unoptimized(H,S,mapping, edge);
 
     //Now we can calculate the dimension of the solution space
     int dimension;
@@ -233,9 +233,9 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping,
     return dimension;
 }
 
-int CalcHoms::calcNumHomsCFI2(const Graph& H, const Graph& S, const int* mapping, const bool inverted, const int vertice) {
+int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping, const bool inverted, const int vertice) {
 
-    auto lsoe = generateCFI_LSOE2(H,S,mapping, vertice);
+    auto lsoe = generateCFI_LSOE(H,S,mapping, vertice);
 
     //Now we can calculate the dimension of the solution space
     int dimension;
@@ -345,7 +345,7 @@ int256_t CalcHoms::calcNumHomsCFI_uncolored(const Graph &H, const Graph &S, cons
 
                         //Handling the found Hom!
                         //We have to calculate the number of homs from H to CFI(S) with this mapping
-                        int exponent = calcNumHomsCFI(H, S, hom, inverted, edge);
+                        int exponent = calcNumHomsCFI(H, S, hom, inverted, 0);
                         if (exponent > -1) {
                             total += powBase2(exponent);
                         }
