@@ -4,6 +4,7 @@
 
 #include "../../include/CalcHoms.h"
 
+#include <boost/pending/disjoint_sets.hpp>
 #include <bitset>
 #include <linear_Equations_F2_small.h>
 #include "NextInjection.h"
@@ -11,12 +12,7 @@
 #include <boost/thread.hpp>
 #include <boost/asio.hpp>
 
-struct LinearSystemOfEquations {
-    vector<bitset<128>> matrix;
-    int columns;
-};
-
-LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const int* mapping, const pair<int,int> &edge = {0,0}) {
+LinearSystemOfEquations generateCFI_LSOE_unoptimized(const Graph& H, const Graph& S, const int* mapping, const pair<int,int> &edge = {0,0}) {
 
     const auto& neighborsS = S.neighbours;
     const auto& degS = S.degree;
@@ -99,19 +95,135 @@ LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const i
     return result;
 }
 
+LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const int* mapping, const int vertice) {
+
+    const auto& neighborsS = S.neighbours;
+    const auto& degS = S.degree;
+
+    //We want to create an possible mapping from (vertice, neighbor) pairs to an index in the matrix (column)
+    //this vector mapps every node in this to <beginning, end>, which is the range of the neighbors in S
+    //and so the range of the columns in the matrix which this node in affiliated with
+    //(from inclusive, to exclusive)
+    auto indexMapping = vector<pair<int, int>>();
+    indexMapping.reserve(H.numVertices);
+
+    int columns = 0;
+    for (int i = 0; i < H.numVertices; ++i) {
+        indexMapping.emplace_back(columns, columns + degS[mapping[i]]);//H.nodes[i].color?? but why
+        columns += degS[mapping[i]];
+    }
+
+    if (columns >= 127) {
+        throw runtime_error("to many variables for the CFI homs solver");
+    }
+
+    //Now columns is the number of columns in the matrix
+
+    //UNION FIND INIT
+    vector<int> parent(columns);
+    vector<int> rank(columns);
+
+    boost::disjoint_sets<int*,int*> ds(&rank[0], &parent[0]);
+
+    for (int i = 0; i < columns; ++i) {
+        ds.make_set(i);
+    }
+
+    //UNION FIND INIT
+
+    //UNION FIND combine variables
+
+    int numVars = columns;
+
+    //Same opinion on the mapped edge
+    for (const auto [first,second] : H.edges) {
+        //We have to find the index that the two nodes are affiliated with
+        int firstIndex = -1;
+        int secondIndex = -1;
+
+        const int mFirst = mapping[first];
+        const int mSecond = mapping[second];
+
+        //Find firstIndex
+        for (int i = 0; i < degS[mFirst]; ++i) {
+            if (neighborsS[mFirst][i] == mSecond) {
+                firstIndex = i;
+                break;
+            }
+        }
+        //Find secondIndex
+        for (int i = 0; i < degS[mSecond]; ++i) {
+            if (neighborsS[mSecond][i] == mFirst) {
+                secondIndex = i;
+                break;
+            }
+        }
+
+        //mapping is invalid when edge is not found
+        if (firstIndex == -1 || secondIndex == -1) {
+            throw runtime_error("mapping is invalid");
+        }
+
+        const int var1 = indexMapping[first].first + firstIndex;
+        const int var2 = indexMapping[second].first + secondIndex;
+
+        ds.union_set(var1, var2);
+        numVars -= 1;
+    }
+
+    //UNION FIND combine variables
+
+    //UNION FIND adjust columns
+
+    int counter = 0;
+    vector<int> mapRoots(columns);
+
+    for (int i = 0; i < columns; ++i) {
+        if (ds.find_set(i) == i) {//root found
+            mapRoots[i] = counter;
+            counter++;
+        }
+    }
+    columns = counter;
+
+    //UNION FIND adjust columns
+
+    //H.numVertices -> even subset guarantee for the mapped node
+    //H.edges.size() -> same opinion on the mapped edge
+    const int rows = H.numVertices + static_cast<int>(H.edges.size());
+
+    //Now we create the matrix and initialize with 0
+    auto matrix = vector<bitset<128>>(rows);
+
+    //Fill with the even subset guarantee
+    for (int i = 0; i < H.numVertices; i++) {
+        for(int j = indexMapping[i].first; j < indexMapping[i].second; j++) {
+            matrix[i][mapRoots[ds.find_set(j)]] = 1;
+        }
+        //uneven subset guarantee
+        if (mapping[i] == vertice) {
+            matrix[i][columns] = 1;
+        }
+    }
+
+    LinearSystemOfEquations result = {matrix, columns};
+    return result;
+}
+
 //calc exponent of number of homs from H to CFI Graph of S based on a mapping
 //every node in H is mapped to one in S (predecided through mapping disregarding the color)
 //the exact number of homs can be calculated when applying 2^
 //also note that when there are now homs -1 is returned
-int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping, const bool inverted, const pair<int, int> &edge) {
+int CalcHoms::calcNumHomsCFI_unoptimized(const Graph& H, const Graph& S, const int* mapping, const bool inverted, const pair<int, int> &edge) {
 
-    auto [matrix, columns] = generateCFI_LSOE(H,S,mapping, edge);
+    auto lsoe = generateCFI_LSOE_unoptimized(H,S,mapping, edge);
+
     //Now we can calculate the dimension of the solution space
     int dimension;
     if (inverted) {
-        dimension = solution_space_dimension_f2_small_inhomogen(matrix,columns);
+        dimension = solution_space_dimension_f2_small_inhomogen(lsoe);
     } else {
-        dimension = solution_space_dimension_f2_small_homogen(matrix,columns);
+        dimension = solution_space_dimension_f2_small_homogen(lsoe);
     }
 
     if (dimension > 62) {
@@ -120,6 +232,26 @@ int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping,
 
     return dimension;
 }
+
+int CalcHoms::calcNumHomsCFI(const Graph& H, const Graph& S, const int* mapping, const bool inverted, const int vertice) {
+
+    auto lsoe = generateCFI_LSOE(H,S,mapping, vertice);
+
+    //Now we can calculate the dimension of the solution space
+    int dimension;
+    if (inverted) {
+        dimension = solution_space_dimension_f2_small_inhomogen(lsoe);
+    } else {
+        dimension = solution_space_dimension_f2_small_homogen(lsoe);
+    }
+
+    if (dimension > 62) {
+        throw runtime_error("Dimension of solution space was to big for long long");
+    }
+
+    return dimension;
+}
+
 
 //returns the number of homs from H to CFI Graph of S, (by trying every possible mapping) (works only for uncolored)
 //Be sure that H has <= 9 vertices and S has maxdegree <= 4
@@ -213,7 +345,7 @@ int256_t CalcHoms::calcNumHomsCFI_uncolored(const Graph &H, const Graph &S, cons
 
                         //Handling the found Hom!
                         //We have to calculate the number of homs from H to CFI(S) with this mapping
-                        int exponent = calcNumHomsCFI(H, S, hom, inverted, edge);
+                        int exponent = calcNumHomsCFI(H, S, hom, inverted, 0);
                         if (exponent > -1) {
                             total += powBase2(exponent);
                         }

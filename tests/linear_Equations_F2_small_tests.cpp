@@ -45,7 +45,7 @@ TEST(HomogeneousGF2SpeedTest, MillionRandomSystems_SolvingOnly) {
         }
         // Messe nur die Zeit, die für das Lösen benötigt wird
         auto startSolve = std::chrono::high_resolution_clock::now();
-        dummySum += solution_space_dimension_f2_small_homogen(mat, num_vars);
+        dummySum += solution_space_dimension_f2_small_homogen(LinearSystemOfEquations(mat, num_vars));
         auto endSolve = std::chrono::high_resolution_clock::now();
         totalSolveTimeMicro += std::chrono::duration_cast<std::chrono::microseconds>(endSolve - startSolve).count();
     }
@@ -87,7 +87,7 @@ TEST(InhomogeneousGF2SpeedTest, MillionRandomSystems_SolvingOnly) {
         }
         // Messe ausschließlich die Zeit für das Lösen des Systems
         auto startSolve = std::chrono::high_resolution_clock::now();
-        dummySum += solution_space_dimension_f2_small_inhomogen(mat, num_vars);
+        dummySum += solution_space_dimension_f2_small_inhomogen(LinearSystemOfEquations(mat, num_vars));
         auto endSolve = std::chrono::high_resolution_clock::now();
         totalSolveTimeMicro += std::chrono::duration_cast<std::chrono::microseconds>(endSolve - startSolve).count();
     }
@@ -105,7 +105,7 @@ TEST(SolutionSpaceDimensionTest, EmptyMatrix) {
     std::vector<std::bitset<128>> mat;
     const int num_vars = 5;
     // Erwartete Dimension: 5
-    EXPECT_EQ(solution_space_dimension_f2_small_homogen(mat, num_vars), 5);
+    EXPECT_EQ(solution_space_dimension_f2_small_homogen(LinearSystemOfEquations(mat, num_vars)), 5);
 }
 
 // Testfall 2: Eine Gleichung, die x0 = 0 erzwingt
@@ -117,7 +117,7 @@ TEST(SolutionSpaceDimensionTest, SingleEquation) {
     mat.push_back(eq);
     const int num_vars = 5;
     // Rang = 1, also Dimension = 5 - 1 = 4
-    EXPECT_EQ(solution_space_dimension_f2_small_homogen(mat, num_vars), 4);
+    EXPECT_EQ(solution_space_dimension_f2_small_homogen(LinearSystemOfEquations(mat, num_vars)), 4);
 }
 
 // Testfall 3: Zwei linear unabhängige Gleichungen (z.B. x0+x1=0 und x1+x2=0)
@@ -132,7 +132,7 @@ TEST(SolutionSpaceDimensionTest, TwoIndependentEquations) {
     mat.push_back(eq2);
     const int num_vars = 5;
     // Rang = 2, also Dimension = 5 - 2 = 3
-    EXPECT_EQ(solution_space_dimension_f2_small_homogen(mat, num_vars), 3);
+    EXPECT_EQ(solution_space_dimension_f2_small_homogen(LinearSystemOfEquations(mat, num_vars)), 3);
 }
 
 // Testfall 4: Zwei identische Gleichungen (linear abhängig)
@@ -145,7 +145,7 @@ TEST(SolutionSpaceDimensionTest, DuplicateEquations) {
     mat.push_back(eq); // identische Zeile
     const int num_vars = 5;
     // Rang = 1, also Dimension = 5 - 1 = 4
-    EXPECT_EQ(solution_space_dimension_f2_small_homogen(mat, num_vars), 4);
+    EXPECT_EQ(solution_space_dimension_f2_small_homogen(LinearSystemOfEquations(mat, num_vars)), 4);
 }
 
 // Testfall 5: Vollständiges System in 3 Variablen (x0=0, x1=0, x2=0)
@@ -159,7 +159,7 @@ TEST(SolutionSpaceDimensionTest, FullSystem) {
         mat.push_back(eq);
     }
     // Rang = 3, also Dimension = 3 - 3 = 0
-    EXPECT_EQ(solution_space_dimension_f2_small_homogen(mat, num_vars), 0);
+    EXPECT_EQ(solution_space_dimension_f2_small_homogen(LinearSystemOfEquations(mat, num_vars)), 0);
 }
 
 // Testfall 6: Eine Nullzeile (alle Bits 0) bei 4 Variablen
@@ -170,5 +170,5 @@ TEST(SolutionSpaceDimensionTest, ZeroRow) {
     mat.push_back(eq);
     const int num_vars = 4;
     // Nullzeile trägt nicht zum Rang bei, Dimension = 4
-    EXPECT_EQ(solution_space_dimension_f2_small_homogen(mat, num_vars), 4);
+    EXPECT_EQ(solution_space_dimension_f2_small_homogen(LinearSystemOfEquations(mat, num_vars)), 4);
 }
