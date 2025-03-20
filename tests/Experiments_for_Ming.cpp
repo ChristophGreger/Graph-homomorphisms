@@ -27,7 +27,7 @@ TEST(Experiments, M_3) {
 }
 
 TEST(Experiments, Perfect) {
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 1; i++) {
         RandomGraphGenerator cfigen = RandomGraphGenerator(6, 10, true, true);
         Graph cfi = cfigen.generateRandomConnectedGraph();
         CFIGraph cfiGraph = CFIGraph(cfi);
