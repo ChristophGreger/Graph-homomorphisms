@@ -40,6 +40,8 @@
 
 /build
 
-/external
+/external/nauty
+
+/external/tamaki
 
 /googletest

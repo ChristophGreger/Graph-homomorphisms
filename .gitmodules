@@ -2,3 +2,7 @@
 	path = external/nauty
 	url = https://github.com/lonnen/nauty
     ignore = all
+[submodule "external/tamaki"]
+	path = external/tamaki
+	url = https://github.com/FalcoWolff/PACE2017-TrackA.git
+	ignore = all
