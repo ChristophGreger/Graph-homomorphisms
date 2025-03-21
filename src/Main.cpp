@@ -2,8 +2,11 @@
 // Created by Christoph Greger on 24.12.24.
 //
 
+#include <fstream>
 #include <iostream>
 #include <string>
+
+#include "Graph.h"
 
 struct Flags {
     bool cfi = false;
@@ -30,6 +33,47 @@ Flags processFlags(int argc, char* argv[], int start) {
     return flags;
 }
 
+/*
+ * format:
+ *
+ * graph adj-list <n> <m>
+ * <u_1> <v_1>
+ * ...
+ * <u_m> <v_m>
+ */
+Graph convertToGraph(const std::string& file) {
+
+    std::ifstream inputFile(file);
+    if (!inputFile) {
+        std::cerr << "Error opening file: " << file << std::endl;
+        exit(1);
+    }
+
+    std::string graphKey;
+    std::string graphType;
+    int numNodes, numEdges;
+
+    // First line: Graph type, number of nodes, and number of edges
+    inputFile >> graphKey >> graphType >> numNodes >> numEdges;
+
+    // Initialize the graph with the number of nodes
+    GraphTemplate tempGraph = GraphTemplate();
+
+    for (int i = 0; i < numNodes; i++) {
+        tempGraph.addNode(Node(i));
+    }
+
+    // Read edges and add to the graph
+    int u, v;
+    for (int i = 0; i < numEdges; ++i) {
+        inputFile >> u >> v;
+        tempGraph.addEdge(u, v);
+    }
+
+    inputFile.close();
+    return Graph(tempGraph);
+}
+
 int main(int argc, char* argv[]) {
 
     if (argc < 2) {
@@ -46,13 +90,16 @@ int main(int argc, char* argv[]) {
         }
         const Flags flags = processFlags(argc, argv, 4);
 
-        std::string H = argv[2];
-        std::string G = argv[3];
+        std::string HFile = argv[2];
+        std::string GFile = argv[3];
+
+        Graph H = convertToGraph(HFile);
+        Graph G = convertToGraph(GFile);
 
         // Debugging output (or actual functionality based on flags)
         std::cout << "Command: " << command << std::endl;
-        std::cout << "H: " << H << std::endl;
-        std::cout << "G: " << G << std::endl;
+        std::cout << "H: " << HFile << std::endl;
+        std::cout << "G: " << GFile << std::endl;
         std::cout << "Option -cfi: " << (flags.cfi ? "enabled" : "disabled") << std::endl;
         std::cout << "Option -time: " << (flags.time ? "enabled" : "disabled") << std::endl;
     }
