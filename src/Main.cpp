@@ -9,8 +9,12 @@
 #include "CalcHoms.h"
 #include "Graph.h"
 #include <cstdio>
+#include <random>
+#include <boost/dll/runtime_symbol_info.hpp>
 
 #include "Spasm.h"
+
+namespace fs = std::filesystem;
 
 struct Flags {
     bool cfi = false;
@@ -113,7 +117,7 @@ int main(int argc, char* argv[]) {
             std::cout << "H: " << HFile << std::endl;
             std::cout << "G: " << GFile << std::endl;
             std::cout << "Option --cfi: " << (flags.cfi ? "enabled" : "disabled") << std::endl;
-            std::cout << "Option --debug: " << (flags.debug ? "enabled" : "disabled") << std::endl;
+            std::cout << "Option --debug: enabled" << std::endl;
         }
 
         auto start1 = std::chrono::high_resolution_clock::now();
@@ -154,14 +158,24 @@ int main(int argc, char* argv[]) {
             std::cout << "H: " << HFile << std::endl;
             std::cout << "G: " << GFile << std::endl;
             std::cout << "Option --cfi: " << (flags.cfi ? "enabled" : "disabled") << std::endl;
-            std::cout << "Option --debug: " << (flags.debug ? "enabled" : "disabled") << std::endl;
+            std::cout << "Option --debug: " << "enabled" << std::endl;
         }
 
         auto start1 = std::chrono::high_resolution_clock::now();
 
         std::string spasmFile = flags.spasmFile;
         if (flags.spasmFile.empty()) {
-            spasmFile = std::filesystem::temp_directory_path() / ("temp_spasm_" + std::to_string(std::rand()) + ".tmp");
+
+            std::random_device rd;  // Initialize a random device for seeding
+            std::mt19937 gen(rd());  // Mersenne Twister pseudo-random generator seeded with rd()
+
+            // Define a uniform distribution between 0 and 100
+            std::uniform_int_distribution<> dist(100000000, 999999999);
+
+            // Generate a random number
+            int random_number = dist(gen);
+
+            spasmFile = std::filesystem::temp_directory_path() / ("temp_spasm_" + std::to_string(random_number) + ".tmp");
             Spasm::create_and_store_Spasm(spasmFile,H);
         }
 
@@ -186,7 +200,55 @@ int main(int argc, char* argv[]) {
             std::cerr << "Usage: ./main mat <k> <G> [--cfi] [--debug]";
             return 1;
         }
+        int k = 0;
+        try {
+            k = stoi(argv[2]);
+        } catch (const std::invalid_argument& e) {
+            std::cerr << "Invalid input: Not a valid number" << std::endl;
+            exit(1);
+        }
+
+        if (k < 1 || k > 9) {
+            std::cerr << "Invalid value for k only 1-9 is available: " << k << std::endl;
+        }
+
+        std::string GFile = argv[3];
+        Graph G = convertToGraph(GFile);
+
         const Flags flags = processFlags(argc, argv, 4);
+
+        if (flags.debug) {
+            std::cout << "Command: " << command << std::endl;
+            std::cout << "k: " << k << std::endl;
+            std::cout << "G: " << GFile << std::endl;
+            std::cout << "Option --cfi: " << (flags.cfi ? "enabled" : "disabled") << std::endl;
+            std::cout << "Option --debug: " << "enabled" << std::endl;
+        }
+
+        auto start1 = std::chrono::high_resolution_clock::now();
+
+        // Get the executable path from argv[0]
+        fs::path exePath(argv[0]);
+
+        // If exePath is relative, convert it to an absolute path
+        if (exePath.is_relative()) {
+            exePath = fs::absolute(exePath);
+        }
+
+        // Get the directory of the executable by removing the file name
+        fs::path exeDir = exePath.parent_path();
+        fs::path assetPath = exeDir / "assets" / ("k_" + std::to_string(k) + ".txt");
+
+        int256_t result = CalcHoms::calcNumInjHoms(assetPath.string(),G,flags.cfi, false);
+
+        auto end1 = std::chrono::high_resolution_clock::now();
+        auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(end1 - start1);
+
+        if (flags.debug) {
+            std::cout << "Time:" << duration1.count() << "ms" << std::endl;
+        }
+
+        cout << result << endl;
     }
 
     return 0;
