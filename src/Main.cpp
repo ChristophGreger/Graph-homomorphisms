@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
 
     if (command == "hom") {
         if (argc < 4) {
-            std::cerr << "Usage: ./main hom <H> <G> [--cfi] [--debug]";
+            std::cerr << "Usage: ./main hom <H> <G> [--cfi] [--debug]" << std::endl;
             return 1;
         }
         const Flags flags = processFlags(argc, argv, 4);
@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
     if (command == "emb") {
 
         if (argc < 4) {
-            std::cerr << "Usage: ./main emb <H> <G> [--spasmFile <spasmFile>] [--cfi] [--debug]";
+            std::cerr << "Usage: ./main emb <H> <G> [--spasmFile <spasmFile>] [--cfi] [--debug]" << endl;
             return 1;
         }
         const Flags flags = processFlags(argc, argv, 4);
@@ -197,14 +197,14 @@ int main(int argc, char* argv[]) {
 
     if (command == "mat") {
         if (argc < 4) {
-            std::cerr << "Usage: ./main mat <k> <G> [--cfi] [--debug]";
+            std::cerr << "Usage: ./main mat <k> <G> [--cfi] [--debug]" << std::endl;
             return 1;
         }
         int k = 0;
         try {
             k = stoi(argv[2]);
         } catch (const std::invalid_argument& e) {
-            std::cerr << "Invalid input: Not a valid number" << std::endl;
+            std::cerr << "Invalid input: k is not a valid number" << std::endl;
             exit(1);
         }
 
