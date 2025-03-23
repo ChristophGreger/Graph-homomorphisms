@@ -23,6 +23,10 @@ public:
     static long long calcNumInjHoms(const Graph &H, const Graph &G);
     static int256_t calcNumInjHoms(const std::string &spasm_file_name, const Graph &G, bool CFI_OF_G = false, bool CFI_inverted = false);
     static int256_t calcNumAutomorphisms(const Graph &G);
+
+    //Uses the num of automorphisms out of the spasm file
+    //only uncolored
+    static int256_t calcNumSubgraphs(const std::string &spasm_file_name, const Graph &G, bool CFI_OF_G = false, bool CFI_inverted = false);
 };
 
 #endif //CALCHOMS_H

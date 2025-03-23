@@ -37,7 +37,7 @@ namespace Spasm {
 
     void create_and_store_Spasm_k_Matching(const std::string &filename, int k);
 
-    void create_and_store_Spasm(const std::string &filename, const Graph &G, const int k = -1, const uint256_t &numAutomorphisms = 0);
+    void create_and_store_Spasm(const std::string &filename, const Graph &G, const int k = -1, const uint256_t &numAutomorphisms = 1);
 
     //void create_and_store_Spasm(const std::string &filename, const Graph &graph);
 

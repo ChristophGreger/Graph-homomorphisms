@@ -122,6 +122,7 @@ target_include_directories(bib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/external/nauty
 
 #Some stuff doesn't work: To run everything you need to run ./configure in the external/nauty and make afterwards
 #boost MUSS installiert sein!
+#It must be boost version 1.87.0
 #--> sudo apt update
 #sudo apt install libboost-all-dev
 

@@ -753,21 +753,10 @@ int256_t CalcHoms::calcNumAutomorphisms(const Graph &G) {
     return CalcHoms::calcNumInjHoms(G, G);
 }
 
-//not tested and not used
-/*
-
-long long Graph::calculateNumberofAutomorphismsWithColoring() {
-    bool oldcolored = colored;
-    colored = true;
-    long long numAutomorphisms = calculateNumberofHomomorphismsTo(*this);
-    colored = oldcolored;
-    return numAutomorphisms;
-}
-
-long long Graph::calculateNumberofSubGraphsTo(Graph &H) {
-    if (colored && H.colored) {
-        return calculateNumberofInjectiveHomomorphismsTo(H) / calculateNumberofAutomorphismsWithColoring();
+int256_t CalcHoms::calcNumSubgraphs(const std::string &spasm_file_name, const Graph &G, const bool CFI_OF_G, const bool CFI_inverted) {
+    const auto numautos = static_cast<int256_t>(Spasm::getFromFile(spasm_file_name).numAutomorphisms);
+    if (numautos < 0) {
+        throw std::overflow_error("Overflow detected: uint256_t value cannot be cast to int256_t");
     }
-    return calculateNumberofInjectiveHomomorphismsTo(H) / calculateNumberofAutomorphismsWithoutColoring();
+    return calcNumInjHoms(spasm_file_name, G, CFI_OF_G, CFI_inverted) / numautos;
 }
-*/
