@@ -128,3 +128,8 @@ target_include_directories(bib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/external/nauty
 #boost MUSS installiert sein!
 #--> sudo apt update
 #sudo apt install libboost-all-dev
+
+
+#For tamaki:
+#make exact
+#zum ausführen dann: ./tw-exact only-tw

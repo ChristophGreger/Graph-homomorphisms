@@ -53,6 +53,8 @@ public:
 
     bool isConnected() const;
 
+    int getTreeWidth() const;
+
     pair<bool, Graph> shrinkGraph(Graph &S) const;
 
     std::string toString() const;
