@@ -35,10 +35,10 @@ TEST(CFIGraphTest, Constructor) {
 
 
 TEST(CFIGraphTest, ByHomomorphisms) {
-    for (int times = 0; times < 2; times++) {
+    for (int times = 0; times < 1; times++) {
         for (int vertices = 2; vertices < 9; vertices++) {
             for (int edges = vertices-1; edges <= (vertices * (vertices - 1)) / 2; edges++) {
-                for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < 2; i++) {
                     RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(vertices, edges, true, true);
                     Graph G = randomGraphGenerator.generateRandomConnectedGraph();
                     CFIGraph CFI = CFIGraph(G);

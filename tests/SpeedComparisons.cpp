@@ -104,40 +104,6 @@ TEST(SpeedTest, CFIGraphGeneration) {
 }
 
 
-//takes about 37 ms
-TEST(SpeedTest, CounterTimeTest) {
-    int count = 0;
-    int max = 70 * 69 * 68 * 67;
-    for (int i = 0; i < max; i++) {
-        ++count;
-        if (count % 1000000 == 0) {
-            cout << count << endl;
-        }
-    }
-    cout << count << endl;
-}
-
-//At the moment 32 seconds --> Generation of possible Homomorphisms is really slow, checking if valid is really fast.
-TEST(SpeedTest, InjectiveHomomorphismIteratorHomomorphismcountcomparison) {
-    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(70, 200, false);
-    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
-    GraphTemplate squaret = GraphTemplate();
-    for (int i = 0; i < 4; i++) {
-        squaret.addNode(Node());
-    }
-    squaret.addEdge(0, 1);
-    squaret.addEdge(1, 2);
-    squaret.addEdge(2, 3);
-    squaret.addEdge(3, 0);
-
-    Graph square = Graph(squaret);
-
-    cout << "Graphs generated" << endl;
-
-    cout << CalcHoms::calcNumHoms(square, G) << endl;
-}
-
-//At the moment 32 seconds --> Generation of possible Homomorphisms is really slow, checking if valid is really fast.
 TEST(SpeedTest, HomomorphismIteratorHomomorphismcountcomparison) {
     RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(70, 200, false);
     Graph G = randomGraphGenerator.generateRandomConnectedGraph();
@@ -159,8 +125,6 @@ TEST(SpeedTest, HomomorphismIteratorHomomorphismcountcomparison) {
 
 
 //Takes 368 ms at the moment after generating the graph
-//Thats a lot faster than the master work implementation ??????????????????????
-//And than the glasgow subgraph solver etc ?????????????????
 TEST(SpeedTest, clique3nequals1000) {
     RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(1000, 99900, false);
     Graph G = randomGraphGenerator.generateRandomConnectedGraph();

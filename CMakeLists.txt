@@ -109,12 +109,9 @@ add_gtest(RandomGraphGenerator_tests tests/RandomGraphGenerator_tests.cpp)
 add_gtest(SpeedComparisons_tests tests/SpeedComparisons.cpp)
 add_gtest(NextInjection_tests tests/NextInjection_tests.cpp)
 add_gtest(Utitlities_tests tests/Utilities_tests.cpp)
-add_gtest(Closed_Formula_Trying tests/Closed_Formula_Trying.cpp)
 add_gtest(Spasm_tests tests/Spasm_tests.cpp)
 add_gtest(Linear_Equations_F2_small_tests tests/linear_Equations_F2_small_tests.cpp)
 add_gtest(CalcHoms_tests tests/CalcHoms_tests.cpp)
-add_gtest(CalcHoms_Christoph tests/CalcHoms_Christoph_tests.cpp)
-add_gtest(Experiments_for_Ming tests/Experiments_for_Ming.cpp)
 
 
 #Fuer Nauty:
