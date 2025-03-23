@@ -6,3 +6,4 @@
 	path = external/tamaki
 	url = https://github.com/FalcoWolff/PACE2017-TrackA.git
 	ignore = all
+	branch = master
