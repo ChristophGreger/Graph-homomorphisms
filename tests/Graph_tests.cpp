@@ -624,3 +624,21 @@ TEST(GraphConnectedComponents, IsolatedVertices) {
     }
 }
 
+TEST(GraphTest, TreeWidth) {
+    for (int i = 1; i < 10; i++) {
+        GraphTemplate t(false);
+        for (int j = 0; j < i; j++) {
+            t.addNode(Node(j));
+        }
+        for (int u = 0; u < i; u++) {
+            for (int v = u + 1; v < i; v++) {
+                t.addEdge(u, v);
+            }
+        }
+        Graph G(t);
+        int treeWidth = G.getTreeWidth();
+        cout << "Treewidth of the " << i << "-clique: " << treeWidth << endl;
+        ASSERT_EQ(treeWidth, i - 1);
+    }
+}
+

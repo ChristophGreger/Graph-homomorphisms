@@ -6,18 +6,22 @@
 #include <iostream>
 #include <stack>
 #include "utilities.h"
-#include "NextInjection.h"
 
 #include <fstream>
 #include <sstream>
 #include <unordered_map>
-#include <functional>
 #include <vector>
 #include <algorithm>
 
 #include "Nauty_wrapper.h"
 #include <iomanip>
-#include <cmath>
+
+#include <boost/process.hpp>
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include <utility>
+#include <string>
 
 Graph::Graph(): Graph(GraphTemplate(false)) {}
 
@@ -380,3 +384,47 @@ vector<Graph> Graph::connectedComponents() const{
     }
     return components;
 }
+
+int Graph::getTreeWidth() const {
+
+    const int n = numVertices;
+    const int m = edges.size();
+
+    namespace bp = boost::process;
+
+    // Streams für Ein- und Ausgabe
+    bp::ipstream pipe_out;
+    bp::opstream pipe_in;
+
+    // Starte den Prozess im Verzeichnis "../external/tamaki"
+    bp::child process("./tw-exact", "only-tw",
+                      bp::start_dir("../external/tamaki"),
+                      bp::std_out > pipe_out,
+                      bp::std_in < pipe_in);
+
+    // Schreibe den initialen Befehl an den Prozess
+    pipe_in << "p tw " << n << " " << m << "\n";
+
+    // Schreibe alle Paare aus dem Vector
+    for (int i = 0; i < m; i++) {
+        auto &pr = edgeArray[i];
+        pipe_in << pr.first  + 1 << " " << pr.second  + 1 << "\n";
+    }
+    pipe_in.flush();
+    // Schließe die Eingabeverbindung, um dem Kindprozess das Ende der Eingabe zu signalisieren
+    pipe_in.pipe().close();
+
+    // Lese die Ausgabe des Prozesses (angenommen, es wird genau eine Zeile mit der Zahl ausgegeben)
+    int result = 0;
+    std::string output_line;
+    if (std::getline(pipe_out, output_line)) {
+        std::istringstream iss(output_line);
+        iss >> result;
+    }
+
+    // Warte, bis der Prozess beendet ist
+    process.wait();
+
+    return result;
+}
+
