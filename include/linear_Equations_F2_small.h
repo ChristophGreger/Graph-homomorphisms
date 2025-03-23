@@ -15,44 +15,44 @@ struct LinearSystemOfEquations {
     int columns;
 };
 
-// Berechnet die Dimension des Lösungsraumes eines homogenen linearen Gleichungssystems in GF(2)
-// mat: Vektor von bitset-Repräsentationen der Gleichungen (jede Zeile ist eine Gleichung)
-// num_vars: Anzahl der Variablen (maximal 128)
-// Rückgabewert: Dimension des Lösungsraumes = num_vars - Rang der Matrix
-//Die nicht genutzen bit (weil num_vars < 128) werden nicht berücksichtigt.
-//Die benutzen variablen müssen die ersten num_vars bit sein.
+// Calculates the dimension of the solution space of a homogeneous linear system of equations in GF(2)
+// mat: Vector of bitset representations of the equations (each row is an equation)
+// num_vars: Number of variables (maximum 128)
+// Return value: Dimension of the solution space = num_vars - rank of the matrix
+// The unused bits (because num_vars < 128) are not considered.
+// The used variables must be the first num_vars bits.
 inline int solution_space_dimension_f2_small_homogen(LinearSystemOfEquations lsoe) {
     auto& [mat, columns] = lsoe;
     int m = static_cast<int>(mat.size());
     int rank = 0;
-    // Iteriere über alle Spalten (Variablen) und führe Eliminierung durch
+    // iterates over all columns (variables) and performs elimination
     for (int col = 0; col < columns && rank < m; ++col) {
-        // Suche die Zeile mit einem Pivot in der aktuellen Spalte
+        // Search for a pivot in the current column
         int pivot = rank;
         while (pivot < m && !mat[pivot].test(col))
             ++pivot;
         if (pivot == m)
-            continue; // Kein Pivot in dieser Spalte gefunden
-        // Tausche die gefundene Pivotzeile in die aktuelle Zeile
+            continue; // no pivot found in this row
+        // switch the pivot row with the current row
         std::swap(mat[rank], mat[pivot]);
-        // Eliminierung: Entferne in allen folgenden Zeilen das Bit in Spalte col
+        // Elimination: Remove the bit in column col from all following rows
         for (int i = rank + 1; i < m; ++i) {
             if (mat[i].test(col))
-                mat[i] ^= mat[rank]; // XOR entspricht der Addition in GF(2)
+                mat[i] ^= mat[rank]; // XOR is addition in GF(2)
         }
         ++rank;
     }
-    // Die Dimension des Lösungsraumes ist (Anzahl der Variablen - Rang)
+    // The dimension of the solution space is the number of variables minus the rank of the matrix
     return columns - rank;
 }
 
 
-// Berechnet die Dimension des Lösungsraumes eines inhomogenen linearen GF(2)-Systems,
-// dargestellt durch einen Vektor von std::bitset<128>.
-// Annahme: Bits 0 bis num_vars-1 enthalten die Koeffizienten der Variablen,
-// Bit num_vars enthält den rechten Seitenwert (b).
-// num_vars sollte daher maximal 127 betragen.
-// Rückgabewert: Dimension des Lösungsraumes (bei Konsistenz) oder -1, falls das System inkonsistent ist.
+// Calculates the dimension of the solution space of an inhomogeneous linear GF(2) system,
+// represented by a vector of std::bitset<128>.
+// Assumption: Bits 0 to num_vars-1 contain the coefficients of the variables,
+// Bit num_vars contains the right-hand side value (b).
+// num_vars should therefore be at most 127.
+// Return value: Dimension of the solution space (if consistent) or -1 if the system is inconsistent.
 inline int solution_space_dimension_f2_small_inhomogen(LinearSystemOfEquations lsoe) {
     auto& [mat,columns] = lsoe;
     const int m = static_cast<int>(mat.size());
@@ -80,7 +80,7 @@ inline int solution_space_dimension_f2_small_inhomogen(LinearSystemOfEquations l
 
     for (int i = rank; i < m; ++i) {
         if ((mat[i] & var_mask).none() && mat[i].test(columns))
-            return -1; // Inkonsistent
+            return -1; // Inconsistent
     }
 
     return columns - rank;

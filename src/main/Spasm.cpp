@@ -29,10 +29,10 @@ inline std::string getCanonicalString(graph *g, const int numVertices) {
     densenauty(g, lab, ptn, orbits, &options, &stats, maxm, numVertices, canon);
 
     std::ostringstream oss;
-    // Optional: stelle sicher, dass der Stream im hexadezimalen Format arbeitet.
+    // Optional: make sure the stream is working in hexadecimal format.
     oss << std::hex;
     for (int i = 0; i < maxm*numVertices; i++) {
-        // setfill und setw sorgen für führende Nullen, sodass jedes setword als 16-stellige hexadezimale Zahl ausgegeben wird.
+        // setfill and setw ensure leading zeroes are printed, so each setword is output as a 16-digit hexadecimal number.
         oss << std::setfill('0') << std::setw(16) << canon[i];
     }
     return oss.str();
@@ -49,18 +49,18 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
     //second is the factor
     std::unordered_map<std::string, std::pair<std::string, int256_t>> canonicalMap;
 
-    // partition[i] gibt an, zu welchem Block der Knoten i gehört.
+    // partition[i] tells us to which block the vertex i belongs.
     std::vector<int> partition(numVertices, -1);
-    partition[0] = 0;  // Der erste Knoten wird fest Block 0 zugeordnet
+    partition[0] = 0;  // the first node is asigned to block 0
     std::vector<int> numperpartition(numVertices, 0);
 
 
-    // Rekursive Backtracking-Funktion:
-    //&g muss gross genug sein!
-    //edgearray sollte numEdges platz haben!
+    // recursive backtracking function
+    //&g must be big enough
+    //edgearray should have numEdges place!
     std::function<void(int, int, graph*, std::pair<int, int> *)> backtrack = [&](const int vertex, const int currentMax, graph *g, std::pair<int, int> *edgeArray) {
         if (vertex == numVertices) {
-            // Erzeuge den Quotientgraphen anhand der aktuellen Partition.
+            // create the quotient graph based on the current partition.
 
             int numEdgeshere = 0;
 
@@ -68,9 +68,9 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
 
             EMPTYGRAPH(g, maxm, numVerticeshere);
 
-            // Für jede Kante im Originalgraphen, die zwei verschiedene Blöcke verbindet,
-            // wird im Quotientgraphen eine entsprechende Kante eingefügt.
-            if (k > 0) { //Fall das man k-Matching machen möchte
+            // For every edge in the original graph that connects two different blocks,
+            // insert a corresponding edge in the quotient graph.
+            if (k > 0) { //in case that we want to make k Matching
                 for (int i = 0; i < numVertices; i += 2) {
                     const int bu = partition[i];
                     const int bv = partition[i+1];
@@ -82,7 +82,7 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
                     edgeArray[numEdgeshere] = std::make_pair(bu, bv);
                     ++numEdgeshere;
                 }
-            } else { //Normaler Fall
+            } else { //normal case
                 for (auto [fst, snd] : G.edges) {
                     const int u = fst;
                     const int v = snd;
@@ -97,7 +97,7 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
                     ++numEdgeshere;
                 }
             }
-            // Berechne die kanonische Form des Quotientgraphen.
+            //calculate the canonical form of the graph
 
             const std::string canon = getCanonicalString(g, currentMax+1);
 
@@ -138,12 +138,11 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
             return;
         }
 
-        // Versuche, den aktuellen Knoten in jeden existierenden Block einzufügen.
+        // try to insert the current node into every existing block.
         for (int block = 0; block <= currentMax; block++) {
             bool valid = true;
 
-
-            // Überprüfe, ob das Hinzufügen in Block 'block' zu einer Self-Loop (Kante innerhalb des Blocks) führen würde.
+            //Check if adding the node to block 'block' would lead to a self-loop (edge within the block).
 
             if (k > 0) {
                 if (vertex % 2 == 1) {
@@ -172,7 +171,7 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
             partition[vertex] = block;
             backtrack(vertex + 1, currentMax, g, edgeArray);
         }
-        // Eröffne einen neuen Block für den aktuellen Knoten.
+        // open new block the the current node
         partition[vertex] = currentMax + 1;
         backtrack(vertex + 1, currentMax + 1, g, edgeArray);
     };
@@ -309,12 +308,12 @@ void Spasm::writeToFile(const std::string &output_file, const Spasm &spasm) {
 Spasm::Spasm Spasm::getFromFile(const std::string &spasm_file) {
     std::ifstream file;
 
-    // Versuche zuerst, die Datei im assets-Ordner zu öffnen.
-    // Da der assets-Ordner auf gleicher Ebene wie der build-Ordner liegt, nutzen wir "../assets/"
+    // Try first to open the file in the assets folder.
+    // Since the assets folder is on the same level as the build folder, we use "../assets/"
     std::string assetsPath = "../assets/" + spasm_file;
     file.open(assetsPath);
 
-    // Falls die Datei dort nicht gefunden wird, versuchen wir im aktuellen (Build-)Ordner.
+    // if the file isn't found there, we try the current (build) directory
     if (!file.is_open()) {
         file.open(spasm_file);
         if (!file.is_open()) {
@@ -362,7 +361,7 @@ Spasm::Spasm Spasm::getFromFile(const std::string &spasm_file) {
     for (int i = 0; i < numComponents; ++i) {
         Spasm_Component comp;
 
-        file >> comp.canonicalString; // Position geändert
+        file >> comp.canonicalString;
 
         int compVertices, compEdges;
         file >> compVertices >> compEdges;

@@ -12,23 +12,23 @@
 #include "linear_Equations_F2_small.h"
 
 
-// GTest Speedtest: Erzeugt 1 Million zufälliger Systeme und misst die benötigte Zeit.
+// GTest Speedtest: creates 1 million random systems and measures the time needed.
 TEST(HomogeneousGF2SpeedTest, MillionRandomSystems_SolvingOnly) {
     const int numSystems = 1000000;
-    const int num_vars = MAX_LSOE_BITSET;  // Anzahl der Variablen (und damit auch Bitset-Größe)
-    const int m = 20;         // Anzahl der Gleichungen pro System
+    const int num_vars = MAX_LSOE_BITSET;  // Number of variables (and thus also bitset size)
+    const int m = 20;         // Number of equations per system
 
-    std::mt19937 rng(12345);  // Fester Seed für Reproduzierbarkeit
+    std::mt19937 rng(12345);  // Fixed seed for reproducibility
     std::uniform_int_distribution<unsigned long long> dist(0, std::numeric_limits<unsigned long long>::max());
 
-    // dummySum verhindert, dass der Compiler den Funktionsaufruf komplett optimiert.
+    //dummySum prevents the compiler from optimizing the function call away.
     int dummySum = 0;
     long long totalSolveTimeMicro = 0;
 
     for (int sys = 0; sys < numSystems; ++sys) {
         std::vector<std::bitset<MAX_LSOE_BITSET>> mat;
         mat.reserve(m);
-        // Erzeuge das zufällige System (diese Zeit wird nicht gemessen)
+        // Create the random system (this time is not measured)
         for (int i = 0; i < m; ++i) {
 
             std::bitset<MAX_LSOE_BITSET> bs;
@@ -41,7 +41,7 @@ TEST(HomogeneousGF2SpeedTest, MillionRandomSystems_SolvingOnly) {
             }
             mat.push_back(bs);
         }
-        // Messe nur die Zeit, die für das Lösen benötigt wird
+        //Measure only the time needed for solving
         auto startSolve = std::chrono::high_resolution_clock::now();
         dummySum += solution_space_dimension_f2_small_homogen(LinearSystemOfEquations(mat, num_vars));
         auto endSolve = std::chrono::high_resolution_clock::now();
@@ -52,14 +52,13 @@ TEST(HomogeneousGF2SpeedTest, MillionRandomSystems_SolvingOnly) {
     SUCCEED();
 }
 
-// GTest Speedtest: Erzeugt 1 Million zufälliger inhomogener Systeme (20 Gleichungen pro System)
-// und misst ausschließlich die Zeit, die zum Lösen benötigt wird.
+// GTest Speedtest: creates 1 million random systems and measures the time needed.
 TEST(InhomogeneousGF2SpeedTest, MillionRandomSystems_SolvingOnly) {
     const int numSystems = 1000000;
-    const int num_vars = MAX_LSOE_BITSET - 1;  // 127 Variablen, Bit 127 (Index 127) ist der rechte Seitenwert.
-    const int m = 20;          // 20 Gleichungen pro System
+    const int num_vars = MAX_LSOE_BITSET - 1;  // 127 variables, bit 127 (index 127) is the right-hand side value.
+    const int m = 20;          // 20 equations per system
 
-    std::mt19937 rng(12345);  // Fester Seed für Reproduzierbarkeit
+    std::mt19937 rng(12345);  // fixed seed for reproducibility
     std::uniform_int_distribution<unsigned long long> dist(0, std::numeric_limits<unsigned long long>::max());
 
     int dummySum = 0;
@@ -68,7 +67,7 @@ TEST(InhomogeneousGF2SpeedTest, MillionRandomSystems_SolvingOnly) {
     for (int sys = 0; sys < numSystems; ++sys) {
         std::vector<std::bitset<MAX_LSOE_BITSET>> mat;
         mat.reserve(m);
-        // Erzeuge das zufällige System (diese Zeit wird nicht gemessen)
+        // create the random system (this time is not measured)
         for (int i = 0; i < m; ++i) {
 
             std::bitset<MAX_LSOE_BITSET> bs;
@@ -82,7 +81,7 @@ TEST(InhomogeneousGF2SpeedTest, MillionRandomSystems_SolvingOnly) {
 
             mat.push_back(bs);
         }
-        // Messe ausschließlich die Zeit für das Lösen des Systems
+        // Measure only the time needed for solving
         auto startSolve = std::chrono::high_resolution_clock::now();
         dummySum += solution_space_dimension_f2_small_inhomogen(LinearSystemOfEquations(mat, num_vars));
         auto endSolve = std::chrono::high_resolution_clock::now();
@@ -97,27 +96,27 @@ TEST(InhomogeneousGF2SpeedTest, MillionRandomSystems_SolvingOnly) {
 
 
 
-// Testfall 1: Leere Matrix => keine Gleichungen, daher ist der Lösungsraum ℤ₂^(num_vars)
+// Testcase 1: empty matrix => no equations, so the solution space is ℤ₂^(num_vars)
 TEST(SolutionSpaceDimensionTest, EmptyMatrix) {
     std::vector<std::bitset<MAX_LSOE_BITSET>> mat;
     const int num_vars = 5;
-    // Erwartete Dimension: 5
+    // epected dimension: 5
     EXPECT_EQ(solution_space_dimension_f2_small_homogen(LinearSystemOfEquations(mat, num_vars)), 5);
 }
 
-// Testfall 2: Eine Gleichung, die x0 = 0 erzwingt
+// Testcase 2: A single equation that forces x0 = 0
 TEST(SolutionSpaceDimensionTest, SingleEquation) {
     std::vector<std::bitset<MAX_LSOE_BITSET>> mat;
     std::bitset<MAX_LSOE_BITSET> eq;
     eq.reset();
-    eq.set(0, true); // entspricht x0 = 0
+    eq.set(0, true); // => x0 = 0
     mat.push_back(eq);
     const int num_vars = 5;
-    // Rang = 1, also Dimension = 5 - 1 = 4
+    // rank = 1, so dimension = 5 - 1 = 4
     EXPECT_EQ(solution_space_dimension_f2_small_homogen(LinearSystemOfEquations(mat, num_vars)), 4);
 }
 
-// Testfall 3: Zwei linear unabhängige Gleichungen (z.B. x0+x1=0 und x1+x2=0)
+// Testcase 3: Two linearly independent equations (e.g. x0+x1=0 and x1+x2=0)
 TEST(SolutionSpaceDimensionTest, TwoIndependentEquations) {
     std::vector<std::bitset<MAX_LSOE_BITSET>> mat;
     std::bitset<MAX_LSOE_BITSET> eq1, eq2;
@@ -128,24 +127,24 @@ TEST(SolutionSpaceDimensionTest, TwoIndependentEquations) {
     mat.push_back(eq1);
     mat.push_back(eq2);
     const int num_vars = 5;
-    // Rang = 2, also Dimension = 5 - 2 = 3
+    // rank = 2, so dimension = 5 - 2 = 3
     EXPECT_EQ(solution_space_dimension_f2_small_homogen(LinearSystemOfEquations(mat, num_vars)), 3);
 }
 
-// Testfall 4: Zwei identische Gleichungen (linear abhängig)
+// Testcase 4: Two identical equations (linearly dependent)
 TEST(SolutionSpaceDimensionTest, DuplicateEquations) {
     std::vector<std::bitset<MAX_LSOE_BITSET>> mat;
     std::bitset<MAX_LSOE_BITSET> eq;
     eq.reset();
     eq.set(0, true); eq.set(1, true); // x0 + x1 = 0
     mat.push_back(eq);
-    mat.push_back(eq); // identische Zeile
+    mat.push_back(eq); // identical row
     const int num_vars = 5;
-    // Rang = 1, also Dimension = 5 - 1 = 4
+    // rank = 1, so dimension = 5 - 1 = 4
     EXPECT_EQ(solution_space_dimension_f2_small_homogen(LinearSystemOfEquations(mat, num_vars)), 4);
 }
 
-// Testfall 5: Vollständiges System in 3 Variablen (x0=0, x1=0, x2=0)
+// Testcase 5: Full system in 3 variables (x0=0, x1=0, x2=0)
 TEST(SolutionSpaceDimensionTest, FullSystem) {
     std::vector<std::bitset<MAX_LSOE_BITSET>> mat;
     const int num_vars = 3;
@@ -155,17 +154,17 @@ TEST(SolutionSpaceDimensionTest, FullSystem) {
         eq.set(i, true);
         mat.push_back(eq);
     }
-    // Rang = 3, also Dimension = 3 - 3 = 0
+    //rank = 3, so dimension = 3 - 3 = 0
     EXPECT_EQ(solution_space_dimension_f2_small_homogen(LinearSystemOfEquations(mat, num_vars)), 0);
 }
 
-// Testfall 6: Eine Nullzeile (alle Bits 0) bei 4 Variablen
+// Testcase 6: A single equation that forces x0 = 0 in a system with 4 variables
 TEST(SolutionSpaceDimensionTest, ZeroRow) {
     std::vector<std::bitset<MAX_LSOE_BITSET>> mat;
     std::bitset<MAX_LSOE_BITSET> eq;
-    eq.reset(); // Nullzeile
+    eq.reset(); // null row
     mat.push_back(eq);
     const int num_vars = 4;
-    // Nullzeile trägt nicht zum Rang bei, Dimension = 4
+    // Nullrow does not contribute to the rank, so dimension = 4
     EXPECT_EQ(solution_space_dimension_f2_small_homogen(LinearSystemOfEquations(mat, num_vars)), 4);
 }

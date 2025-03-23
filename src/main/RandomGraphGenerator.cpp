@@ -84,25 +84,26 @@ Graph RandomGraphGenerator::generateRandomConnectedGraph() const {
 }
 
 Graph RandomGraphGenerator::generateRandomConnectedGraphNoDoubleColorNeighbors() const {
-    // Diese Methode setzt voraus, dass der Graph farbig ist.
+
+    // this method assumes that the graph is colored
     if (!colored) {
-        throw std::invalid_argument("Diese Methode erfordert einen farbigen Graphen.");
+        throw std::invalid_argument("This method needs a colored graph.");
     }
 
-    // Prüfe die Eingabeparameter
+    // check the input parameters
     if (edges < vertices - 1) {
-        throw std::invalid_argument("Die Anzahl der Kanten muss mindestens Anzahl der Knoten - 1 sein.");
+        throw std::invalid_argument("The number of edges has to be at least the number of vertices - 1");
     }
     if (edges > vertices * (vertices - 1) / 2) {
-        throw std::invalid_argument("Die Anzahl der Kanten darf maximal (n choose 2) betragen.");
+        throw std::invalid_argument("The number of edges can be at most (n choose 2)");
     }
     if (vertices < 2) {
-        throw std::invalid_argument("Die Anzahl der Knoten muss mindestens 2 betragen.");
+        throw std::invalid_argument("The number of nodes must be at least 2.");
     }
 
-    // Erzeuge den Graphen und füge die Knoten hinzu
+    // create the graph and add the nodes
     GraphTemplate t(colored);
-    if (surjectivecoloring) { // Hier wird 'colors' ignoriert
+    if (surjectivecoloring) { // here colors is ignored
         for (int i = 0; i < vertices; i++) {
             t.addNode(Node(i));
         }
@@ -116,14 +117,11 @@ Graph RandomGraphGenerator::generateRandomConnectedGraphNoDoubleColorNeighbors()
         }
     }
 
-
-    // Lambda-Funktion zur Prüfung, ob das Hinzufügen der Kante (u,v) einen Knoten dazu bringt,
-    // zwei Nachbarn gleicher Farbe zu haben.
-    // Wir greifen hier direkt auf das nodes-Array zu (z. B. t.nodes[v].getColor()).
+    // Lambda function to check if adding the edge (u,v) would cause a node to have two neighbors of the same color.
+    // We directly access the nodes array here (e.g. t.nodes[v].getColor()).
     auto checkEdgeValidity = [&t, this](int u, int v) -> bool {
         int colorV = t.nodes[v].color;
-        // Für u: Iteriere über alle Knoten und prüfe, ob es eine Kante (u,j) gibt,
-        // bei der der Knoten j die gleiche Farbe wie v hat.
+        // For u: Iterate over all nodes and check if there is an edge (u,j) where node j has the same color as v.
         for (int j = 0; j < vertices; j++) {
             if (t.isEdge(u, j)) {
                 if (t.nodes[j].color == colorV) {
@@ -132,8 +130,7 @@ Graph RandomGraphGenerator::generateRandomConnectedGraphNoDoubleColorNeighbors()
             }
         }
         int colorU = t.nodes[u].color;
-        // Für v: Iteriere über alle Knoten und prüfe, ob es eine Kante (v,j) gibt,
-        // bei der der Knoten j die gleiche Farbe wie u hat.
+        // For v: Iterate over all nodes and check if there is an edge (v,j) where node j has the same color as u.
         for (int j = 0; j < vertices; j++) {
             if (t.isEdge(v, j)) {
                 if (t.nodes[j].color == colorU) {
@@ -144,7 +141,7 @@ Graph RandomGraphGenerator::generateRandomConnectedGraphNoDoubleColorNeighbors()
         return true;
     };
 
-    // --- Erzeuge einen zufälligen Spannbaum unter Einhaltung der Farbbeschränkung ---
+    // --- Create a random spanning tree while respecting the color constraint ---
     vector<int> notyetadded;
     notyetadded.reserve(vertices);
     for (int i = 0; i < vertices; i++) {
@@ -154,16 +151,15 @@ Graph RandomGraphGenerator::generateRandomConnectedGraphNoDoubleColorNeighbors()
     vector<int> added;
     added.reserve(vertices);
 
-    // Wähle einen zufälligen Startknoten:
+    // Chose a random starting node:
     int startIndex = getRandomNumberBetween(0, vertices - 1);
     added.push_back(notyetadded[startIndex]);
     notyetadded.erase(notyetadded.begin() + startIndex);
 
-    // Solange noch nicht alle Knoten im Baum sind:
+    // While not all edges are in the tree:
     while (!notyetadded.empty()) {
         vector<std::pair<int, int>> candidateEdges;
-        // Suche alle gültigen Kanten zwischen einem bereits hinzugefügten Knoten und einem noch nicht
-        // hinzugefügten Knoten, die die Farbbeschränkung erfüllen.
+        // Search all valid edges between an already added node and a not yet added node that satisfy the color constraint.
         for (int u : added) {
             for (int v : notyetadded) {
                 if (checkEdgeValidity(u, v)) {
@@ -172,9 +168,9 @@ Graph RandomGraphGenerator::generateRandomConnectedGraphNoDoubleColorNeighbors()
             }
         }
         if (candidateEdges.empty()) {
-            throw std::runtime_error("Kein gültiges Kantenpaar gefunden, um den Spannbaum ohne Farbkonflikt zu erweitern.");
+            throw std::runtime_error("No valid edge found to extend the spanning tree without color conflict.");
         }
-        // Wähle zufällig eines der möglichen Kantenpaare:
+        // Chose a random edge from the candidate edges:
         int randIndex = getRandomNumberBetween(0, candidateEdges.size() - 1);
         int u = candidateEdges[randIndex].first;
         int v = candidateEdges[randIndex].second;
@@ -186,23 +182,23 @@ Graph RandomGraphGenerator::generateRandomConnectedGraphNoDoubleColorNeighbors()
         }
     }
 
-    // --- Füge die restlichen Kanten hinzu ---
+    // --- Add the remaining edges ---
     int remainingEdges = edges - (vertices - 1);
     for (int i = 0; i < remainingEdges; i++) {
         bool edgeAdded = false;
-        const int maxAttempts = 1000;  // Vermeide Endlosschleifen
+        const int maxAttempts = 1000;  // Prevent non termination
         for (int attempt = 0; attempt < maxAttempts; attempt++) {
             int u = getRandomNumberBetween(0, vertices - 1);
             int v = getRandomNumberBetween(0, vertices - 1);
-            if (u == v) continue;                // Selbstschleifen nicht zulassen
-            if (t.isEdge(u, v)) continue;     // Vermeide doppelte Kanten
-            if (!checkEdgeValidity(u, v)) continue; // Achte auf die Farbbeschränkung
+            if (u == v) continue;                // prevent self loops
+            if (t.isEdge(u, v)) continue;     // prevent double edges
+            if (!checkEdgeValidity(u, v)) continue; // make sure the color constraint is not violated
             t.addEdge(u, v);
             edgeAdded = true;
             break;
         }
         if (!edgeAdded) {
-            throw std::runtime_error("Zusätzliche Kante konnte nicht ohne Verletzung der Farbbeschränkung hinzugefügt werden.");
+            throw std::runtime_error("Could not add the remaining edges without violating the color constraint.");
         }
     }
 

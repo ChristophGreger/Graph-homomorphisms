@@ -56,9 +56,9 @@ template void sortBySecond<double, double>(std::pair<double, double>* arr, std::
 
 int getSolutionDimension(int rows, int cols, unsigned char *matrix) {
     int rank = 0;
-    // Iteriere über alle Spalten
+    // iterate over all columns
     for (int col = 0; col < cols && rank < rows; col++) {
-        // Finde in der aktuellen Spalte einen Pivot (Zeile mit 1)
+        // find a pivot in the current column
         int pivotRow = -1;
         for (int r = rank; r < rows; r++) {
             if (matrix[r * cols + col] == 1) {
@@ -66,11 +66,11 @@ int getSolutionDimension(int rows, int cols, unsigned char *matrix) {
                 break;
             }
         }
-        // Falls kein Pivot gefunden wurde, fahre mit der nächsten Spalte fort.
+        // if no pivot was found, continue with the next column
         if (pivotRow == -1) {
             continue;
         }
-        // Falls der Pivot nicht in der aktuellen "Pivotzeile" steht, tausche die Zeilen.
+        // if the pivot is not in the current "pivot row", swap the rows
         if (pivotRow != rank) {
             for (int j = 0; j < cols; j++) {
                 unsigned char temp = matrix[rank * cols + j];
@@ -78,22 +78,22 @@ int getSolutionDimension(int rows, int cols, unsigned char *matrix) {
                 matrix[pivotRow * cols + j] = temp;
             }
         }
-        // Nutze den Pivot, um alle anderen Zeilen in der Spalte zu eliminieren.
+        // eliminate all other rows in the column using the pivot
         for (int r = 0; r < rows; r++) {
-            // Überspringe den Pivot selbst.
+            // skip the pivot itself
             if (r == rank)
                 continue;
             if (matrix[r * cols + col] == 1) {
-                // Eliminiere den Eintrag in Spalte 'col' durch XOR (Addition in GF(2))
+                // Eliminate the entry in column 'col' by XOR (addition in GF(2))
                 for (int j = col; j < cols; j++) {
                     matrix[r * cols + j] ^= matrix[rank * cols + j];
                 }
             }
         }
-        // Erhöhe den Rang (eine weitere unabhängige Zeile gefunden)
+        // increment the rank (another independent row found)
         rank++;
     }
-    // Dimension des Lösungsraums: Anzahl Unbekannte - Rang
+    // dimension of the solution space: number of unknowns - rank
     return cols - rank;
 }
 
@@ -119,7 +119,7 @@ long long powlong(long long base, int exponent) {
     return result;
 }
 
-// Schnelle Potenzierung für int256_t (Exponentiation by Squaring)
+// fast exponentiation for int256_t (Exponentiation by Squaring)
 int256_t int256_pow(int256_t base, int exponent) {
     if (exponent < 0) {
         throw std::runtime_error("Negative exponent not supported for int256_t");
@@ -129,7 +129,7 @@ int256_t int256_pow(int256_t base, int exponent) {
         return 0;
     }
     while (exponent > 0) {
-        if (exponent & 1) {  // Falls Exponent ungerade ist
+        if (exponent & 1) {  // if the exponent is odd
             if (result > std::numeric_limits<int256_t>::max() / base) {
                 throw std::overflow_error("Overflow detected during multiplication");
             }
@@ -138,8 +138,8 @@ int256_t int256_pow(int256_t base, int exponent) {
         if (base > std::numeric_limits<int256_t>::max() / base) {
             throw std::overflow_error("Overflow detected during squaring");
         }
-        base *= base;  // Basis quadrieren
-        exponent >>= 1; // Exponent halbieren
+        base *= base;  // quadrate the base
+        exponent >>= 1; // divide the exponent by 2
     }
     return result;
 }

@@ -296,11 +296,11 @@ std::string Graph::toString() const {
     return ss.str();
 }
 
-// Beispielimplementierung von Graph::canonicalString() mit nauty
-// Nur für Graphen mit weniger als 20 Knoten geeignet !!!!
+// Example implementation of Graph::canonicalString() using nauty
+// Only use with Graphs that have less than 20 nodes !!!!
 std::string Graph::canonicalString() const {
 
-#define set nauty_set //Wirklich kein Plan warum es das hier braucht
+#define set nauty_set // No idea why this is necessary
 
     int maxn = 20;
     int maxm = 1;
@@ -330,10 +330,10 @@ std::string Graph::canonicalString() const {
     densenauty(g, lab, ptn, orbits, &options, &stats, m, n, canon);
 
     std::ostringstream oss;
-    // Optional: stelle sicher, dass der Stream im hexadezimalen Format arbeitet.
+    // Optional: make sure the stream works in hexadecimal format.
     oss << std::hex;
     for (int i = 0; i < maxm*numVertices; i++) {
-        // setfill und setw sorgen für führende Nullen, sodass jedes setword als 16-stellige hexadezimale Zahl ausgegeben wird.
+        // setfill and setw ensure leading zeros, so that each setword is output as a 16-digit hexadecimal number.
         oss << std::setfill('0') << std::setw(16) << canon[i];
     }
     return oss.str();
@@ -392,29 +392,29 @@ int Graph::getTreeWidth() const {
 
     namespace bp = boost::process;
 
-    // Streams für Ein- und Ausgabe
+    // Streams for in and output
     bp::ipstream pipe_out;
     bp::opstream pipe_in;
 
-    // Starte den Prozess im Verzeichnis "../external/tamaki"
+    // start the process in the directory "../external/tamaki"
     bp::child process("./tw-exact", "only-tw",
                       bp::start_dir("../external/tamaki"),
                       bp::std_out > pipe_out,
                       bp::std_in < pipe_in);
 
-    // Schreibe den initialen Befehl an den Prozess
+    // send the initial command to the process
     pipe_in << "p tw " << n << " " << m << "\n";
 
-    // Schreibe alle Paare aus dem Vector
+    // write all pairs from the vector
     for (int i = 0; i < m; i++) {
         auto &pr = edgeArray[i];
         pipe_in << pr.first  + 1 << " " << pr.second  + 1 << "\n";
     }
     pipe_in.flush();
-    // Schließe die Eingabeverbindung, um dem Kindprozess das Ende der Eingabe zu signalisieren
+    // close the input pipe to signal the end of input
     pipe_in.pipe().close();
 
-    // Lese die Ausgabe des Prozesses (angenommen, es wird genau eine Zeile mit der Zahl ausgegeben)
+    // read the output of the process (assuming it is exactly one line with the tree width)
     int result = 0;
     std::string output_line;
     if (std::getline(pipe_out, output_line)) {
@@ -422,7 +422,7 @@ int Graph::getTreeWidth() const {
         iss >> result;
     }
 
-    // Warte, bis der Prozess beendet ist
+    // wait for the process to finish
     process.wait();
 
     return result;
