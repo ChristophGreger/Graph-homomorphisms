@@ -544,3 +544,29 @@ TEST(CalcHomsTest, SubGraphs2) {
     ASSERT_EQ(CalcHoms::calcNumSubgraphs("k_1.txt", star3g, false, false), 3);
     ASSERT_EQ(CalcHoms::calcNumSubgraphs("k_2.txt", star3g, false, false), 0);
 }
+
+
+TEST(CalcHomsTest, calcNumHomsCFI_colored1) {
+    for (int times = 0; times < 10000; ++times) {
+        RandomGraphGenerator randomH = RandomGraphGenerator(5, 8, true, false, 3, false);
+        RandomGraphGenerator randomS = RandomGraphGenerator(7, 12, true, false, 5, false);
+
+        auto H = randomH.generateRandomConnectedGraph();
+        auto S = randomS.generateRandomConnectedGraph();
+
+        CFIGraph cfiS = CFIGraph(S, false);
+        Graph cfiGraph = cfiS.toGraph();
+        CFIGraph cfiS_inv = CFIGraph(S, true);
+        Graph cfiGraph_inv = cfiS_inv.toGraph();
+
+        auto numHoms = CalcHoms::calcNumHoms(H, cfiGraph);
+        auto numHoms_inv = CalcHoms::calcNumHoms(H, cfiGraph_inv);
+        auto numHomsCFI = CalcHoms::calcNumHomsCFI_colored(H, S, false);
+        auto numHomsCFI_inv = CalcHoms::calcNumHomsCFI_colored(H, S, true);
+        ASSERT_EQ(numHoms, numHomsCFI);
+        ASSERT_EQ(numHoms_inv, numHomsCFI_inv);
+        if (numHoms != 0) {
+            cout << "numHoms: " << numHoms << " numHoms_inv: " << numHoms_inv << " numHomsCFI: " << numHomsCFI << " numHomsCFI_inv: " << numHomsCFI_inv << endl;
+        }
+    }
+}

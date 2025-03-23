@@ -371,6 +371,176 @@ int256_t CalcHoms::calcNumHomsCFI_uncolored(const Graph &H, const Graph &S, cons
     return total;
 }
 
+int256_t CalcHoms::calcNumHomsCFI_colored(const Graph &H, const Graph &S, const bool inverted) {
+
+    if (!H.colored || !S.colored) {
+        throw runtime_error("Both graphs have to be colored!");
+    }
+
+    if (S.edges.size() < 1) {
+        throw runtime_error("S has to have at least one edge!");
+    }
+
+    int256_t total = 0;
+
+    //generate all homs and for each hom count the number of cfi homs from H to CFI(S)
+
+    const int *nodeIndex = H.nodeIndex;
+
+    int* hom = new int[H.numVertices];
+    for (int i = 0; i < H.numVertices; i++) {
+        hom[i] = 0;
+    }
+
+    int currtochange = 1;
+    bool increment = false;
+
+    // Precompute valid mappings based on color
+    // possibleMappings[v].first is an array of valid node-IDs in G
+    // possibleMappings[v].second is how many valid node-IDs in that array
+    pair<int*, int> * possibleMappings = new pair<int*, int>[H.numVertices];
+    for (int v = 0; v < H.numVertices; v++) {
+        vector<int> valid;
+        for (int w = 0; w < S.numVertices; w++) {
+            // If color matches, node w in G is a valid image of v
+            if (S.nodes[w].equals(H.nodes[v])) {
+                valid.push_back(w);
+            }
+        }
+        // Store them in the pair
+        int *arr = new int[valid.size()];
+        for (int i = 0; i < (int)valid.size(); i++) {
+            arr[i] = valid[i];
+        }
+        possibleMappings[v] = make_pair(arr, (int)valid.size());
+    }
+
+    // candidateIndex[v] is the index in the array possibleMappings[v].first
+    int* candidateIndex = new int[H.numVertices];
+
+    // Initialize
+    for (int v = 0; v < H.numVertices; v++) {
+        hom[v] = -1;            // no candidate chosen
+        candidateIndex[v] = 0;  // start with 0
+    }
+
+    currtochange = 0;
+
+    // Start the backtracking:
+    while (true) {
+
+        if (currtochange == -1) {
+            break; // done
+        }
+
+        if (increment) {
+            // We have to move to the next candidate for hom[currtochange]
+            bool foundNext = false;
+
+            // Iterate over valid color-candidates
+            auto &pm = possibleMappings[currtochange];
+            for (int idx = candidateIndex[currtochange] + 1; idx < pm.second; idx++) {
+                int candidate = pm.first[idx];
+                // Check adjacency constraints
+                bool works = true;
+
+                if (currtochange == 0) {
+                    hom[currtochange] = candidate;
+                    candidateIndex[currtochange] = idx;
+                    foundNext = true;
+                    increment = false;
+                    ++currtochange;
+                    break;
+                }
+
+                for (int edgeindex = nodeIndex[currtochange - 1];
+                     edgeindex < nodeIndex[currtochange];
+                     edgeindex++)
+                {
+                    if (!S.isEdge(hom[H.edgeArray[edgeindex].first], candidate)) {
+                        works = false;
+                        break;
+                    }
+                }
+                if (works) {
+                    hom[currtochange] = candidate;
+                    candidateIndex[currtochange] = idx;
+                    foundNext = true;
+                    increment = false;
+                    ++currtochange;
+                    break;
+                }
+            }
+
+            if (!foundNext) {
+                // Need to backtrack further
+                increment = true;
+                --currtochange;
+            }
+        }
+        else {
+            // "Go right" fill from scratch
+            bool foundFirst = false;
+            auto &pm = possibleMappings[currtochange];
+            for (int idx = 0; idx < pm.second; idx++) {
+                int candidate = pm.first[idx];
+                bool works = true;
+                // We only need to check edges whose 'second' is currtochange
+                if (currtochange != 0) {
+                    for (int edgeindex = nodeIndex[currtochange - 1];
+                         edgeindex < nodeIndex[currtochange];
+                         edgeindex++)
+                    {
+                        if (!S.isEdge(hom[H.edgeArray[edgeindex].first], candidate)) {
+                            works = false;
+                            break;
+                        }
+                    }
+                }
+                if (works) {
+                    hom[currtochange] = candidate;
+                    candidateIndex[currtochange] = idx;
+                    if (currtochange == H.numVertices - 1) {
+
+                        //ONLY REAL DIFFERENCE TO COUNTING HOMS
+
+                        //Handling the found Hom!
+                        //We have to calculate the number of homs from H to CFI(S) with this mapping
+                        int exponent = calcNumHomsCFI(H, S, hom, inverted, 0);
+                        if (exponent > -1) {
+                            total += powBase2(exponent);
+                        }
+                        //END ONLY REAL DIFFERENCE TO COUNTING HOMS
+
+                        continue;
+                    } else {
+                        foundFirst = true;
+                        break;
+                    }
+                }
+            }
+            if (!foundFirst || currtochange == H.numVertices - 1) {
+                increment = true;
+                --currtochange;
+            } else {
+                ++currtochange;
+            }
+        }
+    } // end while
+
+    // Clean up
+    for (int v = 0; v < H.numVertices; v++) {
+        delete[] possibleMappings[v].first;
+    }
+    delete[] possibleMappings;
+
+    delete[] hom;
+    delete[] candidateIndex;
+
+    return total;
+}
+
+
 auto mtx = std::mutex();
 
 void fillMap(std::unordered_map<std::string, int256_t> &componentMap, const Graph &graph, const std::string &canon, const Graph &G, const bool CFI, const bool inverted) {
