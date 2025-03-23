@@ -10,6 +10,7 @@
 #include "RandomGraphGenerator.h"
 #include "CFIGraph.h"
 #include "GraphTemplate.h"
+#include "Spasm.h"
 
 //Check one specific graph
 //S is a triangle with two equal color (0,1)
@@ -499,4 +500,47 @@ TEST(CalcHomsTest, Clique_testing3) {
     auto normal = CalcHoms::calcNumInjHoms(filename, S, true, false);
     cout << "k = " << n <<" Inverted: " << inverted << " Normal: " << normal << endl;
     ASSERT_EQ(inverted, normal);
+}
+
+TEST(CalcHomsTest, SubGraphs) {
+
+    //square in double square
+    GraphTemplate squaret = GraphTemplate(false);
+    for (int i = 0; i < 4; i++) {
+        squaret.addNode(Node());
+    }
+    squaret.addEdge(0, 1);
+    squaret.addEdge(1, 2);
+    squaret.addEdge(2, 3);
+    squaret.addEdge(3, 0);
+
+    Graph square = Graph(squaret);
+
+    Spasm::create_and_store_Spasm("squarefortest.txt", square, -1, uint256_t(CalcHoms::calcNumAutomorphisms(square)));
+
+    squaret.addNode(Node());
+    squaret.addNode(Node());
+
+    squaret.addEdge(1, 4);
+    squaret.addEdge(4, 5);
+    squaret.addEdge(5, 2);
+
+    Graph doubleSquare = Graph(squaret);
+
+    ASSERT_EQ(CalcHoms::calcNumSubgraphs("squarefortest.txt", doubleSquare, false, false), 2);
+}
+
+TEST(CalcHomsTest, SubGraphs2) {
+    GraphTemplate star3 = GraphTemplate(false);
+    for (int i = 0; i < 4; i++) {
+        star3.addNode(Node());
+    }
+    star3.addEdge(0, 1);
+    star3.addEdge(0, 2);
+    star3.addEdge(0, 3);
+
+    Graph star3g = Graph(star3);
+
+    ASSERT_EQ(CalcHoms::calcNumSubgraphs("k_1.txt", star3g, false, false), 3);
+    ASSERT_EQ(CalcHoms::calcNumSubgraphs("k_2.txt", star3g, false, false), 0);
 }
