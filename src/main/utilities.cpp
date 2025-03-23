@@ -124,11 +124,19 @@ int256_t int256_pow(int256_t base, int exponent) {
     if (exponent < 0) {
         throw std::runtime_error("Negative exponent not supported for int256_t");
     }
-
     int256_t result = 1;
+    if (base == 0) {
+        return 0;
+    }
     while (exponent > 0) {
         if (exponent & 1) {  // Falls Exponent ungerade ist
+            if (result > std::numeric_limits<int256_t>::max() / base) {
+                throw std::overflow_error("Overflow detected during multiplication");
+            }
             result *= base;
+        }
+        if (base > std::numeric_limits<int256_t>::max() / base) {
+            throw std::overflow_error("Overflow detected during squaring");
         }
         base *= base;  // Basis quadrieren
         exponent >>= 1; // Exponent halbieren

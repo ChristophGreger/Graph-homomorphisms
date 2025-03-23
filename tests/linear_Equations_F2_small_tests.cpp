@@ -15,7 +15,7 @@
 // GTest Speedtest: Erzeugt 1 Million zufälliger Systeme und misst die benötigte Zeit.
 TEST(HomogeneousGF2SpeedTest, MillionRandomSystems_SolvingOnly) {
     const int numSystems = 1000000;
-    const int num_vars = 128;  // Anzahl der Variablen (und damit auch Bitset-Größe)
+    const int num_vars = MAX_LSOE_BITSET;  // Anzahl der Variablen (und damit auch Bitset-Größe)
     const int m = 20;         // Anzahl der Gleichungen pro System
 
     std::mt19937 rng(12345);  // Fester Seed für Reproduzierbarkeit
@@ -26,20 +26,18 @@ TEST(HomogeneousGF2SpeedTest, MillionRandomSystems_SolvingOnly) {
     long long totalSolveTimeMicro = 0;
 
     for (int sys = 0; sys < numSystems; ++sys) {
-        std::vector<std::bitset<128>> mat;
+        std::vector<std::bitset<MAX_LSOE_BITSET>> mat;
         mat.reserve(m);
         // Erzeuge das zufällige System (diese Zeit wird nicht gemessen)
         for (int i = 0; i < m; ++i) {
-            unsigned long long part1 = dist(rng);
-            unsigned long long part2 = dist(rng);
-            std::bitset<128> bs;
-            for (int bit = 0; bit < 64; bit++) {
-                if (part1 & (1ULL << bit))
-                    bs.set(bit);
-            }
-            for (int bit = 64; bit < 128; bit++) {
-                if (part2 & (1ULL << (bit - 64)))
-                    bs.set(bit);
+
+            std::bitset<MAX_LSOE_BITSET> bs;
+            for (int j = 0; j < num_vars / 64; j++) {
+                unsigned long long part = dist(rng);
+                for (int bit = 0; bit < 64; bit++) {
+                    if (part & (1ULL << bit))
+                        bs.set(j * 64 + bit);
+                }
             }
             mat.push_back(bs);
         }
@@ -58,7 +56,7 @@ TEST(HomogeneousGF2SpeedTest, MillionRandomSystems_SolvingOnly) {
 // und misst ausschließlich die Zeit, die zum Lösen benötigt wird.
 TEST(InhomogeneousGF2SpeedTest, MillionRandomSystems_SolvingOnly) {
     const int numSystems = 1000000;
-    const int num_vars = 127;  // 127 Variablen, Bit 127 (Index 127) ist der rechte Seitenwert.
+    const int num_vars = MAX_LSOE_BITSET - 1;  // 127 Variablen, Bit 127 (Index 127) ist der rechte Seitenwert.
     const int m = 20;          // 20 Gleichungen pro System
 
     std::mt19937 rng(12345);  // Fester Seed für Reproduzierbarkeit
@@ -68,21 +66,20 @@ TEST(InhomogeneousGF2SpeedTest, MillionRandomSystems_SolvingOnly) {
     long long totalSolveTimeMicro = 0;
 
     for (int sys = 0; sys < numSystems; ++sys) {
-        std::vector<std::bitset<128>> mat;
+        std::vector<std::bitset<MAX_LSOE_BITSET>> mat;
         mat.reserve(m);
         // Erzeuge das zufällige System (diese Zeit wird nicht gemessen)
         for (int i = 0; i < m; ++i) {
-            std::bitset<128> bs;
-            unsigned long long part1 = dist(rng);
-            unsigned long long part2 = dist(rng);
-            for (int bit = 0; bit < 64; ++bit) {
-                if (part1 & (1ULL << bit))
-                    bs.set(bit);
+
+            std::bitset<MAX_LSOE_BITSET> bs;
+            for (int j = 0; j < num_vars / 64; j++) {
+                unsigned long long part = dist(rng);
+                for (int bit = 0; bit < 64; bit++) {
+                    if (part & (1ULL << bit))
+                        bs.set(j * 64 + bit);
+                }
             }
-            for (int bit = 64; bit < 128; ++bit) {
-                if (part2 & (1ULL << (bit - 64)))
-                    bs.set(bit);
-            }
+
             mat.push_back(bs);
         }
         // Messe ausschließlich die Zeit für das Lösen des Systems
@@ -102,7 +99,7 @@ TEST(InhomogeneousGF2SpeedTest, MillionRandomSystems_SolvingOnly) {
 
 // Testfall 1: Leere Matrix => keine Gleichungen, daher ist der Lösungsraum ℤ₂^(num_vars)
 TEST(SolutionSpaceDimensionTest, EmptyMatrix) {
-    std::vector<std::bitset<128>> mat;
+    std::vector<std::bitset<MAX_LSOE_BITSET>> mat;
     const int num_vars = 5;
     // Erwartete Dimension: 5
     EXPECT_EQ(solution_space_dimension_f2_small_homogen(LinearSystemOfEquations(mat, num_vars)), 5);
@@ -110,8 +107,8 @@ TEST(SolutionSpaceDimensionTest, EmptyMatrix) {
 
 // Testfall 2: Eine Gleichung, die x0 = 0 erzwingt
 TEST(SolutionSpaceDimensionTest, SingleEquation) {
-    std::vector<std::bitset<128>> mat;
-    std::bitset<128> eq;
+    std::vector<std::bitset<MAX_LSOE_BITSET>> mat;
+    std::bitset<MAX_LSOE_BITSET> eq;
     eq.reset();
     eq.set(0, true); // entspricht x0 = 0
     mat.push_back(eq);
@@ -122,8 +119,8 @@ TEST(SolutionSpaceDimensionTest, SingleEquation) {
 
 // Testfall 3: Zwei linear unabhängige Gleichungen (z.B. x0+x1=0 und x1+x2=0)
 TEST(SolutionSpaceDimensionTest, TwoIndependentEquations) {
-    std::vector<std::bitset<128>> mat;
-    std::bitset<128> eq1, eq2;
+    std::vector<std::bitset<MAX_LSOE_BITSET>> mat;
+    std::bitset<MAX_LSOE_BITSET> eq1, eq2;
     eq1.reset();
     eq2.reset();
     eq1.set(0, true); eq1.set(1, true); // x0 + x1 = 0
@@ -137,8 +134,8 @@ TEST(SolutionSpaceDimensionTest, TwoIndependentEquations) {
 
 // Testfall 4: Zwei identische Gleichungen (linear abhängig)
 TEST(SolutionSpaceDimensionTest, DuplicateEquations) {
-    std::vector<std::bitset<128>> mat;
-    std::bitset<128> eq;
+    std::vector<std::bitset<MAX_LSOE_BITSET>> mat;
+    std::bitset<MAX_LSOE_BITSET> eq;
     eq.reset();
     eq.set(0, true); eq.set(1, true); // x0 + x1 = 0
     mat.push_back(eq);
@@ -150,10 +147,10 @@ TEST(SolutionSpaceDimensionTest, DuplicateEquations) {
 
 // Testfall 5: Vollständiges System in 3 Variablen (x0=0, x1=0, x2=0)
 TEST(SolutionSpaceDimensionTest, FullSystem) {
-    std::vector<std::bitset<128>> mat;
+    std::vector<std::bitset<MAX_LSOE_BITSET>> mat;
     const int num_vars = 3;
     for (int i = 0; i < num_vars; ++i) {
-        std::bitset<128> eq;
+        std::bitset<MAX_LSOE_BITSET> eq;
         eq.reset();
         eq.set(i, true);
         mat.push_back(eq);
@@ -164,8 +161,8 @@ TEST(SolutionSpaceDimensionTest, FullSystem) {
 
 // Testfall 6: Eine Nullzeile (alle Bits 0) bei 4 Variablen
 TEST(SolutionSpaceDimensionTest, ZeroRow) {
-    std::vector<std::bitset<128>> mat;
-    std::bitset<128> eq;
+    std::vector<std::bitset<MAX_LSOE_BITSET>> mat;
+    std::bitset<MAX_LSOE_BITSET> eq;
     eq.reset(); // Nullzeile
     mat.push_back(eq);
     const int num_vars = 4;
