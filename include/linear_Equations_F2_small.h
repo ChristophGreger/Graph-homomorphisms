@@ -8,8 +8,10 @@
 #include <bitset>
 #include <vector>
 
+#define MAX_LSOE_BITSET 256
+
 struct LinearSystemOfEquations {
-    std::vector<std::bitset<128>> matrix;
+    std::vector<std::bitset<MAX_LSOE_BITSET>> matrix;
     int columns;
 };
 
@@ -72,7 +74,7 @@ inline int solution_space_dimension_f2_small_inhomogen(LinearSystemOfEquations l
         ++rank;
     }
 
-    std::bitset<128> var_mask;
+    std::bitset<MAX_LSOE_BITSET> var_mask;
     for (int i = 0; i < columns; ++i)
         var_mask.set(i);
 

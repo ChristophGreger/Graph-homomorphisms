@@ -30,7 +30,7 @@ LinearSystemOfEquations generateCFI_LSOE_unoptimized(const Graph& H, const Graph
         columns += degS[mapping[i]];
     }
 
-    if (columns >= 127) {
+    if (columns >= MAX_LSOE_BITSET - 1) {
         throw runtime_error("to many variables for the CFI homs solver");
     }
 
@@ -41,7 +41,7 @@ LinearSystemOfEquations generateCFI_LSOE_unoptimized(const Graph& H, const Graph
     const int rows = H.numVertices + static_cast<int>(H.edges.size());
 
     //Now we create the matrix and initialize with 0
-    auto matrix = vector<bitset<128>>(rows);
+    auto matrix = vector<bitset<MAX_LSOE_BITSET>>(rows);
 
     //Fill with the even subset guarantee
     for (int i = 0; i < H.numVertices; i++) {
@@ -113,10 +113,6 @@ LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const i
         columns += degS[mapping[i]];
     }
 
-    if (columns >= 127) {
-        throw runtime_error("to many variables for the CFI homs solver");
-    }
-
     //Now columns is the number of columns in the matrix
 
     //UNION FIND INIT
@@ -186,6 +182,10 @@ LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const i
     }
     columns = counter;
 
+    if (columns >= MAX_LSOE_BITSET - 1) {
+        throw runtime_error("to many variables for the CFI homs solver");
+    }
+
     //UNION FIND adjust columns
 
     //H.numVertices -> even subset guarantee for the mapped node
@@ -193,7 +193,7 @@ LinearSystemOfEquations generateCFI_LSOE(const Graph& H, const Graph& S, const i
     const int rows = H.numVertices + static_cast<int>(H.edges.size());
 
     //Now we create the matrix and initialize with 0
-    auto matrix = vector<bitset<128>>(rows);
+    auto matrix = vector<bitset<MAX_LSOE_BITSET>>(rows);
 
     //Fill with the even subset guarantee
     for (int i = 0; i < H.numVertices; i++) {
@@ -421,7 +421,31 @@ int256_t CalcHoms::calcNumInjHoms(const std::string &spasm_file_name, const Grap
         for (auto &comp : fullGraph.Components) {
             std::string canon = comp.first;
             const int exponent = comp.second;
-            factor *= int256_pow(componentMap[canon], exponent); //TODO: Hier ist ein Overflow
+
+            int256_t newFactor = int256_pow(componentMap[canon], exponent);
+
+            // Sicherer Overflow-Check für Multiplikation (positiv und negativ):
+            if (factor > 0) {
+                if (newFactor > 0) {
+                    if (factor > std::numeric_limits<int256_t>::max() / newFactor)
+                        throw std::overflow_error("Overflow detected in multiplication");
+                } else if (newFactor < 0) {
+                    if (newFactor < std::numeric_limits<int256_t>::min() / factor)
+                        throw std::overflow_error("Overflow detected in multiplication");
+                }
+            } else if (factor < 0) {
+                if (newFactor > 0) {
+                    if (factor < std::numeric_limits<int256_t>::min() / newFactor)
+                        throw std::overflow_error("Overflow detected in multiplication");
+                } else if (newFactor < 0) {
+                    if (factor != 0 && newFactor < std::numeric_limits<int256_t>::max() / factor)
+                        throw std::overflow_error("Overflow detected in multiplication");
+                }
+            }
+
+            // Durchführen der Multiplikation nach Prüfung:
+            factor *= newFactor;
+
         }
         total += factor;
     }
