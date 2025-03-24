@@ -12,26 +12,23 @@
 
 #define set nauty_set
 
-int maxn = 31;
-int maxm = 1;
+inline std::string getCanonicalString(graph *g, const int numVertices, const int m) {
 
-inline std::string getCanonicalString(graph *g, const int numVertices) {
-
-    int lab[maxn], ptn[maxn], orbits[maxn]; //maxn
+    int lab[numVertices], ptn[numVertices], orbits[numVertices]; //maxn
     static DEFAULTOPTIONS_GRAPH(options);
     options.getcanon = TRUE;
     statsblk stats;
 
-    graph canon[maxn*maxm]; //maxn*maxm
+    graph canon[numVertices * m];
 
-    EMPTYGRAPH(canon, maxm, numVertices);
+    EMPTYGRAPH(canon, m, numVertices);
 
-    densenauty(g, lab, ptn, orbits, &options, &stats, maxm, numVertices, canon);
+    densenauty(g, lab, ptn, orbits, &options, &stats, m, numVertices, canon);
 
     std::ostringstream oss;
     // Optional: make sure the stream is working in hexadecimal format.
     oss << std::hex;
-    for (int i = 0; i < maxm*numVertices; i++) {
+    for (int i = 0; i < m*numVertices; i++) {
         // setfill and setw ensure leading zeroes are printed, so each setword is output as a 16-digit hexadecimal number.
         oss << std::setfill('0') << std::setw(16) << canon[i];
     }
@@ -54,6 +51,8 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
     partition[0] = 0;  // the first node is asigned to block 0
     std::vector<int> numperpartition(numVertices, 0);
 
+    int m = SETWORDSNEEDED(G.numVertices);
+
 
     // recursive backtracking function
     //&g must be big enough
@@ -66,7 +65,7 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
 
             const int numVerticeshere = currentMax + 1;
 
-            EMPTYGRAPH(g, maxm, numVerticeshere);
+            EMPTYGRAPH(g, m, numVerticeshere);
 
             // For every edge in the original graph that connects two different blocks,
             // insert a corresponding edge in the quotient graph.
@@ -78,7 +77,7 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
                     if (ISELEMENT(&g[bu], bv)) {
                         continue;
                     }
-                    ADDONEEDGE(g, bu, bv, maxm);
+                    ADDONEEDGE(g, bu, bv, m);
                     edgeArray[numEdgeshere] = std::make_pair(bu, bv);
                     ++numEdgeshere;
                 }
@@ -92,14 +91,14 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
                     if (ISELEMENT(&g[bu], bv)) {
                         continue;
                     }
-                    ADDONEEDGE(g, bu, bv, maxm);
+                    ADDONEEDGE(g, bu, bv, m);
                     edgeArray[numEdgeshere] = std::make_pair(bu, bv);
                     ++numEdgeshere;
                 }
             }
             //calculate the canonical form of the graph
 
-            const std::string canon = getCanonicalString(g, currentMax+1);
+            const std::string canon = getCanonicalString(g, currentMax+1, m);
 
             //Computing the factor (or at least the Partition element product part of it) of the graph
             int256_t factor = 1;
@@ -176,7 +175,7 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
         backtrack(vertex + 1, currentMax + 1, g, edgeArray);
     };
 
-    auto *g = new graph[maxn * maxm];
+    auto *g = new graph[numVertices * m];
     auto *edgearray = new std::pair<int, int>[numEdges];
     backtrack(1, 0, g, edgearray);
 
@@ -224,7 +223,7 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
     for (const auto &[canon, graph, factor] : big_graphs) {
         std::unordered_map<std::string, int> componentMap; //Maps canonical Strings of the component to the count of that component
         for (const auto &comp : graph.connectedComponents()) {
-            std::string canonical_of_component = comp.canonicalString();
+            std::string canonical_of_component = comp.canonicalString_uncolored();
             canonical_SmallMap.insert({canonical_of_component ,comp});
             if (!componentMap.contains(canonical_of_component)) {
                 componentMap.insert({canonical_of_component, 1});

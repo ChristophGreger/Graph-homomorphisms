@@ -298,12 +298,11 @@ std::string Graph::toString() const {
 
 // Example implementation of Graph::canonicalString() using nauty
 // Only use with Graphs that have less than 20 nodes !!!!
-std::string Graph::canonicalString() const {
-
+std::string Graph::canonicalString_uncolored() const {
 #define set nauty_set // No idea why this is necessary
 
-    int maxn = 20;
-    int maxm = 1;
+    int maxn = numVertices;
+    int maxm = SETWORDSNEEDED(maxn);
     graph g[maxm*maxn];
     int lab[maxn], ptn[maxn], orbits[maxn];
     static DEFAULTOPTIONS_GRAPH(options);

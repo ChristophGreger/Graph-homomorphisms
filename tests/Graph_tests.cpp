@@ -642,3 +642,68 @@ TEST(GraphTest, TreeWidth) {
     }
 }
 
+
+// Helper to create a triangle graph (cycle of 3 vertices)
+Graph createTriangleGraph() {
+    GraphTemplate gt(false);
+    // Add three nodes.
+    for (int i = 0; i < 3; ++i) {
+        gt.addNode(Node());
+    }
+    // Add edges in one order.
+    gt.addEdge(0, 1);
+    gt.addEdge(1, 2);
+    gt.addEdge(0, 2);
+    return Graph(gt);
+}
+
+// Helper to create a triangle graph with edge order reversed
+Graph createTriangleGraphDifferentOrder() {
+    GraphTemplate gt(false);
+    for (int i = 0; i < 3; ++i) {
+        gt.addNode(Node());
+    }
+    // Add the same edges in different order.
+    gt.addEdge(1, 2);
+    gt.addEdge(0, 2);
+    gt.addEdge(0, 1);
+    return Graph(gt);
+}
+
+// Helper to create a non-isomorphic graph: a simple path with 3 vertices.
+Graph createPathGraph() {
+    GraphTemplate gt(false);
+    for (int i = 0; i < 3; ++i) {
+        gt.addNode(Node());
+    }
+    // Create a path: 0-1, 1-2.
+    gt.addEdge(0, 1);
+    gt.addEdge(1, 2);
+    return Graph(gt);
+}
+
+TEST(CanonicalStringUncoloredTest, IsomorphicGraphsHaveSameCanonicalString) {
+    Graph triangle1 = createTriangleGraph();
+    Graph triangle2 = createTriangleGraphDifferentOrder();
+
+    std::string canon1 = triangle1.canonicalString_uncolored();
+    std::string canon2 = triangle2.canonicalString_uncolored();
+
+    // The canonical strings of isomorphic graphs must be equal.
+    cout << "Canonical strings: " << canon1 << " " << canon2 << endl;
+    EXPECT_EQ(canon1, canon2);
+}
+
+TEST(CanonicalStringUncoloredTest, NonIsomorphicGraphsHaveDifferentCanonicalString) {
+    Graph triangle = createTriangleGraph();
+    Graph path = createPathGraph();
+
+    std::string canonTriangle = triangle.canonicalString_uncolored();
+    std::string canonPath = path.canonicalString_uncolored();
+
+    // Canonical strings of non-isomorphic graphs should differ.
+    cout << "Canonical strings: " << canonTriangle << " " << canonPath << endl;
+    EXPECT_NE(canonTriangle, canonPath);
+}
+
+

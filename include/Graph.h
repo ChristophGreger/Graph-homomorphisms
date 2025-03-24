@@ -59,7 +59,7 @@ public:
 
     std::string toString() const;
 
-    std::string canonicalString() const;
+    std::string canonicalString_uncolored() const;
 
     vector<Graph> connectedComponents() const;
 
