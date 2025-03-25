@@ -18,12 +18,14 @@ namespace fs = std::filesystem;
 
 struct Flags {
     bool cfi = false;
+    bool invertedCfi = false;
     bool debug = false;
     std::string spasmFile;
 };
 
 Flags processFlags(int argc, char* argv[], int start) {
     bool cfi = false;
+    bool invertedCfi = false;
     bool debug = false;
     std::string spasmFile;
 
@@ -40,19 +42,22 @@ Flags processFlags(int argc, char* argv[], int start) {
             }else {
                 std::cerr << "Invalid value for option --spasmFile" << std::endl;
             }
+        }else if (option == "--invertedCfi") {
+            cfi = true;
+            invertedCfi = true;
         } else {
             std::cerr << "Unknown flag: " << option << std::endl;
             exit(1);
         }
     }
-    const Flags flags = {cfi,debug,spasmFile};
+    const Flags flags = {cfi,invertedCfi,debug,spasmFile};
     return flags;
 }
 
 /*
  * format:
  *
- * graph adj-list <n> <m>
+ * graph edge-list <n> <m>
  * <u_1> <v_1>
  * ...
  * <u_m> <v_m>
@@ -101,7 +106,7 @@ int main(int argc, char* argv[]) {
 
     if (command == "hom") {
         if (argc < 4) {
-            std::cerr << "Usage: ./main hom <H> <G> [--cfi] [--debug]" << std::endl;
+            std::cerr << "Usage: ./main hom <H> <G> [--cfi | --invertedCfi] [--debug]" << std::endl;
             return 1;
         }
         const Flags flags = processFlags(argc, argv, 4);
@@ -117,6 +122,7 @@ int main(int argc, char* argv[]) {
             std::cout << "H: " << HFile << std::endl;
             std::cout << "G: " << GFile << std::endl;
             std::cout << "Option --cfi: " << (flags.cfi ? "enabled" : "disabled") << std::endl;
+            std::cout << "Option --invertedCfi: " << (flags.invertedCfi ? "enabled" : "disabled") << std::endl;
             std::cout << "Option --debug: enabled" << std::endl;
         }
 
@@ -124,7 +130,7 @@ int main(int argc, char* argv[]) {
 
         int256_t result;
         if (flags.cfi) {
-            result = CalcHoms::calcNumHomsCFI_uncolored(H,G,false);
+            result = CalcHoms::calcNumHomsCFI_uncolored(H,G,flags.invertedCfi);
         }else {
             result = CalcHoms::calcNumHoms(H,G);
         }
@@ -142,7 +148,7 @@ int main(int argc, char* argv[]) {
     if (command == "emb") {
 
         if (argc < 4) {
-            std::cerr << "Usage: ./main emb <H> <G> [--spasmFile <spasmFile>] [--cfi] [--debug]" << endl;
+            std::cerr << "Usage: ./main emb <H> <G> [--spasmFile <spasmFile>] [--cfi | --invertedCfi] [--debug]" << endl;
             return 1;
         }
         const Flags flags = processFlags(argc, argv, 4);
@@ -158,6 +164,7 @@ int main(int argc, char* argv[]) {
             std::cout << "H: " << HFile << std::endl;
             std::cout << "G: " << GFile << std::endl;
             std::cout << "Option --cfi: " << (flags.cfi ? "enabled" : "disabled") << std::endl;
+            std::cout << "Option --invertedCfi: " << (flags.invertedCfi ? "enabled" : "disabled") << std::endl;
             std::cout << "Option --debug: " << "enabled" << std::endl;
         }
 
@@ -183,7 +190,7 @@ int main(int argc, char* argv[]) {
             std::cout << "Option --spasmFile: " << spasmFile << std::endl;
         }
 
-        int256_t result = CalcHoms::calcNumInjHoms(spasmFile,G,flags.cfi, false);
+        int256_t result = CalcHoms::calcNumInjHoms(spasmFile,G,flags.cfi, flags.invertedCfi);
 
         auto end1 = std::chrono::high_resolution_clock::now();
         auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(end1 - start1);
@@ -197,7 +204,7 @@ int main(int argc, char* argv[]) {
 
     if (command == "mat") {
         if (argc < 4) {
-            std::cerr << "Usage: ./main mat <k> <G> [--cfi] [--debug]" << std::endl;
+            std::cerr << "Usage: ./main mat <k> <G> [--cfi | --invertedCfi] [--debug]" << std::endl;
             return 1;
         }
         int k = 0;
@@ -222,6 +229,7 @@ int main(int argc, char* argv[]) {
             std::cout << "k: " << k << std::endl;
             std::cout << "G: " << GFile << std::endl;
             std::cout << "Option --cfi: " << (flags.cfi ? "enabled" : "disabled") << std::endl;
+            std::cout << "Option --invertedCfi: " << (flags.invertedCfi ? "enabled" : "disabled") << std::endl;
             std::cout << "Option --debug: " << "enabled" << std::endl;
         }
 
@@ -239,7 +247,7 @@ int main(int argc, char* argv[]) {
         fs::path exeDir = exePath.parent_path();
         fs::path assetPath = exeDir / "assets" / ("k_" + std::to_string(k) + ".txt");
 
-        int256_t result = CalcHoms::calcNumInjHoms(assetPath.string(),G,flags.cfi, false);
+        int256_t result = CalcHoms::calcNumInjHoms(assetPath.string(),G,flags.cfi, flags.invertedCfi);
 
         auto end1 = std::chrono::high_resolution_clock::now();
         auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(end1 - start1);
