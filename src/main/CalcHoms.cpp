@@ -543,10 +543,10 @@ int256_t CalcHoms::calcNumHomsCFI_colored(const Graph &H, const Graph &S, const 
 
 auto mtx = std::mutex();
 
-void fillMap(std::unordered_map<std::string, int256_t> &componentMap, const Graph &graph, const std::string &canon, const Graph &G, const bool CFI, const bool inverted) {
+void fillMap(std::unordered_map<std::string, int256_t> &componentMap, const Graph &graph, const std::string &canon, const Graph &G, const bool CFI, const bool inverted, const bool colored = false) {
     int256_t num = 0;
     if (CFI) {
-        num = CalcHoms::calcNumHomsCFI_uncolored(graph, G, inverted);
+        num = colored ? CalcHoms::calcNumHomsCFI_colored(graph, G, inverted) : CalcHoms::calcNumHomsCFI_uncolored(graph, G, inverted);
     } else {
         num = CalcHoms::calcNumHoms(graph, G);
     }
@@ -561,6 +561,12 @@ int256_t CalcHoms::calcNumInjHoms(const std::string &spasm_file_name, const Grap
 
     auto spasm = Spasm::getFromFile(spasm_file_name);
 
+    if (spasm.underlying_Graph.colored && !G.colored) {
+        throw runtime_error("Graphs do not match in being colored or not!");
+    }
+
+    const bool colored = spasm.underlying_Graph.colored;
+
     std::unordered_map<std::string, int256_t> componentMap;
 
     auto numThreads = boost::thread::physical_concurrency();
@@ -568,6 +574,7 @@ int256_t CalcHoms::calcNumInjHoms(const std::string &spasm_file_name, const Grap
         numThreads = 10;
         cout << "Could not determine number of threads!" << endl;
     }
+
     //cout << "Using " << numThreads << " threads" << endl;
 
     boost::asio::thread_pool pool(numThreads);
@@ -577,7 +584,7 @@ int256_t CalcHoms::calcNumInjHoms(const std::string &spasm_file_name, const Grap
         Graph graph = comp.Graph;
 
         boost::asio::post(pool, [&, canon, graph]() {
-            fillMap(componentMap, graph, canon, G, CFI_OF_G, CFI_inverted);
+            fillMap(componentMap, graph, canon, G, CFI_OF_G, CFI_inverted, colored);
         });
     }
 
@@ -594,7 +601,7 @@ int256_t CalcHoms::calcNumInjHoms(const std::string &spasm_file_name, const Grap
 
             int256_t newFactor = int256_pow(componentMap[canon], exponent);
 
-            // Sicherer Overflow-Check für Multiplikation (positiv und negativ):
+            // Secure overflow check (positive and negativ):
             if (factor > 0) {
                 if (newFactor > 0) {
                     if (factor > std::numeric_limits<int256_t>::max() / newFactor)

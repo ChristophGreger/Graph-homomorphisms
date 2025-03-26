@@ -871,3 +871,42 @@ TEST(CanonicalStringColoredExtraTest, ExceptionForUncoloredGraph) {
 }
 
 
+//DEBUGGING
+TEST(CanonicalStringColoredExtraTest, Debugging) {
+    GraphTemplate Ht = GraphTemplate(true);
+    Ht.addNode(Node(0));
+    Ht.addNode(Node(0));
+    Ht.addNode(Node(1));
+    Ht.addNode(Node(0));
+
+    Ht.addEdge(0, 1);
+    Ht.addEdge(1, 3);
+    Ht.addEdge(2, 3);
+
+    Graph Hg = Graph(Ht);
+
+    auto Hgcanon = Hg.canonicalString_colored();
+
+    cout << Hgcanon << endl;
+
+    GraphTemplate Gt = GraphTemplate(true);
+
+    Gt.addNode(Node(0));
+    Gt.addNode(Node(0));
+    Gt.addNode(Node(1));
+    Gt.addNode(Node(0));
+
+    Gt.addEdge(0, 1);
+    Gt.addEdge(1, 2);
+    Gt.addEdge(2, 3);
+
+    Graph Gg = Graph(Gt);
+
+    auto Gtcanon = Gg.canonicalString_colored();
+
+    cout << Gtcanon  << endl;
+
+    ASSERT_NE(Hgcanon, Gtcanon);
+}
+
+

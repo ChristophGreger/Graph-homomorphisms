@@ -41,6 +41,7 @@ TEST(Spasm, generateSquare) {
     squaret.addEdge(3, 0);
     Graph square(squaret);
     Spasm::create_and_store_Spasm("square.txt", square);
+
     RandomGraphGenerator randomS = RandomGraphGenerator(30, 100, false);
     Graph G = randomS.generateRandomConnectedGraph();
     ASSERT_EQ(CalcHoms::calcNumInjHoms(square, G), CalcHoms::calcNumInjHoms("square.txt", G));
@@ -60,4 +61,24 @@ TEST(Spasm, kmatching) {
     RandomGraphGenerator randomS = RandomGraphGenerator(30, 100, false);
     Graph G = randomS.generateRandomConnectedGraph();
     ASSERT_EQ(CalcHoms::calcNumInjHoms(k_3g, G), CalcHoms::calcNumInjHoms("k_3_test.txt", G));
+}
+
+TEST(Spasm, withoutgeneration) {
+    RandomGraphGenerator randomS = RandomGraphGenerator(30, 100, false);
+    Graph G = randomS.generateRandomConnectedGraph();
+
+    CalcHoms::calcNumInjHoms("k_3.txt", G);
+}
+
+TEST(Spasm, Generation_uncolored) {
+    Spasm::create_and_store_Spasm_k_Matching("k_6_test.txt", 6);
+    RandomGraphGenerator randomS = RandomGraphGenerator(30, 80, false);
+    Graph G = randomS.generateRandomConnectedGraph();
+    ASSERT_EQ(CalcHoms::calcNumInjHoms("k_6_test.txt", G, true), CalcHoms::calcNumInjHoms("k_6.txt", G, true));
+}
+
+TEST(Spasm, GenerateColored) {
+    RandomGraphGenerator randomS = RandomGraphGenerator(10, 20, true, false, 5);
+    Graph S = randomS.generateRandomConnectedGraph();
+    Spasm::create_and_store_Spasm("colored.txt", S);
 }

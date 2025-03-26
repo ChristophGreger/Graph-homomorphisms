@@ -374,8 +374,6 @@ std::string Graph::canonicalString_colored() const {
 
     vector<int> mapping(numVertices);
 
-    for (int i = 0; i < numVertices; i++) { mapping[i] = i; }
-
     for (int i = 0; i < numVertices; i++) {
         auto [node, color] = sortedByColor[i];
         mapping[node] = i;
@@ -403,7 +401,7 @@ std::string Graph::canonicalString_colored() const {
     }
 
     for (int i = 0; i < numVertices - 1; i++) {
-        if (g.nodes[i].color != g.nodes[i].color) {
+        if (g.nodes[i].color != g.nodes[i+1].color) {
             ptn[i] = 0;
         } else {
             ptn[i] = 1;
@@ -415,27 +413,20 @@ std::string Graph::canonicalString_colored() const {
     std::string result = g.canonicalString_uncolored(lab, ptn);
 
     //In lab now the permutation is stored
-    //i is the new label, lab[i] is the old label
+    //at lab[i] is the old index of the node that is now at position i
 
     //now we need to construct the color string out of the permutation
 
-    //invert the permutation such that lab[i] is the new label
-    int * invlab = new int[numVertices];
-    for (int i = 0; i < numVertices; i++) {
-        invlab[lab[i]] = i;
-    }
-
     std::ostringstream oss;
 
-    oss << "I"; // Start with a I to indicate the beginning of the colors
+    oss << "I"; // Start with an I to indicate the beginning of the colors
 
     for (int i = 0; i < numVertices; i++) {
-        oss << nodes[invlab[i]].color << "I";
+        oss << g.nodes[lab[i]].color << "I";
     }
 
     delete [] lab;
     delete [] ptn;
-    delete [] invlab;
     return result + oss.str();
 }
 

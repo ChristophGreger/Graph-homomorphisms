@@ -570,3 +570,95 @@ TEST(CalcHomsTest, calcNumHomsCFI_colored1) {
         }
     }
 }
+
+TEST(CalcHomsTest, calcInjHoms_colored) {
+    for (int i = 0; i < 10000; i++) {
+        RandomGraphGenerator H = RandomGraphGenerator(5, 4, true, false, 2);
+
+        Graph Hg = H.generateRandomConnectedGraph();
+
+        Spasm::create_and_store_Spasm("Testing_calcInjHoms_colored_4.txt", Hg, -1, uint256_t(CalcHoms::calcNumAutomorphisms(Hg)));
+
+        cout << "Neuer Graph!" << endl;
+
+        bool flag = true;
+
+        for (int j = 0; j < 10; j++) {
+            RandomGraphGenerator S = RandomGraphGenerator(15, 30, true, false, 2);
+            Graph Sg = S.generateRandomConnectedGraph();
+
+            auto numEmbeddings_non_bruteforce = CalcHoms::calcNumInjHoms("Testing_calcInjHoms_colored_4.txt", Sg, false, false);
+            auto numEmbeddings_bruteforce = CalcHoms::calcNumInjHoms(Hg, Sg);
+
+            if (numEmbeddings_bruteforce != numEmbeddings_non_bruteforce) {
+
+                flag = false;
+                cout << "Unterschiedlich:" << endl;
+                cout << numEmbeddings_bruteforce << endl;
+                cout << numEmbeddings_non_bruteforce << endl;
+            }
+
+        }
+
+        if (!flag) {
+            ASSERT_EQ(1, 2);
+            break;
+        }
+
+    }
+}
+
+//DEBUGGING
+TEST(CalcHomsTest, calcInjHoms_colored_special_case) {
+    GraphTemplate Ht = GraphTemplate(true);
+    Ht.addNode(Node(0));
+    Ht.addNode(Node(0));
+    Ht.addNode(Node(0));
+    Ht.addNode(Node(1));
+    Ht.addNode(Node(0));
+
+    Ht.addEdge(0, 1);
+    Ht.addEdge(1, 2);
+    Ht.addEdge(2, 3);
+    Ht.addEdge(3, 4);
+
+    Graph Hg = Graph(Ht);
+
+    Spasm::create_and_store_Spasm("Testing_calcInjHoms_colored__2.txt", Hg);
+
+
+
+    for (int j = 0; j < 10; j++) {
+        RandomGraphGenerator S = RandomGraphGenerator(15, 30, true, false, 2);
+        Graph Sg = S.generateRandomConnectedGraph();
+
+        auto numEmbeddings_non_bruteforce = CalcHoms::calcNumInjHoms("Testing_calcInjHoms_colored__2.txt", Sg, false, false);
+        auto numEmbeddings_bruteforce = CalcHoms::calcNumInjHoms(Hg, Sg);
+
+        ASSERT_EQ(numEmbeddings_bruteforce, numEmbeddings_non_bruteforce);
+
+
+    }
+}
+
+
+//DEBUGGING
+TEST(CalcHomsTest, calcInjHoms_uncolored) {
+    for (int i = 0; i < 10000; i++) {
+        RandomGraphGenerator H = RandomGraphGenerator(5, 4, false);
+        RandomGraphGenerator S = RandomGraphGenerator(15, 30, false);
+        Graph Hg = H.generateRandomConnectedGraph();
+        Graph Sg = S.generateRandomConnectedGraph();
+
+        Spasm::create_and_store_Spasm("Testing_calcInjHoms_uncolored_.txt", Hg);
+
+        auto numEmbeddings_non_bruteforce = CalcHoms::calcNumInjHoms("Testing_calcInjHoms_uncolored_.txt", Sg, false, false);
+        cout << numEmbeddings_non_bruteforce << endl;
+        auto numEmbeddings_bruteforce = CalcHoms::calcNumInjHoms(Hg, Sg);
+        if (numEmbeddings_bruteforce != numEmbeddings_non_bruteforce) {
+            Hg.printGraph();
+            Sg.printGraph();
+        }
+        ASSERT_EQ(numEmbeddings_bruteforce, numEmbeddings_non_bruteforce);
+    }
+}
