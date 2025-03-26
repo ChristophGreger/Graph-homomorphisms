@@ -59,7 +59,7 @@ target_link_libraries(Graph_homomorphisms
 ##BOOST
 cmake_policy(SET CMP0167 NEW)
 # Boost suchen (ohne COMPONENTS)
-find_package(Boost REQUIRED COMPONENTS thread system)
+find_package(Boost REQUIRED COMPONENTS thread system filesystem)
 
 # Boost Include-Pfad hinzufügen
 target_include_directories(bib PUBLIC ${Boost_INCLUDE_DIRS})
@@ -119,6 +119,8 @@ set(NAUTY_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/external/nauty/nauty.a)
 target_link_libraries(bib PRIVATE ${NAUTY_LIBRARY})
 target_include_directories(bib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/external/nauty)
 
+# Copy the entire 'assets' folder to the build directory
+file(COPY ${CMAKE_SOURCE_DIR}/assets/ DESTINATION ${CMAKE_BINARY_DIR}/assets)
 
 #Some stuff doesn't work: To run everything you need to run ./configure in the external/nauty and make afterwards
 #boost MUSS installiert sein!
