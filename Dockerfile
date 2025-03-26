@@ -7,6 +7,9 @@ RUN apt-get update && apt-get install -y \
     wget \
     openjdk-17-jdk \
     libssl-dev \
+    clang \
+    libc++-dev \
+    libc++abi-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # CMake manuell installieren (neueste Version)
@@ -38,4 +41,5 @@ RUN mkdir -p build
 WORKDIR /app/build
 
 # Run CMake and build in release mode
-RUN cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build .
+RUN cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_FLAGS="-stdlib=libc++" -DCMAKE_CXX_COMPILER=clang++ .. \
+    && cmake --build .
