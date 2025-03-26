@@ -93,6 +93,11 @@ inline std::string getCanonincalString_colored(graph *g, const int numVertices, 
 }
 
 void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, const int k, const uint256_t &numAutomorphisms) {
+    Spasm spasm = create_Spasm(G, k, numAutomorphisms);
+    writeToFile(filename, spasm);
+}
+
+Spasm::Spasm Spasm::create_Spasm(const Graph &G, const int k, const uint256_t &numAutomorphisms) {
     const int numEdges = G.edges.size();
     const int numVertices = G.numVertices;
 
@@ -378,7 +383,7 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
         spasm.Components.push_back(comp);
     }
 
-    writeToFile(filename, spasm);
+    return spasm;
 }
 
 

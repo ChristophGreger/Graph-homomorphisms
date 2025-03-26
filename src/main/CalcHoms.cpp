@@ -556,10 +556,14 @@ void fillMap(std::unordered_map<std::string, int256_t> &componentMap, const Grap
     componentMap[canon] = num;
 }
 
-
 int256_t CalcHoms::calcNumInjHoms(const std::string &spasm_file_name, const Graph &G, bool CFI_OF_G, bool CFI_inverted) {
-
     auto spasm = Spasm::getFromFile(spasm_file_name);
+    return calcNumInjHoms(spasm, G, CFI_OF_G, CFI_inverted);
+}
+
+
+
+int256_t CalcHoms::calcNumInjHoms(Spasm::Spasm spasm, const Graph &G, bool CFI_OF_G, bool CFI_inverted) {
 
     if (spasm.underlying_Graph.colored && !G.colored) {
         throw runtime_error("Graphs do not match in being colored or not!");

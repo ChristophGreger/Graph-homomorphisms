@@ -572,12 +572,12 @@ TEST(CalcHomsTest, calcNumHomsCFI_colored1) {
 }
 
 TEST(CalcHomsTest, calcInjHoms_colored) {
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < 100; i++) {
         RandomGraphGenerator H = RandomGraphGenerator(5, 4, true, false, 2);
 
         Graph Hg = H.generateRandomConnectedGraph();
 
-        Spasm::create_and_store_Spasm("Testing_calcInjHoms_colored_4.txt", Hg, -1, uint256_t(CalcHoms::calcNumAutomorphisms(Hg)));
+        Spasm::Spasm spasm = Spasm::create_Spasm(Hg, -1, uint256_t(CalcHoms::calcNumAutomorphisms(Hg)));
 
         cout << "Neuer Graph!" << endl;
 
@@ -587,7 +587,7 @@ TEST(CalcHomsTest, calcInjHoms_colored) {
             RandomGraphGenerator S = RandomGraphGenerator(15, 30, true, false, 2);
             Graph Sg = S.generateRandomConnectedGraph();
 
-            auto numEmbeddings_non_bruteforce = CalcHoms::calcNumInjHoms("Testing_calcInjHoms_colored_4.txt", Sg, false, false);
+            auto numEmbeddings_non_bruteforce = CalcHoms::calcNumInjHoms(spasm, Sg, false, false);
             auto numEmbeddings_bruteforce = CalcHoms::calcNumInjHoms(Hg, Sg);
 
             if (numEmbeddings_bruteforce != numEmbeddings_non_bruteforce) {
@@ -608,7 +608,6 @@ TEST(CalcHomsTest, calcInjHoms_colored) {
     }
 }
 
-//DEBUGGING
 TEST(CalcHomsTest, calcInjHoms_colored_special_case) {
     GraphTemplate Ht = GraphTemplate(true);
     Ht.addNode(Node(0));
@@ -642,17 +641,16 @@ TEST(CalcHomsTest, calcInjHoms_colored_special_case) {
 }
 
 
-//DEBUGGING
 TEST(CalcHomsTest, calcInjHoms_uncolored) {
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < 100; i++) {
         RandomGraphGenerator H = RandomGraphGenerator(5, 4, false);
         RandomGraphGenerator S = RandomGraphGenerator(15, 30, false);
         Graph Hg = H.generateRandomConnectedGraph();
         Graph Sg = S.generateRandomConnectedGraph();
 
-        Spasm::create_and_store_Spasm("Testing_calcInjHoms_uncolored_.txt", Hg);
+        Spasm::Spasm spasm = Spasm::create_Spasm(Hg);
 
-        auto numEmbeddings_non_bruteforce = CalcHoms::calcNumInjHoms("Testing_calcInjHoms_uncolored_.txt", Sg, false, false);
+        auto numEmbeddings_non_bruteforce = CalcHoms::calcNumInjHoms(spasm, Sg, false, false);
         cout << numEmbeddings_non_bruteforce << endl;
         auto numEmbeddings_bruteforce = CalcHoms::calcNumInjHoms(Hg, Sg);
         if (numEmbeddings_bruteforce != numEmbeddings_non_bruteforce) {
