@@ -642,3 +642,271 @@ TEST(GraphTest, TreeWidth) {
     }
 }
 
+
+// Helper to create a triangle graph (cycle of 3 vertices)
+Graph createTriangleGraph() {
+    GraphTemplate gt(false);
+    // Add three nodes.
+    for (int i = 0; i < 3; ++i) {
+        gt.addNode(Node());
+    }
+    // Add edges in one order.
+    gt.addEdge(0, 1);
+    gt.addEdge(1, 2);
+    gt.addEdge(0, 2);
+    return Graph(gt);
+}
+
+// Helper to create a triangle graph with edge order reversed
+Graph createTriangleGraphDifferentOrder() {
+    GraphTemplate gt(false);
+    for (int i = 0; i < 3; ++i) {
+        gt.addNode(Node());
+    }
+    // Add the same edges in different order.
+    gt.addEdge(1, 2);
+    gt.addEdge(0, 2);
+    gt.addEdge(0, 1);
+    return Graph(gt);
+}
+
+// Helper to create a non-isomorphic graph: a simple path with 3 vertices.
+Graph createPathGraph() {
+    GraphTemplate gt(false);
+    for (int i = 0; i < 3; ++i) {
+        gt.addNode(Node());
+    }
+    // Create a path: 0-1, 1-2.
+    gt.addEdge(0, 1);
+    gt.addEdge(1, 2);
+    return Graph(gt);
+}
+
+TEST(CanonicalStringUncoloredTest, IsomorphicGraphsHaveSameCanonicalString) {
+    Graph triangle1 = createTriangleGraph();
+    Graph triangle2 = createTriangleGraphDifferentOrder();
+
+    std::string canon1 = triangle1.canonicalString_uncolored();
+    std::string canon2 = triangle2.canonicalString_uncolored();
+
+    // The canonical strings of isomorphic graphs must be equal.
+    cout << "Canonical strings: " << canon1 << " " << canon2 << endl;
+    EXPECT_EQ(canon1, canon2);
+}
+
+TEST(CanonicalStringUncoloredTest, NonIsomorphicGraphsHaveDifferentCanonicalString) {
+    Graph triangle = createTriangleGraph();
+    Graph path = createPathGraph();
+
+    std::string canonTriangle = triangle.canonicalString_uncolored();
+    std::string canonPath = path.canonicalString_uncolored();
+
+    // Canonical strings of non-isomorphic graphs should differ.
+    cout << "Canonical strings: " << canonTriangle << " " << canonPath << endl;
+    EXPECT_NE(canonTriangle, canonPath);
+}
+
+
+// Helper to create a colored triangle graph, all nodes having the same color.
+Graph createColoredTriangleGraph() {
+    GraphTemplate gt(true);
+    // Create three nodes with color 1.
+    for (int i = 0; i < 3; ++i) {
+        gt.addNode(Node(i));
+    }
+    // Add edges in one order.
+    gt.addEdge(0, 1);
+    gt.addEdge(1, 2);
+    gt.addEdge(0, 2);
+    return Graph(gt);
+}
+
+// Helper to create a colored triangle graph with different edge order.
+Graph createColoredTriangleGraphDifferentOrder() {
+    GraphTemplate gt(true);
+    for (int i = 0; i < 3; ++i) {
+        gt.addNode(Node(i));
+    }
+    // Add the same edges but in a different order.
+    gt.addEdge(1, 2);
+    gt.addEdge(0, 2);
+    gt.addEdge(0, 1);
+    return Graph(gt);
+}
+
+// Helper to create a non-isomorphic colored graph.
+// A colored path graph of 3 nodes, all nodes same color.
+Graph createColoredPathGraph() {
+    GraphTemplate gt(true);
+    for (int i = 0; i < 3; ++i) {
+        gt.addNode(Node(i));
+    }
+    // Create a path: 0-1, 1-2.
+    gt.addEdge(0, 1);
+    gt.addEdge(1, 2);
+    return Graph(gt);
+}
+
+TEST(CanonicalStringColoredTest, IsomorphicColoredGraphsHaveSameCanonicalString) {
+    Graph triangle1 = createColoredTriangleGraph();
+    Graph triangle2 = createColoredTriangleGraphDifferentOrder();
+
+    std::string canon1 = triangle1.canonicalString_colored();
+    std::string canon2 = triangle2.canonicalString_colored();
+
+    // Isomorphic colored graphs must yield the same canonical string.
+    cout << "Canonical strings: " << canon1 << " " << canon2 << endl;
+    EXPECT_EQ(canon1, canon2);
+}
+
+TEST(CanonicalStringColoredTest, NonIsomorphicColoredGraphsHaveDifferentCanonicalString) {
+    Graph triangle = createColoredTriangleGraph();
+    Graph path = createColoredPathGraph();
+
+    std::string canonTriangle = triangle.canonicalString_colored();
+    std::string canonPath = path.canonicalString_colored();
+
+    // Non-isomorphic graphs should yield different canonical strings.
+    cout << "Canonical strings: " << canonTriangle << " " << canonPath << endl;
+    EXPECT_NE(canonTriangle, canonPath);
+}
+
+
+// Helper to create a graph with a single colored node.
+Graph createSingleColoredNodeGraph() {
+    GraphTemplate gt(true);
+    gt.addNode(Node(5));
+    return Graph(gt);
+}
+
+// Helper to create an isomorphic colored graph with an extra isolated node.
+Graph createColoredGraphWithIsolatedNode() {
+    GraphTemplate gt(true);
+    // Create 4 nodes with colors 1, 2, 3, 4.
+    gt.addNode(Node(1));
+    gt.addNode(Node(2));
+    gt.addNode(Node(3));
+    gt.addNode(Node(4));
+    // Connect nodes 0-1 and 1-2
+    gt.addEdge(0, 1);
+    gt.addEdge(1, 2);
+    // Node 3 remains isolated.
+    return Graph(gt);
+}
+
+Graph createColoredGraphWithDifferentEdgeOrder() {
+    GraphTemplate gt(true);
+    // Same colored nodes as in createColoredGraphWithIsolatedNode.
+    gt.addNode(Node(1));
+    gt.addNode(Node(2));
+    gt.addNode(Node(3));
+    gt.addNode(Node(4));
+    // Adding the same edges but in reversed order.
+    gt.addEdge(1, 2);
+    gt.addEdge(0, 1);
+    return Graph(gt);
+}
+
+// Helper to create a non-isomorphic graph that forces a different permutation, by different colors
+Graph createDistinctColoredGraph() {
+    GraphTemplate gt(true);
+    // Create 3 nodes with distinct colors.
+    gt.addNode(Node(10));
+    gt.addNode(Node(20));
+    gt.addNode(Node(30));
+    // Connect in a triangle.
+    gt.addEdge(0, 1);
+    gt.addEdge(1, 2);
+    gt.addEdge(0, 2);
+    return Graph(gt);
+}
+
+TEST(CanonicalStringColoredExtraTest, SingleNodeGraph) {
+    Graph singleNode = createSingleColoredNodeGraph();
+    // The canonical string should contain the node's color.
+    std::string canon = singleNode.canonicalString_colored();
+    EXPECT_NE(canon.find("5"), std::string::npos);
+}
+
+TEST(CanonicalStringColoredExtraTest, IsomorphicGraphsWithIsolatedNode) {
+    Graph graph1 = createColoredGraphWithIsolatedNode();
+    Graph graph2 = createColoredGraphWithDifferentEdgeOrder();
+    // Even though the edge order is different, the graphs are isomorphic.
+    std::string canon1 = graph1.canonicalString_colored();
+    std::string canon2 = graph2.canonicalString_colored();
+    EXPECT_EQ(canon1, canon2);
+}
+
+TEST(CanonicalStringColoredExtraTest, DistinctColoredGraphsDiffer) {
+    Graph graph1 = createDistinctColoredGraph();
+    // Create a second graph with the same structure but alter one node's color.
+    GraphTemplate gt(true);
+    gt.addNode(Node(10));
+    gt.addNode(Node(20));
+    // Change the third node's color
+    gt.addNode(Node(99));
+    gt.addEdge(0, 1);
+    gt.addEdge(1, 2);
+    gt.addEdge(0, 2);
+    Graph graph2(gt);
+
+    std::string canon1 = graph1.canonicalString_colored();
+    std::string canon2 = graph2.canonicalString_colored();
+
+    EXPECT_NE(canon1, canon2);
+}
+
+TEST(CanonicalStringColoredExtraTest, ExceptionForUncoloredGraph) {
+    // Create a colored graph template but later treat it as uncolored.
+    GraphTemplate gt(false);
+    gt.addNode(Node());
+    gt.addNode(Node());
+    gt.addEdge(0, 1);
+    Graph uncolored(gt);
+
+    // Calling canonicalString_colored on an uncolored graph should throw.
+    EXPECT_THROW({
+        uncolored.canonicalString_colored();
+    }, std::runtime_error);
+}
+
+
+//DEBUGGING
+TEST(CanonicalStringColoredExtraTest, Debugging) {
+    GraphTemplate Ht = GraphTemplate(true);
+    Ht.addNode(Node(0));
+    Ht.addNode(Node(0));
+    Ht.addNode(Node(1));
+    Ht.addNode(Node(0));
+
+    Ht.addEdge(0, 1);
+    Ht.addEdge(1, 3);
+    Ht.addEdge(2, 3);
+
+    Graph Hg = Graph(Ht);
+
+    auto Hgcanon = Hg.canonicalString_colored();
+
+    cout << Hgcanon << endl;
+
+    GraphTemplate Gt = GraphTemplate(true);
+
+    Gt.addNode(Node(0));
+    Gt.addNode(Node(0));
+    Gt.addNode(Node(1));
+    Gt.addNode(Node(0));
+
+    Gt.addEdge(0, 1);
+    Gt.addEdge(1, 2);
+    Gt.addEdge(2, 3);
+
+    Graph Gg = Graph(Gt);
+
+    auto Gtcanon = Gg.canonicalString_colored();
+
+    cout << Gtcanon  << endl;
+
+    ASSERT_NE(Hgcanon, Gtcanon);
+}
+
+

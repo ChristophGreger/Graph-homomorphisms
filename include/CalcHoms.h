@@ -6,6 +6,7 @@
 #define CALCHOMS_H
 #include "Graph.h"
 #include <boost/multiprecision/cpp_int.hpp>
+#include "Spasm.h"
 
 using boost::multiprecision::int256_t;
 
@@ -23,6 +24,9 @@ public:
     static long long calcNumHoms(const Graph& H, const Graph& G);
     static long long calcNumInjHoms(const Graph &H, const Graph &G);
     static int256_t calcNumInjHoms(const std::string &spasm_file_name, const Graph &G, bool CFI_OF_G = false, bool CFI_inverted = false);
+
+    static int256_t calcNumInjHoms(Spasm::Spasm spasm, const Graph &G, bool CFI_OF_G = false, bool CFI_inverted = false);
+
     static int256_t calcNumAutomorphisms(const Graph &G);
 
     //Uses the num of automorphisms out of the spasm file

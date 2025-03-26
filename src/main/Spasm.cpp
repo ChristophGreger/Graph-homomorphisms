@@ -12,33 +12,92 @@
 
 #define set nauty_set
 
-int maxn = 31;
-int maxm = 1;
+inline std::string getCanonicalString(graph *g, const int numVertices, const int m, int *lab =  nullptr, int *ptn = nullptr) {
 
-inline std::string getCanonicalString(graph *g, const int numVertices) {
+    bool lab_got = true, ptn_got = true;
+    if (lab == nullptr) {
+        lab = new int[numVertices];
+        lab_got = false;
+    }
 
-    int lab[maxn], ptn[maxn], orbits[maxn]; //maxn
+    if (ptn == nullptr) {
+        ptn = new int[numVertices];
+        ptn_got = false;
+    }
+
+    int  * orbits = new int[numVertices]; //maxn
     static DEFAULTOPTIONS_GRAPH(options);
     options.getcanon = TRUE;
     statsblk stats;
 
-    graph canon[maxn*maxm]; //maxn*maxm
+    graph canon[numVertices * m];
 
-    EMPTYGRAPH(canon, maxm, numVertices);
+    EMPTYGRAPH(canon, m, numVertices);
 
-    densenauty(g, lab, ptn, orbits, &options, &stats, maxm, numVertices, canon);
+    densenauty(g, lab, ptn, orbits, &options, &stats, m, numVertices, canon);
+
+    delete [] orbits;
 
     std::ostringstream oss;
     // Optional: make sure the stream is working in hexadecimal format.
     oss << std::hex;
-    for (int i = 0; i < maxm*numVertices; i++) {
+    for (int i = 0; i < m*numVertices; i++) {
         // setfill and setw ensure leading zeroes are printed, so each setword is output as a 16-digit hexadecimal number.
         oss << std::setfill('0') << std::setw(16) << canon[i];
     }
+
+    if (!lab_got) {
+        delete[] lab;
+    }
+    if (!ptn_got) {
+        delete[] ptn;
+    }
+
     return oss.str();
 }
 
+inline std::string getCanonincalString_colored(graph *g, const int numVertices, const int m, const int * node_to_color) {
+    int *lab = new int[numVertices];
+    int *ptn = new int[numVertices];
+
+    for (int i = 0; i < numVertices; i++) {
+        lab[i] = i;
+    }
+
+    for (int i = 0; i < numVertices - 1; i++) {
+        if (node_to_color[i] != node_to_color[i + 1]) {
+            ptn[i] = 0;
+        } else {
+            ptn[i] = 1;
+        }
+    }
+
+    std::string canon_uncolored = getCanonicalString(g, numVertices, m, lab, ptn); //get the canonical string of the uncolored graph
+
+    //In lab now the permutation is stored
+    //at lab[i] is the old index of the node that is now at position i
+
+    std::ostringstream oss;
+
+    oss << "I"; // Start with an I to indicate the beginning of the colors
+
+    for (int i = 0; i < numVertices; i++) {
+        oss << node_to_color[lab[i]]<< "I";
+    }
+
+    delete [] lab;
+    delete [] ptn;
+
+    return canon_uncolored + oss.str();
+
+}
+
 void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, const int k, const uint256_t &numAutomorphisms) {
+    Spasm spasm = create_Spasm(G, k, numAutomorphisms);
+    writeToFile(filename, spasm);
+}
+
+Spasm::Spasm Spasm::create_Spasm(const Graph &G, const int k, const uint256_t &numAutomorphisms) {
     const int numEdges = G.edges.size();
     const int numVertices = G.numVertices;
 
@@ -51,8 +110,14 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
 
     // partition[i] tells us to which block the vertex i belongs.
     std::vector<int> partition(numVertices, -1);
-    partition[0] = 0;  // the first node is asigned to block 0
+    partition[0] = 0;  // the first node is assigned to block 0
     std::vector<int> numperpartition(numVertices, 0);
+
+    //Only for colored. parition_color[i] tells us which color the partition i has.
+    std::vector<int> partition_color = std::vector<int>(numVertices, -1);
+    partition_color[0] = G.nodes[0].color;
+
+    int m = SETWORDSNEEDED(G.numVertices);
 
 
     // recursive backtracking function
@@ -66,7 +131,30 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
 
             const int numVerticeshere = currentMax + 1;
 
-            EMPTYGRAPH(g, maxm, numVerticeshere);
+            EMPTYGRAPH(g, m, numVerticeshere);
+
+
+            int * partition_sort_mapping; //maps partition (its number) to position in the node array (its index there)(sorted by color)
+            int * node_to_color; //maps the node in the new order to its color (color at index of node)
+            if (G.colored) {
+                node_to_color = new int[numVerticeshere];
+                partition_sort_mapping = new int[numVerticeshere];
+                std::vector<std::pair<int, int>> partition_color_sort(numVerticeshere);
+                for (int i = 0; i < numVerticeshere; i++) {
+                    partition_color_sort[i] = std::make_pair(partition_color[i], i);
+                }
+                ranges::sort(partition_color_sort);
+                for (int i = 0; i < numVerticeshere; i++) {
+                    auto [color, oldindex] = partition_color_sort[i];
+                    partition_sort_mapping[oldindex] = i;
+                }
+
+                //node_to_color
+                for (int i = 0; i < numVerticeshere; i++) {
+                    node_to_color[partition_sort_mapping[i]] = partition_color[i];
+                }
+            }
+
 
             // For every edge in the original graph that connects two different blocks,
             // insert a corresponding edge in the quotient graph.
@@ -78,7 +166,7 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
                     if (ISELEMENT(&g[bu], bv)) {
                         continue;
                     }
-                    ADDONEEDGE(g, bu, bv, maxm);
+                    ADDONEEDGE(g, bu, bv, m);
                     edgeArray[numEdgeshere] = std::make_pair(bu, bv);
                     ++numEdgeshere;
                 }
@@ -86,20 +174,20 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
                 for (auto [fst, snd] : G.edges) {
                     const int u = fst;
                     const int v = snd;
-                    const int bu = partition[u];
-                    const int bv = partition[v];
+                    const int bu = G.colored ? partition_sort_mapping[partition[u]] : partition[u];
+                    const int bv = G.colored ? partition_sort_mapping[partition[v]] : partition[v];
 
                     if (ISELEMENT(&g[bu], bv)) {
                         continue;
                     }
-                    ADDONEEDGE(g, bu, bv, maxm);
+                    ADDONEEDGE(g, bu, bv, m);
                     edgeArray[numEdgeshere] = std::make_pair(bu, bv);
                     ++numEdgeshere;
                 }
             }
             //calculate the canonical form of the graph
 
-            const std::string canon = getCanonicalString(g, currentMax+1);
+            const std::string canon = G.colored ? getCanonincalString_colored(g, numVerticeshere, m, node_to_color) : getCanonicalString(g, numVerticeshere, m);
 
             //Computing the factor (or at least the Partition element product part of it) of the graph
             int256_t factor = 1;
@@ -120,7 +208,15 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
 
             if (!canonicalMap.contains(canon)) {
                 std::stringstream ss;
-                ss << numVerticeshere << " " << numEdgeshere << "\n";
+                ss << numVerticeshere << " " << numEdgeshere;
+
+                //for the colored case we also need to add the colors
+                if (G.colored) {
+                    for (int i = 0; i < numVerticeshere; i++) {
+                        ss << " " << node_to_color[i];
+                    }
+                }
+                ss << "\n";
                 for (int i = 0; i < numEdgeshere; i++) {
                     ss << edgeArray[i].first << " -> " << edgeArray[i].second << "\n";
                 }
@@ -142,17 +238,29 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
         for (int block = 0; block <= currentMax; block++) {
             bool valid = true;
 
+
+            if (G.colored) {
+                // Check if adding the node to block 'block' would lead to a color mismatch
+                if (partition_color[block] != G.nodes[vertex].color) {
+                    valid = false;
+                    continue;
+                }
+            }
+
+
             //Check if adding the node to block 'block' would lead to a self-loop (edge within the block).
 
             if (k > 0) {
                 if (vertex % 2 == 1) {
                     if (partition[vertex - 1] == block) {
                         valid = false;
+                        continue;
                     }
 
                 } else {
                     if (partition[vertex + 1] == block) {
                         valid = false;
+                        continue;
                     }
 
                 }
@@ -165,21 +273,24 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
                 }
             }
 
-
-
             if (!valid) continue;
             partition[vertex] = block;
             backtrack(vertex + 1, currentMax, g, edgeArray);
         }
-        // open new block the the current node
+
+        // open new block for the current node
         partition[vertex] = currentMax + 1;
+
+        if (G.colored) {
+            partition_color[currentMax + 1] = G.nodes[vertex].color;
+        }
+
         backtrack(vertex + 1, currentMax + 1, g, edgeArray);
     };
 
-    auto *g = new graph[maxn * maxm];
+    auto *g = new graph[numVertices * m];
     auto *edgearray = new std::pair<int, int>[numEdges];
     backtrack(1, 0, g, edgearray);
-
     delete[] g;
     delete[] edgearray;
 
@@ -192,8 +303,24 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
         int numVertices_, numEdges_;
         ss >> numVertices_ >> numEdges_;
 
-        GraphTemplate gt;
-        for (int i = 0; i < numVertices_; ++i) gt.addNode(Node());
+        vector<int> vertexColors = vector<int>();
+
+        if (G.colored) {
+            int nextcolor;
+            for (int i = 0; i < numVertices_; ++i) {
+                ss >> nextcolor;
+                vertexColors.push_back(nextcolor);
+            }
+        }
+
+        GraphTemplate gt = GraphTemplate(G.colored);
+        for (int i = 0; i < numVertices_; ++i) {
+            if (!G.colored) {
+                gt.addNode(Node());
+            } else {
+                gt.addNode(Node(vertexColors[i]));
+            }
+        }
 
         for (int i = 0; i < numEdges_; ++i) {
             int u, v;
@@ -224,7 +351,14 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
     for (const auto &[canon, graph, factor] : big_graphs) {
         std::unordered_map<std::string, int> componentMap; //Maps canonical Strings of the component to the count of that component
         for (const auto &comp : graph.connectedComponents()) {
-            std::string canonical_of_component = comp.canonicalString();
+
+            std::string canonical_of_component;
+            if (G.colored) {
+                canonical_of_component = comp.canonicalString_colored();
+            } else {
+                canonical_of_component = comp.canonicalString_uncolored();
+            }
+
             canonical_SmallMap.insert({canonical_of_component ,comp});
             if (!componentMap.contains(canonical_of_component)) {
                 componentMap.insert({canonical_of_component, 1});
@@ -249,7 +383,7 @@ void Spasm::create_and_store_Spasm(const std::string &filename, const Graph &G, 
         spasm.Components.push_back(comp);
     }
 
-    writeToFile(filename, spasm);
+    return spasm;
 }
 
 
@@ -278,7 +412,19 @@ void Spasm::writeToFile(const std::string &output_file, const Spasm &spasm) {
         throw std::runtime_error("Cannot open file: " + output_file);
     }
 
-    file << spasm.underlying_Graph.numVertices << " " << spasm.underlying_Graph.edges.size() << "\n";
+    if (spasm.underlying_Graph.colored) {
+        file << "COLORED\n";
+    }
+
+    file << spasm.underlying_Graph.numVertices << " " << spasm.underlying_Graph.edges.size();
+
+    if (spasm.underlying_Graph.colored) {
+        for (const Node node : spasm.underlying_Graph.nodes) {
+            file << " " << node.color;
+        }
+    }
+
+    file << "\n";
     for (const auto &edge : spasm.underlying_Graph.edges) {
         file << edge.first << " " << edge.second << "\n";
     }
@@ -293,10 +439,19 @@ void Spasm::writeToFile(const std::string &output_file, const Spasm &spasm) {
         }
     }
 
+
     file << spasm.Components.size() << "\n";
     for (const auto &comp : spasm.Components) {
         file << comp.canonicalString << "\n";
-        file << comp.Graph.numVertices << " " << comp.Graph.edges.size() << "\n";
+        file << comp.Graph.numVertices << " " << comp.Graph.edges.size();
+
+        if (spasm.underlying_Graph.colored) {
+            for (const Node node : comp.Graph.nodes) {
+                file << " " << node.color;
+            }
+        }
+
+        file << "\n";
         for (const auto &edge : comp.Graph.edges) {
             file << edge.first << " " << edge.second << "\n";
         }
@@ -304,6 +459,10 @@ void Spasm::writeToFile(const std::string &output_file, const Spasm &spasm) {
 
     file.close();
 }
+
+//TODO: Ab hier noch nicht colored
+
+
 
 Spasm::Spasm Spasm::getFromFile(const std::string &spasm_file) {
     std::ifstream file;
@@ -325,11 +484,34 @@ Spasm::Spasm Spasm::getFromFile(const std::string &spasm_file) {
 
     Spasm spasm;
 
+
+    bool colored = false;
+
+    std::string firstLine;
+    std::getline(file, firstLine);
+
+    if (firstLine == "COLORED") {
+        colored = true;
+    } else {
+        // Reset the file stream
+        file.clear();               //Reset possible stuff like EOF
+        file.seekg(0, std::ios::beg); // back to the beginning
+    }
+
+
     int vertices, edges;
     file >> vertices >> edges;
 
-    GraphTemplate gt;
-    for (int i = 0; i < vertices; ++i) gt.addNode(Node());
+    GraphTemplate gt = GraphTemplate(colored);
+    for (int i = 0; i < vertices; ++i) {
+        if (colored) {
+            int color;
+            file >> color;
+            gt.addNode(Node(color));
+        } else {
+            gt.addNode(Node());
+        }
+    }
 
     for (int i = 0; i < edges; ++i) {
         int u, v;
@@ -366,9 +548,16 @@ Spasm::Spasm Spasm::getFromFile(const std::string &spasm_file) {
         int compVertices, compEdges;
         file >> compVertices >> compEdges;
 
-        GraphTemplate compGt;
-        for (int j = 0; j < compVertices; ++j) compGt.addNode(Node());
-
+        GraphTemplate compGt = GraphTemplate(colored);
+        for (int j = 0; j < compVertices; ++j) {
+            if (colored) {
+                int color;
+                file >> color;
+                compGt.addNode(Node(color));
+            } else {
+                compGt.addNode(Node());
+            }
+        }
         for (int j = 0; j < compEdges; ++j) {
             int u, v;
             file >> u >> v;

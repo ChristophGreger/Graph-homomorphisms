@@ -59,7 +59,9 @@ public:
 
     std::string toString() const;
 
-    std::string canonicalString() const;
+    std::string canonicalString_uncolored(int * lab = nullptr, int * ptn = nullptr) const;
+
+    std::string canonicalString_colored() const;
 
     vector<Graph> connectedComponents() const;
 

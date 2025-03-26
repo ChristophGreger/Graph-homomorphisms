@@ -298,14 +298,25 @@ std::string Graph::toString() const {
 
 // Example implementation of Graph::canonicalString() using nauty
 // Only use with Graphs that have less than 20 nodes !!!!
-std::string Graph::canonicalString() const {
-
+std::string Graph::canonicalString_uncolored(int * lab, int * ptn) const {
 #define set nauty_set // No idea why this is necessary
 
-    int maxn = 20;
-    int maxm = 1;
+    int maxn = numVertices;
+    int maxm = SETWORDSNEEDED(maxn);
     graph g[maxm*maxn];
-    int lab[maxn], ptn[maxn], orbits[maxn];
+
+    vector<int*> tofree = vector<int*>();
+
+    if (lab == nullptr) {
+        lab = new int[maxn];
+        tofree.push_back(lab);
+    }
+    if (ptn == nullptr) {
+        ptn = new int[maxn];
+        tofree.push_back(ptn);
+    }
+
+    int orbits[maxn];
     static DEFAULTOPTIONS_GRAPH(options);
     statsblk stats;
 
@@ -336,7 +347,87 @@ std::string Graph::canonicalString() const {
         // setfill and setw ensure leading zeros, so that each setword is output as a 16-digit hexadecimal number.
         oss << std::setfill('0') << std::setw(16) << canon[i];
     }
+
+    for (const auto &ptr : tofree) {
+        delete[] ptr;
+    }
+
     return oss.str();
+}
+
+//This funktion is not really fast (could be made probably 5 times faster)
+std::string Graph::canonicalString_colored() const {
+
+    if (!colored) {
+        throw std::runtime_error("Graph is not colored");
+    }
+
+    vector<pair<int, int>> sortedByColor(numVertices);
+
+    for (int i = 0; i < numVertices; i++) {
+        sortedByColor[i] = make_pair(i, nodes[i].color);
+    }
+
+    ranges::sort(sortedByColor, [](const std::pair<int, int>& a, const std::pair<int, int>& b) {
+        return a.second < b.second;
+    });
+
+    vector<int> mapping(numVertices);
+
+    for (int i = 0; i < numVertices; i++) {
+        auto [node, color] = sortedByColor[i];
+        mapping[node] = i;
+    }
+
+    GraphTemplate t = GraphTemplate(true);
+    for (int i = 0; i < numVertices; i++) {
+        t.addNode(nodes[sortedByColor[i].first]);
+    }
+
+    for (auto edge : edges) {
+        auto [u, v] = edge;
+        t.addEdge(mapping[u], mapping[v]);
+    }
+
+    Graph g = Graph(t);
+
+    // the nodes of g are now sorted by color (ascending)
+
+    int *lab = new int[numVertices];
+    int *ptn = new int[numVertices];
+
+    for (int i = 0; i < numVertices; i++) {
+        lab[i] = i;
+    }
+
+    for (int i = 0; i < numVertices - 1; i++) {
+        if (g.nodes[i].color != g.nodes[i+1].color) {
+            ptn[i] = 0;
+        } else {
+            ptn[i] = 1;
+        }
+    }
+    ptn[numVertices - 1] = 0;
+
+    //Now use the canonicalString_uncolored method
+    std::string result = g.canonicalString_uncolored(lab, ptn);
+
+    //In lab now the permutation is stored
+    //at lab[i] is the old index of the node that is now at position i
+
+    //now we need to construct the color string out of the permutation
+
+    std::ostringstream oss;
+
+    oss << "I"; // Start with an I to indicate the beginning of the colors
+
+    for (int i = 0; i < numVertices; i++) {
+        oss << g.nodes[lab[i]].color << "I";
+    }
+
+    delete [] lab;
+    delete [] ptn;
+    return result + oss.str();
 }
 
 vector<Graph> Graph::connectedComponents() const{
