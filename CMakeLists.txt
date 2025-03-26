@@ -57,7 +57,9 @@ target_link_libraries(Graph_homomorphisms
 )
 
 ##BOOST
-cmake_policy(SET CMP0167 NEW)
+if(POLICY CMP0167)
+    cmake_policy(SET CMP0167 NEW)
+endif()
 # Boost suchen (ohne COMPONENTS)
 find_package(Boost REQUIRED COMPONENTS thread system filesystem)
 
