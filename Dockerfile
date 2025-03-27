@@ -57,4 +57,5 @@ EXPOSE 3000 80
 # Start backend and frontend concurrently
 WORKDIR /webapp
 RUN npm install -g concurrently serve
+
 CMD concurrently "node backend/server.js" "serve -s frontend/dist -l 80"
