@@ -15,11 +15,11 @@ RUN apt-get update && apt-get install -y \
     npm \
     && rm -rf /var/lib/apt/lists/*
 
-# Install latest CMake
-RUN wget https://github.com/Kitware/CMake/releases/download/v3.30.5/cmake-3.30.5-linux-aarch64.sh \
-    && chmod +x cmake-3.30.5-linux-aarch64.sh \
-    && ./cmake-3.30.5-linux-aarch64.sh --skip-license --prefix=/usr/local \
-    && rm cmake-3.30.5-linux-aarch64.sh
+# Install latest CMake for x86_64
+RUN wget https://github.com/Kitware/CMake/releases/download/v3.30.5/cmake-3.30.5-linux-x86_64.sh \
+    && chmod +x cmake-3.30.5-linux-x86_64.sh \
+    && ./cmake-3.30.5-linux-x86_64.sh --skip-license --prefix=/usr/local \
+    && rm cmake-3.30.5-linux-x86_64.sh
 
 # Install Boost 1.87.0
 RUN wget https://sourceforge.net/projects/boost/files/boost/1.87.0/boost_1_87_0.tar.gz/download -O boost_1_87_0.tar.gz \
@@ -58,4 +58,4 @@ EXPOSE 3000 80
 WORKDIR /webapp
 RUN npm install -g concurrently serve
 
-CMD concurrently "node backend/server.js" "serve -s frontend/dist -l 80"
+CMD ["npx", "concurrently", "node backend/server.js", "serve -s frontend/dist -l 80"]
