@@ -1,4 +1,4 @@
-FROM --platform=linux/arm64 ubuntu:latest
+FROM ubuntu:latest
 
 # Update and install dependencies
 RUN apt-get update && apt-get install -y \
@@ -48,9 +48,9 @@ RUN npm install
 ENV PROGRAM_PATH="/app/build/Graph_homomorphisms"
 
 # Setup frontend
-ENV VITE_API_URL="localhost:3000"
 WORKDIR /webapp/frontend
 RUN npm install && npm run build
+
 # Expose ports
 EXPOSE 3000 80
 
