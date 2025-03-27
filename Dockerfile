@@ -10,9 +10,12 @@ RUN apt-get update && apt-get install -y \
     clang \
     libc++-dev \
     libc++abi-dev \
+    curl \
+    nodejs \
+    npm \
     && rm -rf /var/lib/apt/lists/*
 
-# CMake manuell installieren (neueste Version)
+# Install latest CMake
 RUN wget https://github.com/Kitware/CMake/releases/download/v3.30.5/cmake-3.30.5-linux-aarch64.sh \
     && chmod +x cmake-3.30.5-linux-aarch64.sh \
     && ./cmake-3.30.5-linux-aarch64.sh --skip-license --prefix=/usr/local \
@@ -27,19 +30,31 @@ RUN wget https://sourceforge.net/projects/boost/files/boost/1.87.0/boost_1_87_0.
     && cd .. \
     && rm -rf boost_1_87_0.tar.gz boost_1_87_0
 
-# Clone the git repository (replace <repo_url> with actual repo URL)
+# Clone and build the C++ repository
 RUN git clone https://github.com/ChristophGreger/Graph-homomorphisms.git /app
-
-# Set working directory to the cloned repo
 WORKDIR /app
-
-# Execute setup.sh from the cloned repository
 RUN chmod +x ./setup.sh && ./setup.sh
-
-# Create and navigate to the build directory
 RUN mkdir -p build
 WORKDIR /app/build
-
-# Run CMake and build in release mode
 RUN cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_FLAGS="-stdlib=libc++" -DCMAKE_CXX_COMPILER=clang++ .. \
     && cmake --build .
+
+# Clone web repo
+RUN git clone https://github.com/FalcoWolff/Graph-homomorphisms-web.git /webapp
+
+# Setup backend
+WORKDIR /webapp/backend
+RUN npm install
+ENV PROGRAM_PATH="/app/build/Graph_homomorphisms"
+
+# Setup frontend
+WORKDIR /webapp/frontend
+RUN npm install && npm run build
+
+# Expose ports
+EXPOSE 3000 80
+
+# Start backend and frontend concurrently
+WORKDIR /webapp
+RUN npm install -g concurrently serve
+CMD concurrently "node backend/server.js" "serve -s frontend/build -l 80"
