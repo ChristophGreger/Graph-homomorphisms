@@ -2,9 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ \"main\" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ \"main\" ]
 
 jobs:
 
@@ -21,14 +21,16 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+    - name: Set Docker image tag
+      id: docker_tag
+      run: echo \"IMAGE_TAG=$(date +%s)\" >> $GITHUB_ENV
+
     - name: Build and tag the Docker image
       run: |
-        IMAGE_TAG=$(date +%s)
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/counthomcfi:$IMAGE_TAG .
-        docker tag ${{ secrets.DOCKERHUB_USERNAME }}/counthomcfi:$IMAGE_TAG ${{ secrets.DOCKERHUB_USERNAME }}/counthomcfi:latest
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/counthomcfi:${{ env.IMAGE_TAG }} .
+        docker tag ${{ secrets.DOCKERHUB_USERNAME }}/counthomcfi:${{ env.IMAGE_TAG }} ${{ secrets.DOCKERHUB_USERNAME }}/counthomcfi:latest
 
     - name: Push the Docker image to Docker Hub
       run: |
-        IMAGE_TAG=$(date +%s)
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/counthomcfi:$IMAGE_TAG
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/counthomcfi:${{ env.IMAGE_TAG }}
         docker push ${{ secrets.DOCKERHUB_USERNAME }}/counthomcfi:latest
