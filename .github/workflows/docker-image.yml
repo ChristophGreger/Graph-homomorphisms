@@ -2,9 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ \"main\" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ \"main\" ]
+    branches: [ "main" ]
   workflow_dispatch:
     inputs:
       environment:
@@ -28,8 +28,13 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Set Docker image tag
-      id: docker_tag
-      run: echo \"IMAGE_TAG=$(date +%s)\" >> $GITHUB_ENV
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          IMAGE_TAG=$(date +%s)
+        else
+          IMAGE_TAG=${GITHUB_SHA::7}
+        fi
+        echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
     - name: Build and tag the Docker image
       run: |
