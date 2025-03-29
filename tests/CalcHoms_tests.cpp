@@ -660,3 +660,33 @@ TEST(CalcHomsTest, calcInjHoms_uncolored) {
         ASSERT_EQ(numEmbeddings_bruteforce, numEmbeddings_non_bruteforce);
     }
 }
+
+
+TEST(CalcHomsTest, calcSubGraphs) {
+    GraphTemplate k_1 = GraphTemplate(false);
+    k_1.addNode(Node());
+    k_1.addNode(Node());
+    k_1.addEdge(0, 1);
+
+    Graph k_1g = Graph(k_1);
+
+    Spasm::Spasm spasm = Spasm::create_Spasm_withAut(k_1g);
+
+    ASSERT_EQ(CalcHoms::calcNumSubgraphs(spasm, k_1g, true, false), 1);
+    ASSERT_EQ(CalcHoms::calcNumInjHoms(spasm, k_1g, true, false), 2);
+}
+
+TEST(CalcHomsTest, calcSubGraphs2) {
+    GraphTemplate temp = GraphTemplate(false);
+    for (int i = 0; i < 4; i++) {
+        temp.addNode(Node());
+    }
+    temp.addEdge(0, 1);
+    temp.addEdge(1, 2);
+    temp.addEdge(2, 3);
+    temp.addEdge(3, 0);
+
+    Graph graph = Graph(temp);
+
+    ASSERT_EQ(CalcHoms::calcNumSubgraphs("k_2.txt", graph, false, false), 2);
+}

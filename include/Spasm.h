@@ -39,6 +39,8 @@ namespace Spasm {
 
     Spasm create_Spasm(const Graph &G, const int k = -1, const uint256_t &numAutomorphisms = 1);
 
+    Spasm create_Spasm_withAut(const Graph &G);
+
     void create_and_store_Spasm(const std::string &filename, const Graph &G, const int k = -1, const uint256_t &numAutomorphisms = 1);
 
 }

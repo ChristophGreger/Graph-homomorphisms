@@ -574,5 +574,13 @@ Spasm::Spasm Spasm::getFromFile(const std::string &spasm_file) {
     return spasm;
 }
 
+Spasm::Spasm Spasm::create_Spasm_withAut(const Graph &G) {
+    Spasm spasm = create_Spasm(G);
+    int256_t numAuts = CalcHoms::calcNumInjHoms(spasm, G);
+    spasm.numAutomorphisms = static_cast<uint256_t>(numAuts);
+    return spasm;
+}
+
+
 
 
