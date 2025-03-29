@@ -935,9 +935,11 @@ int256_t CalcHoms::calcNumAutomorphisms(const Graph &G) {
 }
 
 int256_t CalcHoms::calcNumSubgraphs(const std::string &spasm_file_name, const Graph &G, const bool CFI_OF_G, const bool CFI_inverted) {
-    const auto numautos = static_cast<int256_t>(Spasm::getFromFile(spasm_file_name).numAutomorphisms);
-    if (numautos < 0) {
-        throw std::overflow_error("Overflow detected: uint256_t value cannot be cast to int256_t");
-    }
-    return calcNumInjHoms(spasm_file_name, G, CFI_OF_G, CFI_inverted) / numautos;
+    Spasm::Spasm spasm = Spasm::getFromFile(spasm_file_name);
+    return calcNumSubgraphs(spasm, G, CFI_OF_G, CFI_inverted);
 }
+
+int256_t CalcHoms::calcNumSubgraphs(const Spasm::Spasm& spasm, const Graph &G, bool CFI_OF_G, bool CFI_inverted) {
+    return calcNumInjHoms(spasm, G, CFI_OF_G, CFI_inverted) / spasm.numAutomorphisms;
+}
+
