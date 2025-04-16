@@ -40,6 +40,8 @@ add_library(bib STATIC
         include/Spasm.h
         include/Matrix.h
         src/main/Matrix.cpp
+        src/main/Geng.cpp
+        include/Geng.h
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
@@ -117,6 +119,7 @@ add_gtest(Spasm_tests tests/Spasm_tests.cpp)
 add_gtest(Linear_Equations_F2_small_tests tests/linear_Equations_F2_small_tests.cpp)
 add_gtest(CalcHoms_tests tests/CalcHoms_tests.cpp)
 add_gtest(Matrix_tests tests/Matrix_tests.cpp)
+add_gtest(Geng_tests tests/Geng_tests.cpp)
 
 
 #Fuer Nauty:
