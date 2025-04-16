@@ -460,10 +460,6 @@ void Spasm::writeToFile(const std::string &output_file, const Spasm &spasm) {
     file.close();
 }
 
-//TODO: Ab hier noch nicht colored
-
-
-
 Spasm::Spasm Spasm::getFromFile(const std::string &spasm_file) {
     std::ifstream file;
 
