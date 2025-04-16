@@ -72,3 +72,13 @@ std::vector<Graph> Geng::generateGraphs(int n, int minEdges, int maxEdges) {
     gen.wait();
     return result;
 }
+
+std::vector<Graph> Geng::generateGraphs_without_isolated(int n, int minEdges, int maxEdges) {
+    std::vector<Graph> graphs = Geng::generateGraphs(n, minEdges, maxEdges);
+    std::vector<Graph> result;
+    for (auto g : graphs) {
+        result.push_back(g.withOutIsolatedNodes());
+    }
+    return result;
+}
+

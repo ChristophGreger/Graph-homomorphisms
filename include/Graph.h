@@ -65,6 +65,8 @@ public:
 
     vector<Graph> connectedComponents() const;
 
+    Graph withOutIsolatedNodes() const;
+
     //copy assignment operator (copy-and-swap idiom)
     Graph& operator=(Graph other) { // pass by value: copy is made using deep copy constructor
         swap(*this, other);

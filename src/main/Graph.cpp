@@ -519,3 +519,25 @@ int Graph::getTreeWidth() const {
     return result;
 }
 
+Graph Graph::withOutIsolatedNodes() const {
+    GraphTemplate t = GraphTemplate(colored);
+    std::vector<int> newMapping(numVertices, -1);
+    int current = 0;
+    for (int i = 0; i < numVertices; i++) {
+        if (degree[i] > 0) {
+            newMapping[i] = current;
+            t.addNode(nodes[i]);
+            current++;
+        }
+    }
+    for (int i = 0; i < edges.size(); i++) {
+        auto [first, second] = edgeArray[i];
+        if (newMapping[first] != -1 && newMapping[second] != -1) {
+            t.addEdge(newMapping[first], newMapping[second]);
+        } else {
+            throw std::runtime_error("Error in withOutIsolatedNodes: Edge to isolated node");
+        }
+    }
+    return Graph(t);
+}
+

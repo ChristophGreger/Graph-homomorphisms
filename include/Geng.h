@@ -12,6 +12,7 @@
 
 namespace Geng {
     std::vector<Graph> generateGraphs(int n, int minEdges, int maxEdges);
+    std::vector<Graph> generateGraphs_without_isolated(int n, int minEdges, int maxEdges);
 }
 
 
