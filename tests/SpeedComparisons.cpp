@@ -148,6 +148,15 @@ TEST(SpeedTest, clique3nequals1000) {
 }
 
 
+TEST(TESTETST, fjkdsal) {
+    RandomGraphGenerator randomGraphGenerator = RandomGraphGenerator(3, 3, false);
+    RandomGraphGenerator randomGraphGenerator2 = RandomGraphGenerator(6, 11, false);
+    Graph G = randomGraphGenerator.generateRandomConnectedGraph();
+    Graph H = randomGraphGenerator2.generateRandomConnectedGraph();
+    cout << "Graphs generated" << endl;
+    cout << CalcHoms::calcNumHoms(G, H) << endl;
+}
+
 
 
 
