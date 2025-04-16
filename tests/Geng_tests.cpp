@@ -27,3 +27,13 @@ TEST(Geng, n20_1_10_3) {
     // Teste die Generierung von Graphen mit 20 Knoten und 1 bis 10 Kanten
     std::vector<Graph> graphs = Geng::generateGraphs_without_isolated(20, 1, 10);
 }
+
+TEST(Geng, n22_1_11_3) {
+    // Teste die Generierung von Graphen mit 20 Knoten und 1 bis 10 Kanten
+    std::vector<Graph> graphs = Geng::generateGraphs_without_isolated(22, 1, 11);
+}
+
+TEST(Geng, n24_1_12_3) {
+    // Teste die Generierung von Graphen mit 20 Knoten und 1 bis 10 Kanten
+    std::vector<Graph> graphs = Geng::generateGraphs_without_isolated(24, 1, 12);
+}

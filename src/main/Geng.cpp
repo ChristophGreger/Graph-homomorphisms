@@ -79,6 +79,16 @@ std::vector<Graph> Geng::generateGraphs_without_isolated(int n, int minEdges, in
     for (auto g : graphs) {
         result.push_back(g.withOutIsolatedNodes());
     }
+
+    // Sortieren nach der Summe von Knoten- und Kantenanzahl
+    std::sort(result.begin(), result.end(), [](const Graph& a, const Graph& b) {
+        size_t sumA = a.numVertices + a.edges.size();
+        size_t sumB = b.numVertices + b.edges.size();
+        return sumA < sumB;
+    });
+
     return result;
 }
+
+
 
