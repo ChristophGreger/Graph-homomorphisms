@@ -73,6 +73,8 @@ public:
         return *this;
     }
 
+    std::string string_uncolored_one_line() const;
+
     friend void swap(Graph& first, Graph& second) noexcept {
         using std::swap;
         swap(first.colored, second.colored);

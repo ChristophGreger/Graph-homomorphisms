@@ -541,3 +541,11 @@ Graph Graph::withOutIsolatedNodes() const {
     return Graph(t);
 }
 
+std::string Graph::string_uncolored_one_line() const {
+    std::ostringstream oss;
+    oss << numVertices << " " << edges.size() << " ";
+    for (const auto& edge : edges) {
+        oss << edge.first << " " << edge.second << " ";
+    }
+    return oss.str();
+}

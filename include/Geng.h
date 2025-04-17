@@ -13,6 +13,8 @@
 namespace Geng {
     std::vector<Graph> generateGraphs(int n, int minEdges, int maxEdges);
     std::vector<Graph> generateGraphs_without_isolated(int n, int minEdges, int maxEdges);
+    void write_Components_Combinations_to_File(const std::string &filename, int n, int minEdges, int maxEdges);
+    void storeMatrix(const std::string &filename, const std::string &combination_filename, int n, int minEdges, int maxEdges);
 }
 
 

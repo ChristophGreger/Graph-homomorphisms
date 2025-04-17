@@ -7,6 +7,8 @@
 #include <boost/process.hpp>
 #include <string>
 #include "GraphTemplate.h"
+#include <fstream>
+#include "CalcHoms.h"
 
 /// Ruft ./geng mit n Knoten und minEdges:maxEdges auf,
 /// parst jede graph6‑Zeile und gibt alle Graphen zurück.
@@ -89,6 +91,115 @@ std::vector<Graph> Geng::generateGraphs_without_isolated(int n, int minEdges, in
 
     return result;
 }
+
+void Geng::write_Components_Combinations_to_File(const std::string &filename, int n, int minEdges, int maxEdges) {
+    std::unordered_map<std::string, Graph> componentMap;
+    auto graphs = Geng::generateGraphs_without_isolated(n, minEdges, maxEdges);
+    for (const auto& graph : graphs) {
+        for (const auto& component : graph.connectedComponents()) {
+            componentMap.insert({component.canonicalString_uncolored(), component});
+        }
+    }
+    std::vector<pair<Graph, std::string>> componentVector;
+    componentVector.reserve(componentMap.size());
+    for (const auto& [key, value] : componentMap) {
+        componentVector.emplace_back(value, key);
+    }
+
+    std::ofstream file(filename);
+    file << n << " " << minEdges << ":" << maxEdges << "\n";
+
+    if (!file.is_open()) {
+        throw std::runtime_error("Cannot open file: " + filename);
+    }
+
+    for (int i = 0; i < componentVector.size(); i++) {
+        for (int j = 0; j < componentVector.size(); j++) {
+            file << componentVector[i].second << " " << componentVector[j].second << " " << CalcHoms::calcNumHoms(componentVector[i].first, componentVector[j].first) << "\n";
+            cout << i << " " << j << "\n";
+        }
+    }
+
+    file.close();
+}
+
+struct Graph_Components {
+    Graph graph;
+    std::string canon_string;
+    vector<std::string> components_canonicals;
+};
+
+void Geng::storeMatrix(const std::string &filename, const std::string &combination_filename, int n, int minEdges, int maxEdges) {
+    vector<Graph_Components> Graphs;
+    auto graphs = Geng::generateGraphs_without_isolated(n, minEdges, maxEdges);
+    for (const auto& graph : graphs) {
+        Graph_Components gc;
+        gc.graph = graph;
+        gc.canon_string = graph.canonicalString_uncolored();
+        for (const auto& component : graph.connectedComponents()) {
+            gc.components_canonicals.push_back(component.canonicalString_uncolored());
+        }
+        Graphs.push_back(gc);
+    }
+
+    std::ifstream combinations(combination_filename);
+
+    if (!combinations.is_open()) {
+        throw std::runtime_error("Cannot open file: " + combination_filename);
+    }
+
+    std::string first = "", second = "";
+    int256_t count = 0;
+
+    // Erste Zeile überspringen
+    std::string skipLine;
+    std::getline(combinations, skipLine);
+
+
+    //Fill map with component combinations and their hom counts
+    std::unordered_map<std::string, int256_t> combination_hom_count_map;
+
+    cout << "Starting filling the combination_hom_count_map" << endl;
+
+    while (combinations >> first >> second >> count) {
+        combination_hom_count_map.insert({first + " " + second, count});
+    }
+
+    cout << "Filled combination_hom_count_map" << endl;
+
+    std::ofstream file(filename);
+
+    file << n << " " << minEdges << ":" << maxEdges << "\n";
+
+    file << Graphs.size() << "\n";
+
+    cout << "Writing " << Graphs.size() << " graphs to file" << endl;
+    for (auto const &graph : Graphs) {
+        file << graph.graph.string_uncolored_one_line() << "\n";
+    }
+
+    cout << "Writing the matrix!" << endl;
+    int counter = 1;
+    for (auto const &graph_from : Graphs) {
+        cout << "Writing line " << counter << " of " << Graphs.size() << endl;
+        counter++;
+        for (auto const &graph_to : Graphs) {
+            boost::multiprecision::cpp_int number = 0;
+            for (auto const &component : graph_to.components_canonicals) {
+                if (number == 0) {
+                    number = combination_hom_count_map[graph_from.canon_string + " " + component];
+                } else {
+                    number *= combination_hom_count_map[graph_from.canon_string + " " + component];
+                }
+            }
+            file << number << " ";
+        }
+        file << "\n";
+    }
+    file.close();
+    combinations.close();
+}
+
 
 
 

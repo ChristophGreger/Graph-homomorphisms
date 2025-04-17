@@ -37,3 +37,17 @@ TEST(Geng, n24_1_12_3) {
     // Teste die Generierung von Graphen mit 20 Knoten und 1 bis 10 Kanten
     std::vector<Graph> graphs = Geng::generateGraphs_without_isolated(24, 1, 12);
 }
+
+TEST(Geng, combinationhomcounts_18_1_9) {
+    Geng::write_Components_Combinations_to_File("Combination_hom_counts_18_1_9.txt", 18, 1, 9);
+}
+
+TEST(Geng, combinationhomcounts_20_1_10) {
+    Geng::write_Components_Combinations_to_File("Combination_hom_counts_20_1_10.txt", 20, 1, 10);
+}
+
+TEST(Geng, storeMatrix) {
+    Geng::storeMatrix("Matrix_20_1_10.txt", "Combination_hom_counts_20_1_10.txt", 20, 1, 10);
+}
+
+
