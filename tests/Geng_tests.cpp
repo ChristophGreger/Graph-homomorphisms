@@ -4,6 +4,7 @@
 
 #include <gtest/gtest.h>
 #include "Geng.h"
+#include "Matrix.h"
 
 TEST(Geng, n20_1_10) {
     // Teste die Generierung von Graphen mit 20 Knoten und 1 bis 10 Kanten
@@ -47,7 +48,19 @@ TEST(Geng, combinationhomcounts_20_1_10) {
 }
 
 TEST(Geng, storeMatrix) {
-    Geng::storeMatrix("Matrix_20_1_10.txt", "Combination_hom_counts_20_1_10.txt", 20, 1, 10);
+    Geng::storeMatrix_Hom("Matrix_20_1_10.txt", "Combination_hom_counts_20_1_10.txt", 20, 1, 10);
+}
+
+TEST(Geng, storeMatrix_surj) {
+    Geng::storeMatrix_Surj("SURJ_20_1_10.txt", "Matrix_20_1_10.txt");
+}
+
+TEST(Geng, invert20_1_10) {
+    Geng::Graph_Matrix surj_matrix = Geng::readMatrix("SURJ_20_1_10.txt");
+    auto matrix = surj_matrix.matrix;
+    Matrix m = Matrix(matrix, surj_matrix.numGraphs);
+    Matrix m2 = m.invertLowerTriangular();
+    m2.writeToFile("SURJ_20_1_10_inverted.txt");
 }
 
 

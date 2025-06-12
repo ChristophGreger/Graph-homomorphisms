@@ -1,47 +1,68 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include <vector>
-#include <stdexcept>
-#include <random>
-#include <boost/multiprecision/cpp_int.hpp>
 #include <boost/rational.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
+#include <cstddef>
+#include <algorithm>
 
-namespace mp = boost::multiprecision;
-
-// Definiere den Rationaltyp auf Basis von cpp_int
-typedef boost::rational<mp::cpp_int> Rational;
-
+/**
+ * @brief Square matrix of boost::rational<cpp_int> values stored in a flat C array (row‑major).
+ */
 class Matrix {
 public:
-    // Standardkonstruktoren:
-    Matrix();
-    Matrix(size_t rows, size_t cols);
-    Matrix(const std::vector<std::vector<Rational>> &data);
+    using BigInt   = boost::multiprecision::cpp_int;
+    using Rational = boost::rational<BigInt>;
 
-    // Getter für die Dimensionen
-    size_t numRows() const;
-    size_t numCols() const;
+    /**
+     * @brief Construct an n×n zero matrix.
+     */
+    explicit Matrix(std::size_t dim = 0);
 
-    // Zugriff auf Zeile i (Lesen/Schreiben)
-    const std::vector<Rational>& operator[](size_t index) const;
-    std::vector<Rational>& operator[](size_t index);
+    /**
+     * @brief Construct from a flat C array of long long values (row‑major).
+     * @param values Pointer to the first element of a dim×dim long long array.
+     * @param dim    Number of rows/columns (matrix is square).
+     */
+    Matrix(const long long* values, std::size_t dim);
 
-    // Matrixoperationen
-    Matrix multiply(const Matrix &other) const;
-    bool isIdentity() const;
+    // Rule‑of‑five
+    Matrix(const Matrix& other);
+    Matrix(Matrix&& other) noexcept;
+    Matrix& operator=(const Matrix& other);
+    Matrix& operator=(Matrix&& other) noexcept;
+    ~Matrix();
 
-    // Gegeben eine untere Dreiecksmatrix: Berechne deren Inverses effizient.
-    // Vorausgesetzt, die Matrix ist quadratisch, untere Dreiecksmatrix und alle Diagonalelemente ungleich 0.
+    std::size_t size() const { return n_; }
+
+    // Element access
+    Rational&       operator()(std::size_t row, std::size_t col);
+    const Rational& operator()(std::size_t row, std::size_t col) const;
+
+    /**
+     * @brief Invert a lower‑triangular matrix.
+     * @throws std::runtime_error if the matrix is singular.
+     */
     Matrix invertLowerTriangular() const;
 
-    // Erzeuge eine zufällige untere Dreiecksmatrix der Größe n x n,
-    // wobei die Einträge (auf der Diagonale und darunter) natürliche Zahlen (im Bereich [min, max]) sind.
-    // Alle Elemente oberhalb der Diagonale werden auf 0 gesetzt.
-    static Matrix generateRandomLowerTriangular(size_t n, mp::cpp_int min = 1, mp::cpp_int max = 10);
+    /**
+     * @brief Schreibe die Matrix in eine Datei.
+     * @param filename Der Name der Datei.
+     */
+    void writeToFile(const std::string& filename) const;
+
+    /**
+     * @brief Lese eine Matrix aus einer Datei.
+     * @param filename Der Name der Datei.
+     * @return Die gelesene Matrix.
+     */
+    static Matrix readFromFile(const std::string& filename);
 
 private:
-    std::vector<std::vector<Rational>> data;
+    std::size_t index(std::size_t row, std::size_t col) const { return row * n_ + col; }
+
+    std::size_t n_    = 0;       ///< Dimension n
+    Rational*   data_ = nullptr; ///< Flat C array (size n×n)
 };
 
 #endif // MATRIX_H

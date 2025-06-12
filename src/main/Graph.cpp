@@ -549,3 +549,32 @@ std::string Graph::string_uncolored_one_line() const {
     }
     return oss.str();
 }
+
+Graph Graph::getSubgraph(int edgeMask) const {
+    std::vector<pair<int, int>> newedges;
+    for (int i = 0; i < edges.size(); i++) {
+        if (edgeMask & (1 << i)) {
+            newedges.push_back(edgeArray[i]);
+        }
+    }
+
+    std::unordered_set<int> nodeset;
+    for (int i = 0; i < newedges.size(); i++) {
+        nodeset.insert(newedges[i].first);
+        nodeset.insert(newedges[i].second);
+    }
+    std::unordered_map<int, int> old_new_mapping;
+    for (auto node : nodeset) {
+        old_new_mapping[node] = old_new_mapping.size();
+    }
+    GraphTemplate gt = GraphTemplate(colored);
+    for (auto node : nodeset) {
+        gt.addNode(nodes[node]);
+    }
+
+    for (auto edge : newedges) {
+        gt.addEdge(old_new_mapping[edge.first], old_new_mapping[edge.second]);
+    }
+    return Graph(gt);
+}
+

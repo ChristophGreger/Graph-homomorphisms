@@ -129,7 +129,7 @@ struct Graph_Components {
     vector<std::string> components_canonicals;
 };
 
-void Geng::storeMatrix(const std::string &filename, const std::string &combination_filename, int n, int minEdges, int maxEdges) {
+void Geng::storeMatrix_Hom(const std::string &filename, const std::string &combination_filename, int n, int minEdges, int maxEdges) {
     vector<Graph_Components> Graphs;
     auto graphs = Geng::generateGraphs_without_isolated(n, minEdges, maxEdges);
     for (const auto& graph : graphs) {
@@ -184,13 +184,13 @@ void Geng::storeMatrix(const std::string &filename, const std::string &combinati
         cout << "Writing line " << counter << " of " << Graphs.size() << endl;
         counter++;
         for (auto const &graph_to : Graphs) {
-            boost::multiprecision::cpp_int number = 0;
-            for (auto const &component : graph_to.components_canonicals) {
-                if (number == 0) {
-                    number = combination_hom_count_map[graph_from.canon_string + " " + component];
-                } else {
-                    number *= combination_hom_count_map[graph_from.canon_string + " " + component];
+            boost::multiprecision::cpp_int number = 1;
+            for (auto const &component_from : graph_from.components_canonicals) {
+                boost::multiprecision::cpp_int temp = 0;
+                for (auto const &component_to : graph_to.components_canonicals) {
+                    temp += combination_hom_count_map.at(component_from + " " + component_to);
                 }
+                number *= temp;
             }
             file << number << " ";
         }
@@ -199,6 +199,161 @@ void Geng::storeMatrix(const std::string &filename, const std::string &combinati
     file.close();
     combinations.close();
 }
+
+void Geng::storeMatrix(const std::string &filename, const Graph_Matrix &hom_matrix) {
+    ofstream file(filename);
+    if (!file.is_open()) {
+        throw std::runtime_error("Cannot open file: " + filename);
+    }
+    file << hom_matrix.numVertices_max << " " << hom_matrix.minEdges << ":" << hom_matrix.maxEdges << "\n";
+    file << hom_matrix.numGraphs << "\n";
+    for (int i = 0; i < hom_matrix.numGraphs; i++) {
+        file << hom_matrix.graphs[i].string_uncolored_one_line() << "\n";
+    }
+    for (int i = 0; i < hom_matrix.numGraphs; i++) {
+        for (int j = 0; j < hom_matrix.numGraphs; j++) {
+            file << hom_matrix.matrix[i * hom_matrix.numGraphs + j] << " ";
+        }
+        file << "\n";
+    }
+    file.close();
+}
+
+
+Geng::Graph_Matrix Geng::readMatrix(const std::string &filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        throw std::runtime_error("Cannot open file: " + filename);
+    }
+
+    auto hom_matrix = Graph_Matrix();
+
+    std::string firstline;
+    std::getline(file, firstline);
+    std::istringstream iss(firstline);
+    iss >> hom_matrix.numVertices_max;
+    iss >> hom_matrix.minEdges;
+    char c;
+    iss >> c;
+    iss >> hom_matrix.maxEdges;
+
+    file >> hom_matrix.numGraphs;
+
+    for (int i = 0; i < hom_matrix.numGraphs; i++) {
+        GraphTemplate gt(false);
+        int numVertices, numEdges;
+        file >> numVertices;
+        file >> numEdges;
+        for (int j = 0; j < numVertices; j++) {
+            gt.addNode(Node());
+        }
+        for (int j = 0; j < numEdges; j++) {
+            int from, to;
+            file >> from;
+            file >> to;
+            gt.addEdge(from, to);
+        }
+        hom_matrix.graphs.emplace_back(Graph(gt));
+    }
+
+    hom_matrix.matrix = new long long[hom_matrix.numGraphs * hom_matrix.numGraphs];
+    for (int i = 0; i < hom_matrix.numGraphs; i++) {
+        for (int j = 0; j < hom_matrix.numGraphs; j++) {
+            file >> hom_matrix.matrix[i * hom_matrix.numGraphs + j];
+        }
+    }
+    file.close();
+    return hom_matrix;
+}
+
+
+
+void Geng::storeMatrix_Surj(const std::string &filename, const std::string &hom_matrix_file) {
+    auto hom_matrix = readMatrix(hom_matrix_file);
+
+    //First: construct canonical string --> index mapping
+    std::unordered_map<std::string, int> canonical_index_map;
+    for (int i = 0; i < hom_matrix.numGraphs; i++) {
+        canonical_index_map.insert({hom_matrix.graphs[i].canonicalString_uncolored(), i});
+    }
+
+    //For each graph construct every subgraph (by deleting edges, no isolated vertices)
+    //Make list for each graph that contains the indices of the graph that are subgraphs, and how often they are subgraphs
+
+    std::vector<std::vector<std::pair<int, int>>> surj_sub_index_times; //at position i is a vector of pairs of index and numbers. if i is the index of a graph than it contains the index and number of all the subgraphs of the graphs that has to be subtracted from its number of homomorphisms in order to get the number of surj ones.
+    surj_sub_index_times.reserve(hom_matrix.numGraphs);
+    //For this: Create all subgraphs of the graph by edge masks
+    for (int i = 0; i < hom_matrix.numGraphs; i++) {
+        //cout << "Creating subgraphs for graph " << i << endl;
+        auto graph = hom_matrix.graphs[i];
+        int numEdges = graph.edges.size();
+        std::unordered_map<int, int> subgraph_map; //Map from index of subgraph to number of it apearing
+        int max = (1 << numEdges) - 1;
+        for (int j = 1; j < max; j++) {
+            int index = canonical_index_map[graph.getSubgraph(j).canonicalString_uncolored()];
+            if (!subgraph_map.contains(index)) {
+                subgraph_map.insert({index, 1});
+            } else {
+                subgraph_map[index]++;
+            }
+        }
+        std::vector<std::pair<int, int>> subgraph_vector;
+        for (auto const &pair : subgraph_map) {
+            subgraph_vector.push_back(pair);
+        }
+        surj_sub_index_times.push_back(subgraph_vector);
+    }
+
+    int matrixsize = hom_matrix.numGraphs * hom_matrix.numGraphs;
+    long long * surjmatrix = new long long[matrixsize];
+    for (int i = 0; i < matrixsize; i++) {
+        surjmatrix[i] = 0;
+    }
+
+    //Now calculate the surjmatrix with the help of everything we just created
+    for (int i = 0; i < hom_matrix.numGraphs; i++) {
+        cout << "Calculating surjmatrix for graph " << i << endl;
+        for (int j = 0; j <= i; j++) {
+            surjmatrix[i*hom_matrix.numGraphs + j] = hom_matrix.matrix[i * hom_matrix.numGraphs + j];
+            for (const auto &[index, times] : surj_sub_index_times[j]) {
+                surjmatrix[i*hom_matrix.numGraphs + j] -= times * surjmatrix[i * hom_matrix.numGraphs + index];
+            }
+        }
+    }
+
+    for (int i = 0; i < hom_matrix.numGraphs; i++) {
+        for (int j = 0; j < 5; j++) {
+            cout << surjmatrix[i * hom_matrix.numGraphs + j] << " ";
+        }
+        cout << endl;
+    }
+
+    for (int i = 0; i < hom_matrix.numGraphs; i++) {
+        if (surjmatrix[i*hom_matrix.numGraphs + i] == 0) {
+            cout << "FEHLER!!!!!!" << i << endl;
+        }
+    }
+
+    for (int i = 0; i < hom_matrix.numGraphs; i++) {
+        for (int j = 0; j < hom_matrix.numGraphs; j++) {
+            if (surjmatrix[i*hom_matrix.numGraphs + j] < 0) {
+                cout << "FEHLER!!!!!!" << i << " " << j << endl;
+            }
+        }
+    }
+
+    Graph_Matrix surj_matrix = Graph_Matrix();
+    surj_matrix.numGraphs = hom_matrix.numGraphs;
+    surj_matrix.numVertices_max = hom_matrix.numVertices_max;
+    surj_matrix.minEdges = hom_matrix.minEdges;
+    surj_matrix.maxEdges = hom_matrix.maxEdges;
+    surj_matrix.graphs = hom_matrix.graphs;
+    surj_matrix.matrix = surjmatrix;
+
+    storeMatrix(filename, surj_matrix);
+    delete[] hom_matrix.matrix;
+}
+
 
 
 

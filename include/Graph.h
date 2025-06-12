@@ -57,6 +57,8 @@ public:
 
     pair<bool, Graph> shrinkGraph(Graph &S) const;
 
+    Graph getSubgraph(int edgeMask) const;
+
     std::string toString() const;
 
     std::string canonicalString_uncolored(int * lab = nullptr, int * ptn = nullptr) const;

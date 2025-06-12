@@ -8,6 +8,7 @@
 
 #include <functional> // For std::hash
 #include <boost/multiprecision/cpp_int.hpp>
+#include <vector>
 
 
 
@@ -19,7 +20,6 @@ struct PairHash {
     }
 };
 
-#include <vector>
 
 template <typename T>
 bool contains(const std::vector<T>& vec, const T& value) {
